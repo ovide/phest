@@ -1,0 +1,15 @@
+{
+    "name": "ovide/phest",
+    "description": "Rest controller",
+    "authors": [
+        {
+            "name": "Albert Ovide",
+            "email": "albert@ovide.net"
+        }
+    ],
+    "require": {},
+    "require-dev": {
+        "digitronac/phalcon-ide-stubs": "1.3.0",
+        "codeception/codeception": "2.0.5"
+    }
+}
