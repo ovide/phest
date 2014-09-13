@@ -2,3 +2,4 @@ var/cache/*
 var/log/*
 vendor
 tests/_output/*
+/composer.lock
