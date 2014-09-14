@@ -4,11 +4,11 @@ require __DIR__.'/../vendor/autoload.php';
 
 $loader = new \Phalcon\Loader();
 $loader->registerNamespaces([
-    'ovide\libs\mvc' => __DIR__.'/../libs/mvc/'
+    'Ovide\Libs\Mvc' => __DIR__.'/../libs/mvc/'
 ]);
 $loader->register();
 
-$app = ovide\libs\mvc\RestApp::instance();
+$app = Ovide\Libs\Mvc\RestApp::instance();
 
 $app->notFound(function() use($app){
     $app->response->setStatusCode(404, 'Not Found');

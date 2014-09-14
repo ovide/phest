@@ -5,7 +5,7 @@
  * Description of BasicMock
  * @author Albert Ovide <albert@ovide.net>
  */
-class BasicMock extends \ovide\libs\mvc\RestController
+class BasicMock extends \Ovide\Libs\Mvc\RestController
 {
     private static $data = [
         [

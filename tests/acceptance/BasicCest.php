@@ -6,15 +6,13 @@ class BasicCest
     public function _before(AcceptanceTester $I)
     {
         require_once __DIR__.'/../mocks/BasicMock.php';
-        ovide\libs\mvc\RestApp::addResource('basic', BasicMock::class);
+        Ovide\Libs\Mvc\RestApp::addResource('basic', BasicMock::class);
     }
 
     public function _after(AcceptanceTester $I)
     {
-        $app = ovide\libs\mvc\RestApp::instance();
+        $app = Ovide\Libs\Mvc\RestApp::instance();
         unset($app);
-        //$app->response = null;
-        //$app->request  = null;
     }
 
     // tests

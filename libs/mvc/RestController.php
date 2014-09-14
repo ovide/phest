@@ -58,25 +58,29 @@ class RestController extends \Phalcon\Mvc\Controller
     public function index($id=null)
     {
         $method = $this->request->getMethod();
-        switch ($method) {
-            case 'GET':
-                if ($id === null) {
-                    $this->_get();
-                } else {
-                    $this->_getOne($id);
-                }
-                break;
-            case 'POST':
-                $this->_post();
-                break;
-            case 'PUT':
-                $this->_put();
-                break;
-            case 'DELETE':
-                $this->_delete($id);
-                break;
-            default:
-                break;
+        try {
+            switch ($method) {
+                case 'GET':
+                    if ($id === null) {
+                        $this->_get();
+                    } else {
+                        $this->_getOne($id);
+                    }
+                    break;
+                case 'POST':
+                    $this->_post();
+                    break;
+                case 'PUT':
+                    $this->_put();
+                    break;
+                case 'DELETE':
+                    $this->_delete($id);
+                    break;
+                default:
+                    break;
+            }
+        } catch (\Exception $ex) {
+            $this->response($ex->getMessage, $ex->getCode);
         }
         return $this->response;
     }
@@ -99,52 +103,30 @@ class RestController extends \Phalcon\Mvc\Controller
 
     protected function _getOne($id)
     {
-        try {
-            $this->response($this->getOne($id));
-        } catch (\Exception $ex) {
-            $this->response($ex->getMessage, $ex->getCode);
-        }
+        $this->response($this->getOne($id));
     }
 
     protected function _get()
     {
-        try {
-            $this->response($this->get());
-        } catch (\Exception $ex) {
-            $this->response($ex->getMessage, $ex->getCode);
-        }
+        $this->response($this->get());
     }
 
     protected function _post()
     {
-        try {
-            $obj = $this->request->getPost();
-            $this->response($this->post($obj), self::CREATED);
-        } catch (\Exception $ex) {
-            $this->response($ex->getMessage, $ex->getCode);
-        }
-
+        $obj = $this->request->getPost();
+        $this->response($this->post($obj), self::CREATED);
     }
 
     public function _put()
     {
-        $r = $this->response;
-        try {
-            $obj = $this->request->getPost();
-            $this->response($this->put($obj));
-        } catch (Exception $ex) {
-            $this->response($ex->getMessage, $ex->getCode);
-        }
+        $obj = $this->request->getPost();
+        $this->response($this->put($obj));
     }
 
     protected function _delete($id)
     {
-        try {
-            $this->delete($id);
-            $this->response('', self::NO_CONTENT);
-        } catch (Exception $ex) {
-            $this->response($ex->getMessage, $ex->getCode);
-        }
+        $this->delete($id);
+        $this->response(null);
     }
 }
 
