@@ -7,9 +7,10 @@
 class_name: AcceptanceTester
 modules:
     enabled:
-        - PhpBrowser
         - AcceptanceHelper
-        - REST
+        - Phalcon1
     config:
-        PhpBrowser:
-            url: 'http://dev.phest.lan'
+        Phalcon1:
+            bootstrap: 'tests/_bootstrap.php'
+            cleanup: false
+            savepoints: false

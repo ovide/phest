@@ -10,6 +10,11 @@ use Phalcon\DI;
  */
 class RestApp extends Micro
 {
+    /**
+     * @var Micro
+     */
+    private static $app;
+
     public function __construct($dependencyInjector = null)
     {
         if (!$dependencyInjector)
@@ -17,13 +22,33 @@ class RestApp extends Micro
         parent::__construct($dependencyInjector);
     }
 
-    public function addResource($route, $controller)
+    /**
+     * @return Micro
+     */
+    public static function instance()
     {
-        $col = new Collection();
-        $col->setHandler($controller, true);
-        $col->setPrefix($route);
-        $col->map('/(id)?', 'index');
-        $this->mount($col);
+        if (self::$app === null) {
+            self::$app = new RestApp();
+        }
+        return self::$app;
+    }
+
+    /**
+     * @param string $route
+     * @param string $controller
+     * @throws \LogicException
+     */
+    public static function addResource($route, $controller, $idP='[a-zA-Z0-9_-]+')
+    {
+        if (is_subclass_of($controller, RestController::class)) {
+            $route = trim($route, '/');
+            $col   = new Collection();
+            $col->setHandler($controller, true);
+            $col->setPrefix("/$route");
+            $col->map("(/$idP)?", 'index');
+            self::$app->mount($col);
+        } else {
+            throw new \LogicException("$controller is not a ".RestController::class);
+        }
     }
 }
-

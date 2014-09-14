@@ -8,4 +8,10 @@ $loader->registerNamespaces([
 ]);
 $loader->register();
 
-return $app = new ovide\libs\mvc\RestApp();
+$app = ovide\libs\mvc\RestApp::instance();
+
+$app->notFound(function() use($app){
+    $app->response->setStatusCode(404, 'Not Found');
+});
+
+return $app;
