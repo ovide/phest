@@ -33,7 +33,7 @@ class BasicMock extends \Ovide\Libs\Mvc\RestController
         return $obj;
     }
 
-    public function put($obj)
+    public function put($id, $obj)
     {
         return $obj;
     }

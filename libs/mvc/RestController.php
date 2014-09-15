@@ -70,7 +70,7 @@ class RestController extends \Phalcon\Mvc\Controller
                     $this->_post();
                     break;
                 case 'PUT':
-                    $this->_put();
+                    $this->_put($id);
                     break;
                 case 'DELETE':
                     $this->_delete($id);
@@ -129,10 +129,10 @@ class RestController extends \Phalcon\Mvc\Controller
         $this->response($this->post($obj), self::CREATED);
     }
 
-    public function _put()
+    public function _put($id)
     {
         $obj = $this->request->getPost();
-        $this->response($this->put($obj));
+        $this->response($this->put($id, $obj));
     }
 
     protected function _delete($id)
