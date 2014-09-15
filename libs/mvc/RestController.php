@@ -1,4 +1,4 @@
-<?php namespace ovide\libs\mvc;
+<?php namespace Ovide\Libs\Mvc;
 
 /**
  * Description of RestController
