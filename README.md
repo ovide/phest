@@ -12,11 +12,6 @@ $loader->registerNamespaces([
 ]);
 $app = Ovide\Libs\Mvc\RestApp::instance();
 
-//I'll do something better here
-$app->notFound(function() use($app){
-    $app->response->setStatusCode(404, 'Not Found');
-});
-
 require 'resources.php';
 $app->handle();
 ```
