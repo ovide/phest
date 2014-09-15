@@ -86,7 +86,7 @@ class RestController extends \Phalcon\Mvc\Controller
                 'type'    => \get_class($ex),
                 'file'    => $ex->getFile(),
                 'line'    => $ex->getLine()
-            ], self::INTERNAL_ERROR);
+            ], ($ex instanceof \RuntimeException) ? $ex->getCode() : self::INTERNAL_ERROR);
         }
         return $this->response;
     }
@@ -94,6 +94,12 @@ class RestController extends \Phalcon\Mvc\Controller
     protected function response($content=null, $code=null, $message=null)
     {
         if ($content) {
+            $et = $this->request->getHeader('ETAG');
+            $net = md5(serialize($content));
+            $this->response->setHeader('ETag', $net);
+            if ($et === $net) {
+                return $this->response(null, self::NOT_MODIFIED);
+            }
             self::buildBody($this->response, $content);
             if (!$code) $code = self::OK;
         } else if (!$code) $code = self::NO_CONTENT;
