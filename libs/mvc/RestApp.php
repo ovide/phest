@@ -15,7 +15,6 @@ class RestApp extends Micro
      */
     private static $app;
 
-    
     public function __construct($dependencyInjector=null) {
         if (self::$app === null) {
             if ($dependencyInjector === null) {

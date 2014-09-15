@@ -60,7 +60,7 @@ class RestController extends \Phalcon\Mvc\Controller
         try {
             switch ($method) {
                 case 'GET':
-                    if (!$id) {
+                    if ($id === '') {
                         $this->_get();
                     } else {
                         $this->_getOne($id);
@@ -76,13 +76,14 @@ class RestController extends \Phalcon\Mvc\Controller
                     $this->_delete($id);
                     break;
                 default:
+                    $this->response(['message' => 'Method not allowed'], self::NOT_ALLOWED);
                     break;
             }
         } catch (\Exception $ex) {
             $this->response([
                 'message' => $ex->getMessage(),
                 'code'    => $ex->getCode(),
-                'type'    => get_class($ex),
+                'type'    => \get_class($ex),
                 'file'    => $ex->getFile(),
                 'line'    => $ex->getLine()
             ], self::INTERNAL_ERROR);
