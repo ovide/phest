@@ -61,7 +61,7 @@ class RestController extends \Phalcon\Mvc\Controller
         try {
             switch ($method) {
                 case 'GET':
-                    if ($id === null) {
+                    if (!$id) {
                         $this->_get();
                     } else {
                         $this->_getOne($id);
@@ -80,7 +80,12 @@ class RestController extends \Phalcon\Mvc\Controller
                     break;
             }
         } catch (\Exception $ex) {
-            $this->response($ex->getMessage, $ex->getCode);
+            $this->response([
+                'error' => [
+                    'message' => $ex->getMessage(),
+                    'code' => $ex->getCode()
+                ]
+            ], self::INTERNAL_ERROR);
         }
         return $this->response;
     }

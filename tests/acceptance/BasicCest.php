@@ -19,7 +19,7 @@ class BasicCest
     {
         $I->sendGET('/basic');
         $I->seeResponseCodeIs(200);
-        $I->seeResponseContainsJson(BasicMock::$data);
+        $I->seeResponseEquals(json_encode(BasicMock::$data));
     }
 
     /**
@@ -30,8 +30,8 @@ class BasicCest
     {
         $I->sendGET('/basic/1');
         $I->seeResponseCodeIs(200);
-        $I->seeResponseContainsJson(BasicMock::$data[0]);
-
+        $expected = BasicMock::$data[0];
+        $I->seeResponseEquals(json_encode($expected));
     }
 
     public function testPost(AcceptanceTester $I)
@@ -39,7 +39,7 @@ class BasicCest
         $post = ['id' => 3, 'name' => 'Post'];
         $I->sendPOST('/basic/', $post);
         $I->seeResponseCodeIs(201);
-        $I->seeResponseContainsJson(['id' => 3, 'name' => 'Post']);
+        $I->seeResponseEquals(json_encode($post));
     }
 
     public function testPut(AcceptanceTester $I)
@@ -47,7 +47,7 @@ class BasicCest
         $put = ['id' => 3, 'name' => 'Put'];
         $I->sendPUT('/basic/3', $put);
         $I->seeResponseCodeIs(200);
-        $I->seeResponseContainsJson($put);
+        $I->seeResponseEquals(json_encode($put));
     }
 
     public function testDelete(AcceptanceTester $I)
@@ -60,6 +60,14 @@ class BasicCest
     {
         $I->sendGET('/');
         $I->seeResponseCodeIs(404);
-        $I->seeResponseContainsJson(['message' => 'Not Found']);
+        $I->seeResponseEquals(json_encode(['message' => 'Not Found']));
+    }
+    
+    public function testError500(AcceptanceTester $I)
+    {
+        $I->sendGET('/basic/4');
+        $expected = ['error' => ['message' => 'Undefined offset: 3', 'code' => 0]];
+        $I->seeResponseCodeIs(500);
+        $I->seeResponseEquals(json_encode($expected));
     }
 }

@@ -49,14 +49,14 @@ class RestApp extends Micro
      * @param string $controller
      * @throws \LogicException
      */
-    public static function addResource($route, $controller, $idP='[a-zA-Z0-9_-]+')
+    public static function addResource($route, $controller, $idP='[a-zA-Z0-9_-]*')
     {
         if (is_subclass_of($controller, RestController::class)) {
             $route = trim($route, '/');
             $col   = new Collection();
             $col->setHandler($controller, true);
             $col->setPrefix("/$route");
-            $col->map("(/$idP)?", 'index');
+            $col->map("[/]?{id:$idP}[/]?", 'index');
             self::$app->mount($col);
         } else {
             throw new \LogicException("$controller is not a ".RestController::class);
