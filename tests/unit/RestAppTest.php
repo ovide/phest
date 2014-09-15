@@ -24,11 +24,4 @@ class RestAppTest extends \Codeception\TestCase\Test
     }
 
     // tests
-    public function testGetOne()
-    {
-        require_once __DIR__.'/../mocks/BasicMock.php';
-        RestApp::addResource('/', BasicMock::class);
-        $res = $this->app->handle('/');
-    }
-
 }

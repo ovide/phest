@@ -2,7 +2,7 @@
 
 use Phalcon\Mvc\Micro\Collection;
 use Phalcon\Mvc\Micro;
-use Phalcon\DI;
+use Phalcon\DI\FactoryDefault;
 
 /**
  * Description of RestApp
@@ -15,20 +15,26 @@ class RestApp extends Micro
      */
     private static $app;
 
-    public function __construct($dependencyInjector = null)
-    {
-        if (!$dependencyInjector)
-            $dependencyInjector = DI::getDefault();
-        parent::__construct($dependencyInjector);
+    
+    public function __construct($dependencyInjector=null) {
+        if (self::$app === null) {
+            if ($dependencyInjector === null) {
+                $dependencyInjector = new FactoryDefault();
+            }
+            parent::__construct($dependencyInjector);
+            self::$app = $this;
+        } else {
+            throw new \RuntimeException("Can't instance RestApp more than once");
+        }
     }
-
+    
     /**
      * @return Micro
      */
     public static function instance()
     {
         if (self::$app === null) {
-            self::$app = new RestApp();
+            new RestApp();
         }
         return self::$app;
     }

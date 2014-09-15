@@ -11,17 +11,15 @@ class BasicCest
 
     public function _after(AcceptanceTester $I)
     {
-        $app = Ovide\Libs\Mvc\RestApp::instance();
-        unset($app);
     }
 
     // tests
 
     public function testGet(AcceptanceTester $I)
     {
-        $I->amOnPage('/basic');
+        $I->sendGET('/basic');
         $I->seeResponseCodeIs(200);
-        $I->see('[{"id":1,"name":"Foo"},{"id":2,"name":"Var"}]');
+        $I->seeResponseContainsJson(BasicMock::$data);
     }
 
     /**
@@ -30,29 +28,37 @@ class BasicCest
      */
     public function testGetOne(AcceptanceTester $I)
     {
-        $I->amOnPage('/basic/1');
+        $I->sendGET('/basic/1');
         $I->seeResponseCodeIs(200);
-        $I->see('{"id":1,"name":"Foo"}');
+        $I->seeResponseContainsJson(BasicMock::$data[0]);
 
     }
 
-    public function post(AcceptanceTester $I)
+    public function testPost(AcceptanceTester $I)
     {
-        $I->sendAjaxRequest('POST', '/basic/', ['id' => 3, 'name' => 'Post']);
+        $post = ['id' => 3, 'name' => 'Post'];
+        $I->sendPOST('/basic/', $post);
         $I->seeResponseCodeIs(201);
-        $I->see('{"id":3,"name":"Post"}');
+        $I->seeResponseContainsJson(['id' => 3, 'name' => 'Post']);
     }
 
-    public function put(AcceptanceTester $I)
+    public function testPut(AcceptanceTester $I)
     {
-        $I->sendAjaxRequest('PUT', '/basic/3', ['id' => 3, 'name' => 'Put']);
+        $put = ['id' => 3, 'name' => 'Put'];
+        $I->sendPUT('/basic/3', $put);
         $I->seeResponseCodeIs(200);
-        $I->see('{"id":3,"name":"Put"}');
+        $I->seeResponseContainsJson($put);
     }
 
-    public function delete(AcceptanceTester $I)
+    public function testDelete(AcceptanceTester $I)
     {
-        $I->sendAjaxRequest('DELETE', '/basic/3');
+        $I->sendDELETE('/basic/3');
         $I->seeResponseCodeIs(204);
+    }
+    
+    public function testNotFound(AcceptanceTester $I)
+    {
+        $I->sendGET('/');
+        $I->seeResponseCodeIs(404);
     }
 }

@@ -9,6 +9,7 @@ modules:
     enabled:
         - AcceptanceHelper
         - Phalcon1
+        - REST
     config:
         Phalcon1:
             bootstrap: 'tests/_bootstrap.php'

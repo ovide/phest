@@ -7,7 +7,7 @@
  */
 class BasicMock extends \Ovide\Libs\Mvc\RestController
 {
-    private static $data = [
+    public static $data = [
         [
             'id' => 1,
             'name' => 'Foo'

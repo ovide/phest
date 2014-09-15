@@ -11,7 +11,7 @@ $loader->register();
 $app = Ovide\Libs\Mvc\RestApp::instance();
 
 $app->notFound(function() use($app){
-    $app->response->setStatusCode(404, 'Not Found');
+    return $app->response->setStatusCode(404, 'Not Found');
 });
 
 return $app;
