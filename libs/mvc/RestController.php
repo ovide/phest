@@ -1,6 +1,5 @@
 <?php namespace ovide\libs\mvc;
 
-
 /**
  * Description of RestController
  * @author Albert Ovide <albert@ovide.net>
@@ -81,10 +80,11 @@ class RestController extends \Phalcon\Mvc\Controller
             }
         } catch (\Exception $ex) {
             $this->response([
-                'error' => [
-                    'message' => $ex->getMessage(),
-                    'code' => $ex->getCode()
-                ]
+                'message' => $ex->getMessage(),
+                'code'    => $ex->getCode(),
+                'type'    => get_class($ex),
+                'file'    => $ex->getFile(),
+                'line'    => $ex->getLine()
             ], self::INTERNAL_ERROR);
         }
         return $this->response;

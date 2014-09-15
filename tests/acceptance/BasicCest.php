@@ -56,6 +56,10 @@ class BasicCest
         $I->seeResponseCodeIs(204);
     }
     
+    /**
+     * @depends testGet
+     * @param AcceptanceTester $I
+     */
     public function testNotFound(AcceptanceTester $I)
     {
         $I->sendGET('/');
@@ -63,11 +67,20 @@ class BasicCest
         $I->seeResponseEquals(json_encode(['message' => 'Not Found']));
     }
     
+    /**
+     * @depends testGetOne
+     * @param AcceptanceTester $I
+     */
     public function testError500(AcceptanceTester $I)
     {
         $I->sendGET('/basic/4');
-        $expected = ['error' => ['message' => 'Undefined offset: 3', 'code' => 0]];
+        $expected = [
+            'message' => 'Undefined offset: 3',
+            'code'    => 0,
+            'type'    => 'ErrorException',
+            //'line'    => 28
+        ];
         $I->seeResponseCodeIs(500);
-        $I->seeResponseEquals(json_encode($expected));
+        $I->seeResponseContainsJson($expected);
     }
 }
