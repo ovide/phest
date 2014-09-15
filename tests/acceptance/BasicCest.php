@@ -60,5 +60,6 @@ class BasicCest
     {
         $I->sendGET('/');
         $I->seeResponseCodeIs(404);
+        $I->seeResponseContainsJson(['message' => 'Not Found']);
     }
 }

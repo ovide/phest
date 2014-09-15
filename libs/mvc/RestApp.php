@@ -23,6 +23,11 @@ class RestApp extends Micro
             }
             parent::__construct($dependencyInjector);
             self::$app = $this;
+            $app = self::$app;
+            $app->notFound(function() use($app){
+                RestController::notFound($app->response);
+                return $app->response;
+            });
         } else {
             throw new \RuntimeException("Can't instance RestApp more than once");
         }

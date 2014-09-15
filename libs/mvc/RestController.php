@@ -42,7 +42,7 @@ class RestController extends \Phalcon\Mvc\Controller
         400 => 'Bad Request',
         401 => 'Unauthorized',
         403 => 'Forbidden',
-        404 => 'Not found',
+        404 => 'Not Found',
         405 => 'Method not allowed',
         406 => 'Not Acceptable',
         409 => 'Conflict',
@@ -88,18 +88,24 @@ class RestController extends \Phalcon\Mvc\Controller
     protected function response($content=null, $code=null, $message=null)
     {
         if ($content) {
-            $this->buildBody($content);
+            self::buildBody($this->response, $content);
             if (!$code) $code = self::OK;
         } else if (!$code) $code = self::NO_CONTENT;
         if (!$message) $message = self::$status[$code];
         $this->response->setStatusCode($code, $message);
     }
 
-    protected function buildBody($content)
+    protected static function buildBody(\Phalcon\HTTP\ResponseInterface &$rsp, $content)
     {
-        $this->response->setContentType('application/json');
-        $this->response->setJsonContent($content);
-}
+        $rsp->setContentType('application/json');
+        $rsp->setJsonContent($content);
+    }
+    
+    public static function notFound(\Phalcon\HTTP\ResponseInterface &$rsp)
+    {
+        $rsp->setStatusCode(self::NOT_FOUND, self::$status[self::NOT_FOUND]);
+        self::buildBody($rsp, ['message' => self::$status[self::NOT_FOUND]]);
+    }
 
     protected function _getOne($id)
     {
