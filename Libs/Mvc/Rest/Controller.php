@@ -1,10 +1,10 @@
-<?php namespace Ovide\Libs\Mvc;
+<?php namespace Ovide\Libs\Mvc\Rest;
 
 /**
  * Description of RestController
  * @author Albert Ovide <albert@ovide.net>
  */
-abstract class RestController extends \Phalcon\Mvc\Controller
+abstract class Controller extends \Phalcon\Mvc\Controller
 {
 
     const OK              = 200;
@@ -29,7 +29,7 @@ abstract class RestController extends \Phalcon\Mvc\Controller
     const NOT_IMPLEMENTED = 501;
     const UNAVAILABLE     = 502;
 
-    protected static $status = array(
+    public static $status = array(
         200 => 'OK',
         201 => 'Created',
         202 => 'Accepted',
@@ -63,10 +63,13 @@ abstract class RestController extends \Phalcon\Mvc\Controller
             $this->response([
                 'message' => $ex->getMessage(),
                 'code'    => $ex->getCode(),
+            /* [
                 'type'    => \get_class($ex),
                 'file'    => $ex->getFile(),
                 'line'    => $ex->getLine()
-            ], ($ex instanceof \RuntimeException) ? $ex->getCode() : self::INTERNAL_ERROR);
+             * 
+             */
+            ], ($ex instanceof Exception\Exception) ? $ex->getCode() : self::INTERNAL_ERROR);
         }
         return $this->response;
     }

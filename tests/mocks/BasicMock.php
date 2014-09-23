@@ -1,11 +1,12 @@
 <?php
 
+use Ovide\Libs\Mvc\Rest;
 
 /**
  * Description of BasicMock
  * @author Albert Ovide <albert@ovide.net>
  */
-class BasicMock extends \Ovide\Libs\Mvc\RestController
+class BasicMock extends Rest\Controller
 {
     public static $data = [
         [

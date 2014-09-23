@@ -1,4 +1,4 @@
-<?php namespace Ovide\Libs\Mvc;
+<?php namespace Ovide\Libs\Mvc\Rest;
 
 use Phalcon\Mvc\Micro\Collection;
 use Phalcon\Mvc\Micro;
@@ -8,7 +8,7 @@ use Phalcon\DI\FactoryDefault;
  * Description of RestApp
  * @author Albert Ovide <albert@ovide.net>
  */
-class RestApp extends Micro
+class App extends Micro
 {
     /**
      * @var Micro
@@ -24,7 +24,7 @@ class RestApp extends Micro
             self::$app = $this;
             $app = self::$app;
             $app->notFound(function() use($app){
-                RestController::notFound($app->response);
+                Controller::notFound($app->response);
                 return $app->response;
             });
         } else {
@@ -38,7 +38,7 @@ class RestApp extends Micro
     public static function instance()
     {
         if (self::$app === null) {
-            new RestApp();
+            new App();
         }
         return self::$app;
     }
@@ -50,7 +50,7 @@ class RestApp extends Micro
      */
     public static function addResource($route, $controller, $idP='[a-zA-Z0-9_-]*')
     {
-        if (is_subclass_of($controller, RestController::class)) {
+        if (is_subclass_of($controller, Controller::class)) {
             $route = trim($route, '/');
             $col   = new Collection();
             $col->setHandler($controller, true);
@@ -58,7 +58,18 @@ class RestApp extends Micro
             $col->map("[/]?{id:$idP}[/]?", 'index');
             self::$app->mount($col);
         } else {
-            throw new \LogicException("$controller is not a ".RestController::class);
+            throw new \LogicException("$controller is not a ".Controller::class);
+        }
+    }
+    
+    /**
+     * @param array $array []
+     *  path => resourceClassName
+     */
+    public static function addResourceArray($array)
+    {
+        foreach($array as $path => $class) {
+            self::addResource($path, $class);
         }
     }
 }

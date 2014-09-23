@@ -4,8 +4,9 @@ require __DIR__.'/../vendor/autoload.php';
 
 $loader = new \Phalcon\Loader();
 $loader->registerNamespaces([
-    'Ovide\Libs\Mvc' => __DIR__.'/../libs/mvc/'
+    'Ovide\Libs\Mvc\Rest'           => __DIR__.'/../Libs/Mvc/Rest/',
+    'Ovide\Libs\Mvc\Rest\Exception' => __DIR__.'/../Libs/Mvc/Rest/Exception/'
 ]);
 $loader->register();
 
-return Ovide\Libs\Mvc\RestApp::instance();
+return Ovide\Libs\Mvc\Rest\App::instance();
