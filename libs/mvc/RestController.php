@@ -4,7 +4,7 @@
  * Description of RestController
  * @author Albert Ovide <albert@ovide.net>
  */
-class RestController extends \Phalcon\Mvc\Controller
+abstract class RestController extends \Phalcon\Mvc\Controller
 {
 
     const OK              = 200;
@@ -58,27 +58,7 @@ class RestController extends \Phalcon\Mvc\Controller
     {
         $method = $this->request->getMethod();
         try {
-            switch ($method) {
-                case 'GET':
-                    if ($id === '') {
-                        $this->_get();
-                    } else {
-                        $this->_getOne($id);
-                    }
-                    break;
-                case 'POST':
-                    $this->_post();
-                    break;
-                case 'PUT':
-                    $this->_put($id);
-                    break;
-                case 'DELETE':
-                    $this->_delete($id);
-                    break;
-                default:
-                    $this->response(['message' => 'Method not allowed'], self::NOT_ALLOWED);
-                    break;
-            }
+            $this->call($method, $id);
         } catch (\Exception $ex) {
             $this->response([
                 'message' => $ex->getMessage(),
@@ -90,20 +70,50 @@ class RestController extends \Phalcon\Mvc\Controller
         }
         return $this->response;
     }
+    
+    protected function call($method, $id)
+    {
+        switch ($method) {
+            case 'GET':
+                if ($id === '') {
+                    $this->_get();
+                } else {
+                    $this->_getOne($id);
+                }
+                break;
+            case 'POST':
+                $this->_post();
+                break;
+            case 'PUT':
+                $this->_put($id);
+                break;
+            case 'DELETE':
+                $this->_delete($id);
+                break;
+            default:
+                $this->response(['message' => 'Method not allowed'], self::NOT_ALLOWED);
+        }        
+    }
 
     protected function response($content=null, $code=null, $message=null)
     {
         if ($content) {
-            $et = $this->request->getHeader('ETAG');
+            $et = $this->request->getHeader('If-None-Match');
             $net = md5(serialize($content));
             $this->response->setHeader('ETag', $net);
             if ($et === $net) {
                 return $this->response(null, self::NOT_MODIFIED);
             }
             self::buildBody($this->response, $content);
-            if (!$code) $code = self::OK;
-        } else if (!$code) $code = self::NO_CONTENT;
-        if (!$message) $message = self::$status[$code];
+            if (!$code) {
+                $code = self::OK;
+            }
+        } else if (!$code) {
+            $code = self::NO_CONTENT;
+        }
+        if (!$message) {
+            $message = self::$status[$code];
+        }
         $this->response->setStatusCode($code, $message);
     }
 
