@@ -1,5 +1,7 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Exception;
 
+use Ovide\Libs\Mvc\Rest\Controller as Rest;
+
 abstract class Exception extends \Exception
 {
     protected static $_code = 500;

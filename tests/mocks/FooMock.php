@@ -41,11 +41,20 @@ class FooMock extends Rest\Controller
     
     public function delete($id)
     {
+        if ($id < 1)
+            throw new Rest\Exception\InternalServerError();
+        
+        if ($id == 1 || $id == 2)
+            throw new Rest\Exception\Forbidden('I need that resource for testing');
+        
         unset(self::$data[$id-1]);
     }
     
     public function put($id, $obj)
     {
+        if (!isset($obj['name']) || !isset($obj['description']))
+            throw new Rest\Exception\BadRequest();
+        
         self::$data[$id - 1] = [
             'id'          => $id - 1,
             'name'        => $obj['name'],

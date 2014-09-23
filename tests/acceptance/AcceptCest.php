@@ -32,14 +32,45 @@ class AcceptCest
         $I->seeResponseIsJson(json_encode(FooMock::$data[1]));
     }
     
-    public function getOneNotFound(AcceptanceTester $I)
+    public function testNotFound(AcceptanceTester $I)
     {
         $I->sendGET('/basic/foo/3');
-        $resp = $I->grabResponse();
         $I->seeResponseCodeIs(404);
         $I->seeResponseIsJson();
-        $resp = $I->grabResponse();
+        $I->seeResponseEquals(json_encode([
+            'message' => '3 not found',
+            'code'    => 404
+        ]));
     }
     
+    public function testBadRequest(AcceptanceTester $I)
+    {
+        $I->sendPUT('/basic/foo/2', ['foo' => 'var']);
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseEquals(json_encode([
+            'message' => 'Bad Request',
+            'code'    => 400
+        ]));
+    }
     
+    public function testForbidden(AcceptanceTester $I)
+    {
+        $I->sendDELETE('/basic/foo/1');
+        $I->seeResponseCodeIs(403);
+        $I->seeResponseEquals(json_encode([
+            'message' => 'I need that resource for testing',
+            'code'    => 403
+        ]));
+    }
+    
+    public function testInternalServerError(AcceptanceTester $I)
+    {
+        $I->sendDELETE('/basic/foo/0');
+        $rsp = $I->grabResponse();
+        $I->seeResponseCodeIs(500);
+        $I->seeResponseEquals(json_encode([
+            'message' => 'Internal server error',
+            'code'    => 500
+        ]));
+    }
 }
