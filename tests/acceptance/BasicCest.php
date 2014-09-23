@@ -7,7 +7,8 @@ class BasicCest
     public function _before(AcceptanceTester $I)
     {
         require_once __DIR__.'/../mocks/BasicMock.php';
-        Rest\App::addResource('basic', BasicMock::class);
+        $app = Rest\App::instance();
+        $app->addResource('basic', BasicMock::class);
     }
 
     public function _after(AcceptanceTester $I)

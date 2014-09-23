@@ -15,6 +15,11 @@ class App extends Micro
      */
     private static $app;
 
+    /**
+     * 
+     * @param FactoryDefault $dependencyInjector
+     * @throws \RuntimeException
+     */
     public function __construct($dependencyInjector=null) {
         if (self::$app === null) {
             if ($dependencyInjector === null) {
@@ -48,7 +53,7 @@ class App extends Micro
      * @param string $controller
      * @throws \LogicException
      */
-    public static function addResource($route, $controller, $idP='[a-zA-Z0-9_-]*')
+    public function addResource($route, $controller, $idP='[a-zA-Z0-9_-]*')
     {
         if (is_subclass_of($controller, Controller::class)) {
             $route = trim($route, '/');
@@ -56,7 +61,7 @@ class App extends Micro
             $col->setHandler($controller, true);
             $col->setPrefix("/$route");
             $col->map("[/]?{id:$idP}[/]?", 'index');
-            self::$app->mount($col);
+            static::$app->mount($col);
         } else {
             throw new \LogicException("$controller is not a ".Controller::class);
         }
@@ -66,10 +71,11 @@ class App extends Micro
      * @param array $array []
      *  path => resourceClassName
      */
-    public static function addResourceArray($array)
+    public static function addResources($array)
     {
+        $i = static::instance();
         foreach($array as $path => $class) {
-            self::addResource($path, $class);
+            $i->addResource($path, $class);
         }
     }
 }
