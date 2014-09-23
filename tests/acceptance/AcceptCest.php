@@ -40,4 +40,6 @@ class AcceptCest
         $I->seeResponseIsJson();
         $resp = $I->grabResponse();
     }
+    
+    
 }
