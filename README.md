@@ -49,7 +49,7 @@ class MyResource extends \Ovide\Libs\Mvc\Rest\Controller
         return $obj;
     }
 
-    public function put($obj)
+    public function put($id, $obj)
     {
         //Update your object
         return $obj;
