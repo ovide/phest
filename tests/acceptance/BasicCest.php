@@ -66,7 +66,10 @@ class BasicCest
     {
         $I->sendGET('/');
         $I->seeResponseCodeIs(404);
-        $I->seeResponseEquals(json_encode(['message' => 'Not Found']));
+        $I->seeResponseEquals(json_encode([
+            'message' => 'Not Found',
+            'code'    => 404
+        ]));
     }
     
     /**

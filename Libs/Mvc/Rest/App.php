@@ -11,7 +11,7 @@ use Phalcon\DI\FactoryDefault;
 class App extends Micro
 {
     /**
-     * @var Micro
+     * @var App
      */
     private static $app;
 

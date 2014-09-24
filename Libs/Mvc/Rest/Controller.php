@@ -129,7 +129,10 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     public static function notFound(\Phalcon\HTTP\ResponseInterface &$rsp)
     {
         $rsp->setStatusCode(self::NOT_FOUND, self::$status[self::NOT_FOUND]);
-        self::buildBody($rsp, ['message' => self::$status[self::NOT_FOUND]]);
+        self::buildBody($rsp, [
+            'message' => self::$status[self::NOT_FOUND],
+            'code'    => self::NOT_FOUND
+        ]);
     }
 
     protected function _getOne($id)
@@ -148,7 +151,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $this->response($this->post($obj), self::CREATED);
     }
 
-    public function _put($id)
+    protected function _put($id)
     {
         $obj = $this->request->getPost();
         $this->response($this->put($id, $obj));
@@ -160,4 +163,3 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $this->response(null);
     }
 }
-
