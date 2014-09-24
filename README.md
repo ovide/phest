@@ -10,7 +10,7 @@ require __DIR__.'/../vendor/autoload.php';
 $loader->registerNamespaces([
     'My\Controllers\Namespace' => __DIR__.'/dir/to/my/controllers/'
 ]);
-$app = Ovide\Libs\Mvc\RestApp::instance();
+$app = Ovide\Libs\Mvc\Rest\App::instance();
 
 require 'resources.php';
 $app->handle();
@@ -20,7 +20,7 @@ $app->handle();
 ```php
 <?php
 
-Ovide\Libs\Mvc\RestApp::addResources([
+Ovide\Libs\Mvc\Rest\App::addResources([
     'myresource/path'             => MyResource::class,
     'myresource/path/subresource' => SubResource::class,
     'otherResource'               => OtherResource::class
@@ -32,7 +32,7 @@ Ovide\Libs\Mvc\RestApp::addResources([
 ```php
 <?php namespace My\Controllers\Namespace
 
-class MyResource extends \Ovide\Libs\Mvc\RestController
+class MyResource extends \Ovide\Libs\Mvc\Rest\Controller
 {
     public function get()
     {
