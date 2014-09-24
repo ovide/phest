@@ -6,27 +6,24 @@ Usage example
 ####index.php
 ```php
 <?php
+
+use Ovide\Libs\Mvc\Rest\App;
+
 require __DIR__.'/../vendor/autoload.php';
 $loader->registerNamespaces([
     'My\Controllers\Namespace' => __DIR__.'/dir/to/my/controllers/'
 ]);
-$app = Ovide\Libs\Mvc\Rest\App::instance();
+$app = App::instance();
 
-require 'resources.php';
-$app->handle();
-```
-
-####resources.php
-```php
-<?php
-
-Ovide\Libs\Mvc\Rest\App::addResources([
+App::addResources([
     'myresource/path'             => MyResource::class,
     'myresource/path/subresource' => SubResource::class,
     'otherResource'               => OtherResource::class
 ]);
 
+$app->handle();
 ```
+
 
 ####MyResource.php
 ```php
