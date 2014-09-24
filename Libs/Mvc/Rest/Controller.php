@@ -56,6 +56,8 @@ abstract class Controller extends \Phalcon\Mvc\Controller
 
     public function index($id=null)
     {
+        $this->response->resetHeaders();
+        $this->response->setContent('');
         $method = $this->request->getMethod();
         try {
             $this->call($method, $id);
@@ -101,11 +103,11 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     protected function response($content=null, $code=null, $message=null)
     {
         if ($content) {
-            $et = $this->request->getHeader('If-None-Match');
-            $net = md5(serialize($content));
-            $this->response->setHeader('ETag', $net);
-            if ($et === $net) {
-                return $this->response(null, self::NOT_MODIFIED);
+            if ($code === null || $code < 300) {
+                $ret = $this->eTag($content);
+                if ($ret) {
+                    return;
+                }
             }
             self::buildBody($this->response, $content);
             if (!$code) {
@@ -118,6 +120,19 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             $message = self::$status[$code];
         }
         $this->response->setStatusCode($code, $message);
+    }
+    
+    protected function eTag($content)
+    {
+        $rq = $_SERVER;
+        $et = $this->request->getHeader('HTTP_IF_NONE_MATCH');
+        $net = md5(serialize($content));
+        $this->response->setHeader('ETag', $net);
+        if ($et === $net) {
+            $this->response->setStatusCode(self::NOT_MODIFIED, self::$status[self::NOT_MODIFIED]);
+            return true;
+        }
+        return false;
     }
 
     protected static function buildBody(\Phalcon\HTTP\ResponseInterface &$rsp, $content)

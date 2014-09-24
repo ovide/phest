@@ -43,4 +43,3 @@ class BasicMock extends Rest\Controller
     {
     }
 }
-

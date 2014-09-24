@@ -2,12 +2,13 @@
 use \AcceptanceTester;
 use Ovide\Libs\Mvc\Rest;
 
+require_once __DIR__.'/../mocks/BasicMock.php';
+require_once __DIR__.'/../mocks/FooMock.php';
+
 class AcceptCest
 {
     public function _before(AcceptanceTester $I)
     {
-        require_once __DIR__.'/../mocks/BasicMock.php';
-        require_once __DIR__.'/../mocks/FooMock.php';
         Rest\App::addResources([
             'basic'     => BasicMock::class,
             'basic/foo' => FooMock::class
