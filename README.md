@@ -19,9 +19,13 @@ $app->handle();
 ####resources.php
 ```php
 <?php
-//TODO This will be an array 'path' => 'controllerClassName'
-Ovide\Libs\Mvc\RestApp::addResource('myresource/path', MyResource::class);
-Ovide\Libs\Mvc\RestApp::addResource('another/path', AnotherController::class);
+
+Ovide\Libs\Mvc\RestApp::addResources([
+    'myresource/path'             => MyResource::class,
+    'myresource/path/subresource' => SubResource::class,
+    'otherResource'               => OtherResource::class
+]);
+
 ```
 
 ####MyResource.php
