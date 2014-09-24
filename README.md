@@ -6,29 +6,30 @@ Usage example
 ####index.php
 ```php
 <?php
+
+use Ovide\Libs\Mvc\Rest\App;
+
 require __DIR__.'/../vendor/autoload.php';
 $loader->registerNamespaces([
     'My\Controllers\Namespace' => __DIR__.'/dir/to/my/controllers/'
 ]);
-$app = Ovide\Libs\Mvc\RestApp::instance();
+$app = App::instance();
 
-require 'resources.php';
+App::addResources([
+    'myresource/path'             => MyResource::class,
+    'myresource/path/subresource' => SubResource::class,
+    'otherResource'               => OtherResource::class
+]);
+
 $app->handle();
 ```
 
-####resources.php
-```php
-<?php
-//TODO This will be an array 'path' => 'controllerClassName'
-Ovide\Libs\Mvc\RestApp::addResource('myresource/path', MyResource::class);
-Ovide\Libs\Mvc\RestApp::addResource('another/path', AnotherController::class);
-```
 
 ####MyResource.php
 ```php
 <?php namespace My\Controllers\Namespace
 
-class MyResource extends \Ovide\Libs\Mvc\RestController
+class MyResource extends \Ovide\Libs\Mvc\Rest\Controller
 {
     public function get()
     {
@@ -48,7 +49,7 @@ class MyResource extends \Ovide\Libs\Mvc\RestController
         return $obj;
     }
 
-    public function put($obj)
+    public function put($id, $obj)
     {
         //Update your object
         return $obj;
