@@ -126,7 +126,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     {
         $rq = $_SERVER;
         $et = $this->request->getHeader('HTTP_IF_NONE_MATCH');
-        $net = md5(serialize($content));
+        $net = '"'.md5(serialize($content)).'"';
         $this->response->setHeader('ETag', $net);
         if ($et === $net) {
             $this->response->setStatusCode(self::NOT_MODIFIED, self::$status[self::NOT_MODIFIED]);
