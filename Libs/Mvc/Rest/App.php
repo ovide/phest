@@ -38,7 +38,7 @@ class App extends Micro
     }
     
     /**
-     * @return Micro
+     * @return App
      */
     public static function instance()
     {

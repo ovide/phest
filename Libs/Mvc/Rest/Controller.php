@@ -60,7 +60,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $this->response->setContent('');
         $method = $this->request->getMethod();
         try {
-            $this->call($method, $id);
+            $this->_call($method, $id);
         } catch (\Exception $ex) {
             $this->response([
                 'message' => $ex->getMessage(),
@@ -76,7 +76,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         return $this->response;
     }
     
-    protected function call($method, $id)
+    protected function _call($method, $id)
     {
         switch ($method) {
             case 'GET':
