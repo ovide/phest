@@ -53,11 +53,15 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         503 => 'Service unavailable',
     );
 
+    protected $locale = 'en';
+    protected $availableLanguages = [];
+    protected $disalowedLanguages = [];
 
     public function index($id=null)
     {
         $this->response->resetHeaders();
         $this->response->setContent('');
+        $this->getBestLang();
         $method = $this->request->getMethod();
         try {
             $this->_call($method, $id);
@@ -176,5 +180,55 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     {
         $this->delete($id);
         $this->response(null);
+    }
+    
+    /**
+     * @param string[] $moreAvailable
+     */
+    protected function getBestLang($moreAvailable=[])
+    {
+        $merged = array_unique(array_merge(App::getAvailableLanguages(),
+                                 $this->availableLanguages,
+                                 $moreAvailable));
+        $available = array_diff($merged, $this->disalowedLanguages);
+        $acceptable = $this->request->getHeader('HTTP_ACCEPT_LANGUAGE');
+        $accArr     = self::parseAcceptableLanguages($acceptable);
+        $match      = false;
+                
+        while (($lang = key($accArr)) && (!$match)) {
+            next($accArr);
+            $locale = \Locale::lookup($available, $lang, true);
+            if ($locale) {
+                $this->locale = $locale;
+                $match = true;
+            }
+        }
+        return $this->locale;
+    }
+    
+    protected function disallowLanguage($lang)
+    {
+        if (!in_array($lang, $this->disalowedLanguages))
+            $this->disalowedLanguages[] = $lang;
+    }
+
+    /**
+     * @param string $acceptable
+     * @return array
+     */
+    private final static function parseAcceptableLanguages($acceptable)
+    {
+        preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',$acceptable, $lang_parse);
+        if (count($lang_parse[1])) {
+            $langs = array_combine($lang_parse[1], $lang_parse[4]);
+            foreach ($langs as $lang => $val) {
+                if ($val === '') {
+                    $langs[$lang] = 1;
+                }
+            }
+            arsort($langs, SORT_NUMERIC);
+            return $langs;
+        }
+        return [];
     }
 }

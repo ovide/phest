@@ -14,6 +14,11 @@ class App extends Micro
      * @var App
      */
     private static $app;
+    
+    /**
+     * @var string[]
+     */
+    protected $availableLanguages = [];
 
     /**
      * 
@@ -53,7 +58,7 @@ class App extends Micro
      * @param string $controller
      * @throws \LogicException
      */
-    public function addResource($route, $controller, $idP='[a-zA-Z0-9_-]*')
+    public static function addResource($route, $controller, $idP='[a-zA-Z0-9_-]*')
     {
         if (is_subclass_of($controller, Controller::class)) {
             $route = trim($route, '/');
@@ -65,6 +70,24 @@ class App extends Micro
         } else {
             throw new \LogicException("$controller is not a ".Controller::class);
         }
+    }
+    
+    /**
+     * @param string[] $langs
+     */
+    public static function addLanguages($langs)
+    {
+        $app = static::instance();
+        foreach ($langs as $lang) {
+            if (!in_array($lang, $app->availableLanguages)) {
+                $app->availableLanguages[] = $lang;
+            }
+        }
+    }
+    
+    public static function getAvailableLanguages()
+    {
+        return static::instance()->availableLanguages;
     }
     
     /**
