@@ -5,7 +5,8 @@ use Phalcon\Mvc\Micro;
 use Phalcon\DI\FactoryDefault;
 
 /**
- * Description of RestApp
+ * Description of App
+ * 
  * @author Albert Ovide <albert@ovide.net>
  */
 class App extends Micro
@@ -65,7 +66,7 @@ class App extends Micro
             $col   = new Collection();
             $col->setHandler($controller, true);
             $col->setPrefix("/$route");
-            $col->map("[/]?{id:$idP}[/]?", 'index');
+            $col->map("[/]?{id:$idP}[/]?", '_index');
             static::$app->mount($col);
         } else {
             throw new \LogicException("$controller is not a ".Controller::class);

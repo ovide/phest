@@ -1,7 +1,19 @@
 <?php namespace Ovide\Libs\Mvc\Rest;
 
 /**
- * Description of RestController
+ * Controller for REST applications
+ * 
+ * Use get() method for GET /resource
+ * Use getOne($id) method for GET /resource/{$id}
+ * Use put($id, $obj) method for PUT /resource/{$id}
+ * Use post($obj) method for POST /resource
+ * Use delete($id) method for DELETE /resource/{$id}
+ * 
+ * Use App class for add the controllers to the router
+ * 
+ * @example
+ * App::addResources(['resource' => MyResource::class]);
+ * 
  * @author Albert Ovide <albert@ovide.net>
  */
 abstract class Controller extends \Phalcon\Mvc\Controller
@@ -53,11 +65,16 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         503 => 'Service unavailable',
     );
 
+    /**
+     * The best language accepted for the client.
+     * Setted automatically at start from the 'Accept-Language' request header
+     * @var string
+     */
     protected $_locale = 'en';
     protected $_availableLanguages = [];
     protected $_disalowedLanguages = [];
 
-    public function index($id=null)
+    public function _index($id=null)
     {
         $this->response->resetHeaders();
         $this->response->setContent('');
@@ -80,6 +97,12 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         return $this->response;
     }
     
+    /**
+     * Select the HTTP method to call
+     * 
+     * @param string $method
+     * @param string $id
+     */
     protected function _call($method, $id)
     {
         switch ($method) {
@@ -104,6 +127,14 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }        
     }
 
+    /**
+     * Sets the response content, status code and status message
+     * following some basic REST concepts
+     * 
+     * @param string $content The content body
+     * @param int $code The status code
+     * @param string $message The status message
+     */
     protected function response($content=null, $code=null, $message=null)
     {
         if ($content) {
@@ -126,6 +157,13 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $this->response->setStatusCode($code, $message);
     }
     
+    /**
+     * Check if response ETag matches with the request header If-None-Match
+     * Clear the content body if matches and set the status code 304
+     * 
+     * @param string $content
+     * @return boolean true if matches
+     */
     protected function eTag($content)
     {
         $et = $this->request->getHeader('HTTP_IF_NONE_MATCH');
@@ -138,12 +176,24 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         return false;
     }
 
+    /**
+     * Build the body using an acceptable format
+     * @todo Must add ResponseFormatters (xml, csv, xls,...)
+     * 
+     * @param \Phalcon\HTTP\ResponseInterface $rsp
+     * @param array $content
+     */
     protected static function buildBody(\Phalcon\HTTP\ResponseInterface &$rsp, $content)
     {
         $rsp->setContentType('application/json');
         $rsp->setJsonContent($content);
     }
     
+    /**
+     * Build a Not Found standard response
+     * 
+     * @param \Phalcon\HTTP\ResponseInterface $rsp
+     */
     public static function notFound(\Phalcon\HTTP\ResponseInterface &$rsp)
     {
         $rsp->setStatusCode(self::NOT_FOUND, self::$status[self::NOT_FOUND]);
@@ -153,28 +203,49 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         ]);
     }
 
+    /**
+     * GET a single resource
+     * 
+     * @param string $id
+     */
     protected function _getOne($id)
     {
         $this->response($this->getOne($id));
     }
 
+    /**
+     * GET a collection resource
+     */
     protected function _get()
     {
         $this->response($this->get());
     }
 
+    /**
+     * POST a new resource to the collection
+     */
     protected function _post()
     {
         $obj = $this->request->getPost();
         $this->response($this->post($obj), self::CREATED);
     }
 
+    /**
+     * PUT a existent resource updating it
+     * 
+     * @param string $id
+     */
     protected function _put($id)
     {
         $obj = $this->request->getPost();
         $this->response($this->put($id, $obj));
     }
 
+    /**
+     * DELETE a resource
+     * 
+     * @param type $id
+     */
     protected function _delete($id)
     {
         $this->delete($id);
@@ -182,6 +253,8 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     }
     
     /**
+     * Sets $_locale attribute from the Accept-Language request header
+     * 
      * @param string[] $moreAvailable
      */
     protected function getBestLang($moreAvailable=[])
@@ -205,6 +278,11 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         return $this->_locale;
     }
     
+    /**
+     * Disallow an acceptable language for this controller
+     * 
+     * @param string $lang
+     */
     protected function disallowLanguage($lang)
     {
         if (!in_array($lang, $this->_disalowedLanguages))
@@ -212,8 +290,18 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     }
 
     /**
+     * Parse the Accept-Language header
+     * 
+     * ca,es;q=0.7,en;q=0.3
+     * 
+     * returns an array ordered by 'q'
+     * 
+     * ca => 1
+     * es => 0.7
+     * en => 0.3
+     * 
      * @param string $acceptable
-     * @return array
+     * @return array string => float
      */
     private final static function parseAcceptableLanguages($acceptable)
     {
