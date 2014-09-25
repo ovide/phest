@@ -4,17 +4,12 @@ use Ovide\Libs\Mvc\Rest;
 
 class LangMock extends Rest\Controller
 {
-    public static $data = [
-        'en' => 'This is the default text',
-        'es' => 'Este texto es en español',
-        'ca' => 'En català millor'
-    ];
     
-    protected $availableLanguages = ['es', 'ca'];
+    protected $_availableLanguages = ['es', 'ca'];
     
     public function get()
     {
-        return [self::$data[$this->locale]];
+        return [$this->_locale];
     }
     
     public function getOne()

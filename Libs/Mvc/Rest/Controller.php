@@ -53,9 +53,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         503 => 'Service unavailable',
     );
 
-    protected $locale = 'en';
-    protected $availableLanguages = [];
-    protected $disalowedLanguages = [];
+    protected $_locale = 'en';
+    protected $_availableLanguages = [];
+    protected $_disalowedLanguages = [];
 
     public function index($id=null)
     {
@@ -128,7 +128,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     
     protected function eTag($content)
     {
-        $rq = $_SERVER;
         $et = $this->request->getHeader('HTTP_IF_NONE_MATCH');
         $net = '"'.md5(serialize($content)).'"';
         $this->response->setHeader('ETag', $net);
@@ -188,9 +187,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     protected function getBestLang($moreAvailable=[])
     {
         $merged = array_unique(array_merge(App::getAvailableLanguages(),
-                                 $this->availableLanguages,
+                                 $this->_availableLanguages,
                                  $moreAvailable));
-        $available = array_diff($merged, $this->disalowedLanguages);
+        $available = array_diff($merged, $this->_disalowedLanguages);
         $acceptable = $this->request->getHeader('HTTP_ACCEPT_LANGUAGE');
         $accArr     = self::parseAcceptableLanguages($acceptable);
         $match      = false;
@@ -199,17 +198,17 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             next($accArr);
             $locale = \Locale::lookup($available, $lang, true);
             if ($locale) {
-                $this->locale = $locale;
+                $this->_locale = $locale;
                 $match = true;
             }
         }
-        return $this->locale;
+        return $this->_locale;
     }
     
     protected function disallowLanguage($lang)
     {
-        if (!in_array($lang, $this->disalowedLanguages))
-            $this->disalowedLanguages[] = $lang;
+        if (!in_array($lang, $this->_disalowedLanguages))
+            $this->_disalowedLanguages[] = $lang;
     }
 
     /**
