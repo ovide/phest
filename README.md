@@ -1,7 +1,25 @@
 phest
 =====
 
-Usage example
+
+
+###Install with composer
+
+```json
+{
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ovide/phest.git"
+        }
+    ],
+    "require": {
+        "ovide/phest": "dev-master"
+    }
+}
+```
+
+###Usage example
 
 ####index.php
 ```php
@@ -10,12 +28,10 @@ Usage example
 use Ovide\Libs\Mvc\Rest\App;
 
 require __DIR__.'/../vendor/autoload.php';
-$loader->registerNamespaces([
-    'My\Controllers\Namespace' => __DIR__.'/dir/to/my/controllers/'
-]);
+
 $app = App::instance();
 
-App::addResources([
+$app->addResources([
     'myresource/path'             => MyResource::class,
     'myresource/path/subresource' => SubResource::class,
     'otherResource'               => OtherResource::class
