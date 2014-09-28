@@ -35,7 +35,9 @@ class App extends Micro
             self::$app = $this;
             $app = self::$app;
             $app->notFound(function() use($app){
-                Controller::notFound($app->response);
+                $response = new Response();
+                $response->notFound();
+                $app->response = $response;
                 return $app->response;
             });
         } else {

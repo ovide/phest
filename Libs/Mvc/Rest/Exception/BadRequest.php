@@ -1,6 +1,6 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Controller as Rest;
+use Ovide\Libs\Mvc\Rest\Response;
 
 /**
  * The request could not be understood by the server due to malformed syntax.
@@ -13,5 +13,5 @@ use Ovide\Libs\Mvc\Rest\Controller as Rest;
  */
 class BadRequest extends Exception
 {
-    protected static $_code = Rest::BAD_REQUEST;
+    protected static $_code = Response::BAD_REQUEST;
 }

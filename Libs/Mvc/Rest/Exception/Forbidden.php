@@ -1,6 +1,6 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Controller as Rest;
+use Ovide\Libs\Mvc\Rest\Response;
 
 /**
  * The server understood the request, but is refusing to fulfill it.
@@ -21,5 +21,5 @@ use Ovide\Libs\Mvc\Rest\Controller as Rest;
  */
 class Forbidden extends Exception
 {
-    protected static $_code = Rest::FORBIDDEN;
+    protected static $_code = Response::FORBIDDEN;
 }

@@ -59,14 +59,4 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertTrue($invoked);
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
     }
-    
-    public function testCall()
-    {
-        $I = $this->tester;
-       
-        $rsp = new \Phalcon\Http\Response();
-        Controller::notFound($rsp);
-        $h = $rsp->getHeaders();
-        $I->assertEquals('404 Not Found', $h->get('Status'));
-    }
 }

@@ -1,6 +1,6 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Controller as Rest;
+use Ovide\Libs\Mvc\Rest\Response;
 
 /**
  * The request requires user authentication.
@@ -30,5 +30,5 @@ use Ovide\Libs\Mvc\Rest\Controller as Rest;
  */
 class Unauthorized extends Exception
 {
-    protected static $_code = Rest::UNAUTHORIZED;
+    protected static $_code = Response::UNAUTHORIZED;
 }

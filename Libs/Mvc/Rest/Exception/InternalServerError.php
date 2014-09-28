@@ -1,6 +1,6 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Controller as Rest;
+use Ovide\Libs\Mvc\Rest\Response;
 
 /**
  * The server encountered an unexpected condition which prevented it
@@ -12,5 +12,5 @@ use Ovide\Libs\Mvc\Rest\Controller as Rest;
  */
 class InternalServerError extends Exception
 {
-    protected static $_code = Rest::INTERNAL_ERROR;
+    protected static $_code = Response::INTERNAL_ERROR;
 }

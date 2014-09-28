@@ -1,6 +1,6 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Controller as Rest;
+use Ovide\Libs\Mvc\Rest\Response;
 
 abstract class Exception extends \Exception
 {
@@ -14,7 +14,9 @@ abstract class Exception extends \Exception
         }
         
         if ($message === null) {
-            $message = static::$_message ? static::$_message : Rest::$status[$code];
+            $message = static::$_message ?
+                static::$_message :
+                Response::$status[$code];
         }
         parent::__construct($message, $code, $previous);
     }

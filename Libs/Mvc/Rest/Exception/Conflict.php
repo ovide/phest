@@ -1,6 +1,6 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Controller as Rest;
+use Ovide\Libs\Mvc\Rest\Response;
 
 /**
  * The request could not be completed due to a conflict with the current state
@@ -29,5 +29,5 @@ use Ovide\Libs\Mvc\Rest\Controller as Rest;
  */
 class Conflict extends Exception
 {
-    protected static $_code = Rest::CONFLICT;
+    protected static $_code = Response::CONFLICT;
 }
