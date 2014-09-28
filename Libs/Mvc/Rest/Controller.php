@@ -144,23 +144,18 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     protected function getBestLang($moreAvailable=[])
     {
-        $merged = array_unique(array_merge(App::getAvailableLanguages(),
-                                 $this->_availableLanguages,
-                                 $moreAvailable));
-        $available = array_diff($merged, $this->_disalowedLanguages);
-        $acceptable = $this->request->getHeader('HTTP_ACCEPT_LANGUAGE');
-        $accArr     = self::parseAcceptableLanguages($acceptable);
-        $match      = false;
-                
-        while (($lang = key($accArr)) && (!$match)) {
-            next($accArr);
-            $locale = \Locale::lookup($available, $lang, true);
-            if ($locale) {
-                $this->_locale = $locale;
-                $match = true;
-            }
+        $merged = array_unique(
+            array_merge(
+                App::getAvailableLanguages(),
+                $this->_availableLanguages,
+                $moreAvailable
+        ));
+        $available  = array_diff($merged, $this->_disalowedLanguages);
+        
+        $acceptLanguage = new Header\AcceptLanguage($this->request);
+        if ($locale = $acceptLanguage->getBestLanguage($available)) {
+            $this->_locale = $locale;
         }
-        return $this->_locale;
     }
     
     /**
@@ -172,35 +167,5 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     {
         if (!in_array($lang, $this->_disalowedLanguages))
             $this->_disalowedLanguages[] = $lang;
-    }
-
-    /**
-     * Parse the Accept-Language header
-     * 
-     * ca,es;q=0.7,en;q=0.3
-     * 
-     * returns an array ordered by 'q'
-     * 
-     * ca => 1
-     * es => 0.7
-     * en => 0.3
-     * 
-     * @param string $acceptable
-     * @return array string => float
-     */
-    private final static function parseAcceptableLanguages($acceptable)
-    {
-        preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',$acceptable, $lang_parse);
-        if (count($lang_parse[1])) {
-            $langs = array_combine($lang_parse[1], $lang_parse[4]);
-            foreach ($langs as $lang => $val) {
-                if ($val === '') {
-                    $langs[$lang] = 1;
-                }
-            }
-            arsort($langs, SORT_NUMERIC);
-            return $langs;
-        }
-        return [];
     }
 }
