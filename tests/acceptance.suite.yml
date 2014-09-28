@@ -12,6 +12,6 @@ modules:
         - REST
     config:
         Phalcon1:
-            bootstrap: 'tests/_bootstrap.php'
+            bootstrap: 'tests/acceptance/_bootstrap.php'
             cleanup: false
             savepoints: false

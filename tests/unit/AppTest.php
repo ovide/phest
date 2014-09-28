@@ -22,7 +22,11 @@ class RestAppTest extends \Codeception\TestCase\Test
 
     protected function _after()
     {
-        $this->app->router->clear();
+        $rapp = new \ReflectionClass(App::class);
+        $ral = $rapp->getProperty('app');
+        $ral->setAccessible(true);
+        $ral->setValue(null, null);
+        $ral->setAccessible(false);
     }
 
     public function testInstance()
@@ -42,7 +46,6 @@ class RestAppTest extends \Codeception\TestCase\Test
         } catch (\Exception $ex) {
             $I->assertTrue(true);
         }
-        
     }
     
     /**
@@ -99,5 +102,31 @@ class RestAppTest extends \Codeception\TestCase\Test
         } catch (\Exception $ex) {
             $I->assertTrue(true);
         }
+    }
+    
+    public function testGetAvailableLanguages()
+    {
+        $I = $this->tester;
+        $rapp = new \ReflectionClass(App::class);
+        $ral = $rapp->getProperty('availableLanguages');
+        $ral->setAccessible(true);
+        $ral->setValue(App::instance(), ['es', 'en']);
+        $ral->setAccessible(false);
+        
+        $langs = App::getAvailableLanguages();
+        $I->assertEquals(['es', 'en'], $langs);
+    }
+    
+    /**
+     * @depends testGetAvailableLanguages
+     */
+    public function testAddLanguages()
+    {
+        $I = $this->tester;
+        
+        App::addLanguages(['en','es']);
+        $I->assertEquals(['en', 'es'], App::getAvailableLanguages());
+        App::addLanguages(['en', 'ca']);
+        $I->assertEquals(['en', 'es', 'ca'], App::getAvailableLanguages());
     }
 }

@@ -46,10 +46,12 @@ class App extends Micro
     /**
      * @return App
      */
-    public static function instance()
+    public final static function instance()
     {
+        
         if (self::$app === null) {
-            new App();
+            $class = static::class;
+            new $class();
         }
         return self::$app;
     }
@@ -88,7 +90,8 @@ class App extends Micro
     
     public static function getAvailableLanguages()
     {
-        return static::instance()->availableLanguages;
+        $ins = static::instance();
+        return $ins->availableLanguages;
     }
     
     /**
