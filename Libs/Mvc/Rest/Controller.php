@@ -74,7 +74,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     protected $_availableLanguages = [];
     protected $_disalowedLanguages = [];
 
-    public function _index($id=null)
+    public function _index($id='')
     {
         $this->response->resetHeaders();
         $this->response->setContent('');
@@ -123,7 +123,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 $this->_delete($id);
                 break;
             default:
-                $this->response(['message' => 'Method not allowed'], self::NOT_ALLOWED);
+                $this->response(null, self::NOT_ALLOWED);
         }        
     }
 
@@ -168,7 +168,8 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     {
         $et = $this->request->getHeader('HTTP_IF_NONE_MATCH');
         $net = '"'.md5(serialize($content)).'"';
-        $this->response->setHeader('ETag', $net);
+        //$this->response->setHeader('ETag', $net);
+        $this->response->setEtag($net);
         if ($et === $net) {
             $this->response->setStatusCode(self::NOT_MODIFIED, self::$status[self::NOT_MODIFIED]);
             return true;

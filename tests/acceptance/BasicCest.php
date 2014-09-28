@@ -89,4 +89,10 @@ class BasicCest
         $I->seeResponseCodeIs(500);
         $I->seeResponseContainsJson($expected);
     }
+    
+    public function testNotAllowed(AcceptanceTester $I)
+    {
+        $I->sendAjaxRequest('FOO', '/basic');
+        $I->seeResponseCodeIs(405);
+    }
 }
