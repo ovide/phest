@@ -13,7 +13,7 @@ class AcceptLanguage extends RequestHeader
     protected function _init()
     {
         parent::_init();
-        $this->_acceptable = $this->parseAcceptableLanguages();
+        $this->_acceptable = $this->__parseAcceptableLanguages();
     }
     
     public function getAcceptableLanguageList()
@@ -45,7 +45,7 @@ class AcceptLanguage extends RequestHeader
      * @param string $acceptable
      * @return array string => float
      */
-    private function parseAcceptableLanguages()
+    private final function __parseAcceptableLanguages()
     {
         $lang_parse = [];
         preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',$this->_content, $lang_parse);
