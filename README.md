@@ -34,47 +34,111 @@ $app = App::instance();
 $app->addResources([
     'myresource/path'             => MyResource::class,
     'myresource/path/subresource' => SubResource::class,
-    'otherResource'               => OtherResource::class
+    'users'                       => User::class
+    'users/{userID}/comments'     => Comment::class
 ]);
 
 $app->handle();
 ```
 
 
-####MyResource.php
+####Your controllers
 ```php
-<?php namespace My\Controllers\Namespace
+<?php
 
-class MyResource extends \Ovide\Libs\Mvc\Rest\Controller
+use Ovide\Libs\Mvc\Rest
+
+class User extends Rest\Controller
 {
     public function get()
     {
-        //Do your stuff
-        return $yourDataArray
+        return User::find()->toArray();
     }
 
     public function getOne($id)
     {
-        //...
-        return $yourDataArray[$id];
+        return User::findFirst($id)->toArray();
     }
 
     public function post($obj)
     {
         //Save the object
-        return $obj;
+        $user = new User();
+        $user->create($obj);
+        return $user->toArray();
     }
 
     public function put($id, $obj)
     {
-        //Update your object
+        $user = User::findFirst($id);
+        //...
+        $user->save();
         return $obj;
     }
 
     public function delete($id)
     {
-        //Delete your object
+        $user = User::findFirst($id);
+        $user->delete();
         //No return here
     }
 }
+
+class Comment extends Rest\Controller
+{
+    public function get($userID)
+    {
+        //...
+    }
+
+    public function getOne($userID, $commentID)
+    {
+        //...
+    }
+
+    public function post($userID, $obj)
+    {
+        //...
+    }
+
+    public function put($userID, $commentID, $obj)
+    {
+        //...
+    }
+
+    public function delete($userID, $commentID)
+    {
+        //...
+    }
+}
 ```
+
+Use exceptions if something goes wrong
+
+```php
+public function getOne($id)
+{
+    if (!$foo = Foo::findFirst($id))
+        throw new Rest\Exception\NotFound("Ooops! Foo $id not found");
+    return $foo->toArray();
+}
+
+public function post($fooObj)
+{
+    if (!$token = getToken()) {
+        throw new Rest\Exception\Unauthorized("You must login first");
+    }
+    if (!canPostWith($token)) {
+        throw new Rest\Exception\Forbidden("You can't post here")
+    }
+    if (alreadyExists($fooObj)) {
+        throw new Rest\Exception\Conflict("That object already exists!")
+    }
+    //...
+    return $newObj->toArray();
+}
+```
+###Handled request headers (by now)
+
+1. Etag (If-None-Match)
+2. Accept-Language (Sets attribute `$this->_locale` to your controller)
