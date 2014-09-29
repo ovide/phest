@@ -7,7 +7,7 @@ install:
  - composer update
 
 script:
- - vendor/bin/codecept run
+ - php vendor/bin/codecept run
 
 notifications:
   email:
