@@ -1,4 +1,4 @@
-phest
+phest 
 =====
 
 
@@ -142,3 +142,6 @@ public function post($fooObj)
 
 1. Etag (If-None-Match)
 2. Accept-Language (Sets attribute `$this->_locale` to your controller)
+
+
+[![Build Status](https://travis-ci.org/ovide/phest.svg?branch=master)](https://travis-ci.org/ovide/phest)
