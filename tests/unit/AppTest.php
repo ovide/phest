@@ -2,6 +2,7 @@
 
 require_once __DIR__.'/../mocks/BasicMock.php';
 require_once __DIR__.'/../mocks/FooMock.php';
+require_once __DIR__.'/../mocks/FooVarMock.php';
 
 class RestAppTest extends \Codeception\TestCase\Test
 {
@@ -128,5 +129,24 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I->assertEquals(['en', 'es'], App::getAvailableLanguages());
         App::addLanguages(['en', 'ca']);
         $I->assertEquals(['en', 'es', 'ca'], App::getAvailableLanguages());
+    }
+    
+    public function testAddResourceWithMultipleIds()
+    {
+        $I = $this->tester;
+        
+        $I = $this->tester;
+        App::addResources([
+            'route'              => \BasicMock::class,
+            'foo'                => \FooMock::class,
+            'foo/{fooId:[0-9]*}' => \FooVarMock::class,
+        ]);
+        $routes = $this->app->router->getRoutes();
+        $route  = $routes[0];
+        $foo    = $routes[1];
+        $fooVar = $routes[2];
+        $I->assertEquals('/route[/]?{id:[a-zA-Z0-9_-]*}[/]?', $route->getPattern());
+        $I->assertEquals('/foo[/]?{id:[a-zA-Z0-9_-]*}[/]?', $foo->getPattern());
+        $I->assertEquals('/foo/{fooId:[0-9]*}[/]?{id:[a-zA-Z0-9_-]*}[/]?', $fooVar->getPattern());
     }
 }

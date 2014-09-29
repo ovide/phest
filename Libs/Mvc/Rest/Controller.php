@@ -27,12 +27,12 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     protected $_availableLanguages = [];
     protected $_disalowedLanguages = [];
 
-    public function _index($id='')
+    public function _index(...$params)
     {
         $this->getBestLang();
         $method = $this->request->getMethod();
         try {
-            $this->_call($method, $id);
+            $this->_call($method, $params);
         } catch (\Exception $ex) {
             $this->response([
                 'message' => $ex->getMessage(),
@@ -51,24 +51,25 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * @param string $method
      * @param string $id
      */
-    protected function _call($method, $id)
+    protected function _call($method, $params)
     {
+        $id = array_pop($params);
         switch ($method) {
             case 'GET':
                 if ($id === '') {
-                    $this->_get();
+                    $this->_get($params);
                 } else {
-                    $this->_getOne($id);
+                    $this->_getOne($id, $params);
                 }
                 break;
             case 'POST':
-                $this->_post();
+                $this->_post($params);
                 break;
             case 'PUT':
-                $this->_put($id);
+                $this->_put($id, $params);
                 break;
             case 'DELETE':
-                $this->_delete($id);
+                $this->_delete($id, $params);
                 break;
             default:
                 $this->response(null, Response::NOT_ALLOWED);
@@ -93,26 +94,28 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * 
      * @param string $id
      */
-    protected function _getOne($id)
+    protected function _getOne($id, $params)
     {
-        $this->response($this->getOne($id));
+        array_unshift($params, $id);
+        $this->response(call_user_func_array([$this, 'getOne'], $params));
     }
 
     /**
      * GET a collection resource
      */
-    protected function _get()
+    protected function _get($params)
     {
-        $this->response($this->get());
+        $this->response(call_user_func_array([$this, 'get'], $params));
     }
 
     /**
      * POST a new resource to the collection
      */
-    protected function _post()
+    protected function _post($params)
     {
         $obj = $this->request->getPost();
-        $this->response($this->post($obj), Response::CREATED);
+        array_push($params, $obj);
+        $this->response(call_user_func_array([$this, 'post'], $params), Response::CREATED);
     }
 
     /**
@@ -120,10 +123,12 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * 
      * @param string $id
      */
-    protected function _put($id)
+    protected function _put($id, $params)
     {
+        
         $obj = $this->request->getPost();
-        $this->response($this->put($id, $obj));
+        array_push($params, $id, $obj);
+        $this->response(call_user_func_array([$this, 'put'], $params));
     }
 
     /**
@@ -131,9 +136,10 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * 
      * @param type $id
      */
-    protected function _delete($id)
+    protected function _delete($id, $params)
     {
-        $this->delete($id);
+        array_unshift($params, $id);
+        call_user_func_array([$this, 'delete'], $params);
         $this->response(null);
     }
     
