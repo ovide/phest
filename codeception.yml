@@ -1,8 +1,8 @@
 actor: Tester
 paths:
     tests: tests
+    data: tests
     log: tests/_output
-    data: tests/_data
     helpers: tests/_support
 settings:
     bootstrap: _bootstrap.php
@@ -12,10 +12,3 @@ coverage:
     enabled: true
     include:
         - Libs/*
-modules:
-    config:
-        Db:
-            dsn: ''
-            user: ''
-            password: ''
-            dump: tests/_data/dump.sql
