@@ -2,7 +2,7 @@
 
 use Ovide\Libs\Mvc\Rest;
 
-class FooMock extends Rest\Controller
+class Foo extends Rest\Controller
 {
     public static $data = [
         [

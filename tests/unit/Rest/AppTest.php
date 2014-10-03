@@ -1,6 +1,7 @@
 <?php
 
 use Ovide\Libs\Mvc\Rest\App;
+use Mockery as m;
 
 class RestAppTest extends \Codeception\TestCase\Test
 {
@@ -53,7 +54,7 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResource()
     {
         $I = $this->tester;
-        $this->app->addResource('route', \BasicMock::class);
+        $this->app->addResource('route', Mocks\Controllers\Basic::class);
         $routes = $this->app->router->getRoutes();
         $route = $routes[0];
         /* @var $route \Phalcon\Mvc\Router\Route */
@@ -66,7 +67,7 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResourceWithPattern()
     {
         $I = $this->tester;
-        $this->app->addResource('route', \BasicMock::class, '[0-9]*');
+        $this->app->addResource('route', Mocks\Controllers\Basic::class, '[0-9]*');
         $routes = $this->app->router->getRoutes();
         $route = $routes[0];
         /* @var $route \Phalcon\Mvc\Router\Route */
@@ -80,8 +81,8 @@ class RestAppTest extends \Codeception\TestCase\Test
     {
         $I = $this->tester;
         App::addResources([
-            'route' => \BasicMock::class,
-            'foo'   => \FooMock::class
+            'route' => Mocks\Controllers\Basic::class,
+            'foo'   => Mocks\Controllers\Basic::class
         ]);
         $routes = $this->app->router->getRoutes();
         $route  = $routes[0];
@@ -135,9 +136,9 @@ class RestAppTest extends \Codeception\TestCase\Test
         
         $I = $this->tester;
         App::addResources([
-            'route'              => \BasicMock::class,
-            'foo'                => \FooMock::class,
-            'foo/{fooId:[0-9]*}' => \FooVarMock::class,
+            'route'              => Mocks\Controllers\Basic::class,
+            'foo'                => Mocks\Controllers\Foo::class,
+            'foo/{fooId:[0-9]*}' => Mocks\Controllers\FooVar::class,
         ]);
         $routes = $this->app->router->getRoutes();
         $route  = $routes[0];

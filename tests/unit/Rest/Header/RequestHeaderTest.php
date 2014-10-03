@@ -23,7 +23,7 @@ class RequestHeaderTest extends \Codeception\TestCase\Test
         $request  = new \Phalcon\Http\Request();
         
         try {
-            $header = new \InvalideRequestHeaderMock($request);
+            $header = new \Mocks\Headers\InvalidRequestHeader($request);
             $I->assertTrue(false);
         } catch (\LogicException $ex) {
             $I->assertTrue(true);
@@ -38,7 +38,7 @@ class RequestHeaderTest extends \Codeception\TestCase\Test
         
         $request  = new \Phalcon\Http\Request();
         
-        $header = new \SimpleHeaderMock($request);
+        $header = new Mocks\Headers\Basic($request);
         $I->assertEquals('var', $header->get());
     }
 

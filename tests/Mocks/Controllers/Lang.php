@@ -2,7 +2,7 @@
 
 use Ovide\Libs\Mvc\Rest;
 
-class LangMock extends Rest\Controller
+class Lang extends Rest\Controller
 {
     
     protected $_availableLanguages = ['es', 'ca'];

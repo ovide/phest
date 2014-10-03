@@ -18,6 +18,7 @@ class ControllerTest extends \Codeception\TestCase\Test
     
     protected function _before()
     {
+        Rest\App::instance();
         //$_SERVER['REQUEST_URI'] = 'logs';
         //$_GET["_url"] = '/logs';
     }
