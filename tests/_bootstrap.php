@@ -10,3 +10,4 @@ $loader->registerNamespaces([
 ]);
 $loader->register();
 
+Ovide\Libs\Mvc\Rest\App::instance();

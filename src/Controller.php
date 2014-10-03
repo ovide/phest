@@ -26,12 +26,23 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     protected $_locale = null;
     protected $_availableLanguages = [];
     protected $_disalowedLanguages = [];
+    
+    protected $_instanceHeaders = [];
+
+    /**
+     * List of registered RequestHeaders to check.
+     * 
+     * @var Header\RequestHeader[]
+     */
+    protected static $_globalHeaders = [];
+    
     /**
      * Sets if we are on development so we can dump real errors
      * 
      * @var bool
      */
-    protected $_devEnv = false;
+    protected static $_devEnv = false;
+    
 
     /**
      * Last argument is matched as the resource main id
@@ -41,12 +52,14 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     public function _index(...$params)
     {
-        $this->_getBestLang();
+        //$this->_getBestLang();
+        //$this->checkHeaders();
+                
         $method = $this->request->getMethod();
         try {
             $this->_call($method, $params);
         } catch (\Exception $ex) {
-            $msg = $this->_devEnv ?
+            $msg = self::$_devEnv ?
                 [
                     'message' => $ex->getMessage(),
                     'code'    => $ex->getCode(),
@@ -65,15 +78,40 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                     $ex->getCode() : 
                     Response::INTERNAL_ERROR
                 ),
-                $this->_devEnv ? trim($ex->getMessage()) : null
+                self::$_devEnv ? trim($ex->getMessage()) : null
             );
         }
         return $this->response;
     }
     
-    public function devEnv($closure)
+    public static function devEnv($closure)
     {
-        $this->_devEnv = $closure();
+        self::$_devEnv = $closure();
+    }
+    
+    public static function registerHeaders(Array $classNames)
+    {
+        foreach($classNames as $className) {
+            $rc = new \ReflectionClass($className);
+            if ($rc->isSubclassOf(Header\RequestHeader::class)) {
+                self::$_globalHeaders[] = $className;
+            }
+        }
+        
+    }
+    
+    protected function checkHeaders()
+    {
+        $merged = array_unique(
+            array_merge(
+                static::$_globalHeaders,
+                $this->_instanceHeaders
+        ));
+        $available = array_diff($merged, $this->_disalowedLanguages);
+        
+        foreach ($available as $header) {
+            $register = new $header($this->request);
+        }
     }
     
     /**
@@ -242,7 +280,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }
     }
     
-
     /**
      * Disallow an acceptable language for this controller
      * 

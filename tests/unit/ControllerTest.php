@@ -29,7 +29,7 @@ class ControllerTest extends \Codeception\TestCase\Test
     }
 
     
-    public function testIndexGetOneNoArgs()
+    public function testGetOneNoArgs()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -52,7 +52,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
     }
     
-    public function testIndexGetOneWithArgs()
+    public function testGetOneWithArgs()
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $I = $this->tester;
@@ -73,7 +73,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
     }
     
-    public function testIndexGetNoArgs()
+    public function testGetNoArgs()
     {
         $I = $this->tester;
         
@@ -96,7 +96,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         //);
     }
     
-    public function testIndexGetWithArgs()
+    public function testGetWithArgs()
     {
         $I = $this->tester;
         
@@ -118,7 +118,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
     }
     
-    public function testIndexPostNoArgs()
+    public function testPostNoArgs()
     {
         $I = $this->tester;
         
@@ -140,7 +140,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
     }
     
-    public function testIndexPostWithArgs()
+    public function testPostWithArgs()
     {
         $I = $this->tester;
         
@@ -162,7 +162,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
     }
     
-    public function testIndexPutNoArgs()
+    public function testPutNoArgs()
     {
         $I = $this->tester;
         
@@ -184,7 +184,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
     }
     
-    public function testIndexPutWithArgs()
+    public function testPutWithArgs()
     {
         $I = $this->tester;
         
@@ -206,7 +206,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
     }
     
-    public function testIndexDeleteNoArgs()
+    public function testDeleteNoArgs()
     {
         $I = $this->tester;
         
@@ -228,7 +228,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );        
     }
     
-    public function testIndexDeleteWithArgs()
+    public function testDeleteWithArgs()
     {
         $I = $this->tester;
         
@@ -250,7 +250,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );        
     }
     
-    public function testIndexGetNotAllowed()
+    public function testGetNotAllowed()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -266,7 +266,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
     }
     
-    public function testIndexPostNotAllowed()
+    public function testPostNotAllowed()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -282,7 +282,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
     }
     
-    public function testIndexPutNotAllowed()
+    public function testPutNotAllowed()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -298,7 +298,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
     }
     
-    public function testIndexDeleteNotAllowed()
+    public function testDeleteNotAllowed()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -314,7 +314,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
     }
     
-    public function testIndexAnyNotAllowed()
+    public function testAnyNotAllowed()
     {
         $I = $this->tester;
         
@@ -329,7 +329,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
     }
     
-    public function testIndexException()
+    public function testException()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -351,7 +351,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals(Rest\Response::INTERNAL_ERROR, $h[0]);
     }
     
-    public function testIndexRestException()
+    public function testRestException()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -373,7 +373,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals(Rest\Response::CONFLICT, $h[0]);        
     }
     
-    public function testIndexSeeDetailedErrorIfDevEnv()
+    public function testSeeDetailedErrorIfDevEnv()
     {
         /* @var $controller Rest\Controller */
         $I = $this->tester;
@@ -387,7 +387,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
         
-        $controller->devEnv(function() {
+        Rest\Controller::devEnv(function() {
             return true;
         });
         
@@ -398,5 +398,21 @@ class ControllerTest extends \Codeception\TestCase\Test
         $h = explode(' ', $status, 2);
         $expected = 'No matching handler found for Mockery_0_Mocks_Controllers_Basic::getOne("bar", "foo"). Either the method was unexpected or its arguments matched no expected argument list for this method';
         $I->assertEquals($expected, $h[1]);
+    }
+    
+    public function testRegisterHeaders()
+    {
+        /* @var $controller Rest\Controller */
+        $I = $this->tester;
+        
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        
+        //$headerClass = m::mock(Mocks\Headers\Basic::class)
+        //        ->shouldReceive('__construct')
+        //        ->once()
+        //;
+        //$c = new $headerClass();
+        
+        //Rest\Controller::registerHeaders([$headerClass]);
     }
 }
