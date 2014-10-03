@@ -21,6 +21,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     /**
      * The best language accepted for the client.
      * Setted automatically at start from the 'Accept-Language' request header
+     * 
      * @var string
      */
     protected $_locale = null;
@@ -59,9 +60,19 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         try {
             $this->_call($method, $params);
         } catch (\Exception $ex) {
-            $msg = self::$_devEnv ?
+            //Check if is an internal exception
+            //determines if the error message is visible or hidden
+            $ix  = ($ex instanceof Exception\Exception);
+            $code    = $ix ? $ex->getCode() : Response::INTERNAL_ERROR;
+            $message = ($ix || self::$_devEnv) ? 
+                trim($ex->getMessage()) : 
+                Response::$status[$code];
+            
+            
+            //If $_devEnv is up shows also the debug trace
+            $msg     = self::$_devEnv ?
                 [
-                    'message' => $ex->getMessage(),
+                    'message' => trim($ex->getMessage()),
                     'code'    => $ex->getCode(),
                     'type'    => \get_class($ex),
                     'file'    => $ex->getFile(),
@@ -70,25 +81,29 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 ]
                     :
                 [
-                    'message' => Response::INTERNAL_ERROR,
-                    'code'    => Response::$status[Response::INTERNAL_ERROR],
+                    'message' => $message,
+                    'code'    => $code,
                 ];
-            $this->response($msg,
-                ($ex instanceof Exception\Exception ? 
-                    $ex->getCode() : 
-                    Response::INTERNAL_ERROR
-                ),
-                self::$_devEnv ? trim($ex->getMessage()) : null
-            );
+            $this->response($msg, $code, $message);
         }
         return $this->response;
     }
     
-    public static function devEnv($closure)
+    /**
+     * 
+     * @param \Closure $closure
+     */
+    public static function devEnv(\Closure $closure)
     {
         self::$_devEnv = $closure();
     }
-    
+
+    /**
+     * 
+     * 
+     * @todo
+     * @param array $classNames
+     */
     public static function registerHeaders(Array $classNames)
     {
         foreach($classNames as $className) {
@@ -187,7 +202,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         if (!method_exists($this, 'get')) {
             throw new Exception\MethodNotAllowed();
         }
-        $rsp = $this->response(call_user_func_array([$this, 'get'], $params));
+        $rsp = call_user_func_array([$this, 'get'], $params);
         if ($rsp === false) {
             throw new Exception\BadRequest();
         }

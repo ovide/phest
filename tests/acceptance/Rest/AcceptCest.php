@@ -1,17 +1,15 @@
 <?php
 use \AcceptanceTester;
 use Ovide\Libs\Mvc\Rest;
-
-require_once __DIR__.'/../mocks/BasicMock.php';
-require_once __DIR__.'/../mocks/FooMock.php';
+use Mocks\Controllers;
 
 class AcceptCest
 {
     public function _before(AcceptanceTester $I)
     {
         Rest\App::addResources([
-            'basic'     => BasicMock::class,
-            'basic/foo' => FooMock::class
+            'basic'     => Controllers\Basic::class,
+            'basic/foo' => Controllers\Foo::class
         ]);
     }
 
@@ -23,14 +21,14 @@ class AcceptCest
     {
         $I->sendGET('/basic/foo/');
         $I->seeResponseCodeIs(200);
-        $I->seeResponseEquals(json_encode(FooMock::$data));
+        $I->seeResponseEquals(json_encode(Controllers\Foo::$data));
     }
     
     public function testGetOne(AcceptanceTester $I)
     {
         $I->sendGET('/basic/foo/2');
         $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson(json_encode(FooMock::$data[1]));
+        $I->seeResponseIsJson(json_encode(Controllers\Foo::$data[1]));
     }
     
     public function testNotFound(AcceptanceTester $I)

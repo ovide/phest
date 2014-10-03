@@ -4,9 +4,7 @@ use Ovide\Libs\Mvc\Rest;
 
 class Basic extends Rest\Controller
 {
-    public function get() {
-        
-    }
+    public function get() {}
 
     public function getOne($id) {}
 

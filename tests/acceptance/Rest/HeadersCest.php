@@ -2,9 +2,6 @@
 use \AcceptanceTester;
 use Ovide\Libs\Mvc\Rest;
 
-require_once __DIR__.'/../mocks/BasicMock.php';
-require_once __DIR__.'/../mocks/FooMock.php';
-
 class HeadersCest
 {
     
