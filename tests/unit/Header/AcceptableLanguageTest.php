@@ -1,5 +1,4 @@
 <?php
-namespace Header;
 
 use Ovide\Libs\Mvc\Rest\Header\AcceptLanguage;
 

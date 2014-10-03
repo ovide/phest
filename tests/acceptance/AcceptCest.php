@@ -67,7 +67,6 @@ class AcceptCest
     public function testInternalServerError(AcceptanceTester $I)
     {
         $I->sendDELETE('/basic/foo/0');
-        $rsp = $I->grabResponse();
         $I->seeResponseCodeIs(500);
         $I->seeResponseEquals(json_encode([
             'message' => 'Internal server error',

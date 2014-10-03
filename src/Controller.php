@@ -23,26 +23,57 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * Setted automatically at start from the 'Accept-Language' request header
      * @var string
      */
-    protected $_locale = 'en';
+    protected $_locale = null;
     protected $_availableLanguages = [];
     protected $_disalowedLanguages = [];
+    /**
+     * Sets if we are on development so we can dump real errors
+     * 
+     * @var bool
+     */
+    protected $_devEnv = false;
 
+    /**
+     * Last argument is matched as the resource main id
+     * so must pass an empty string to request a get() or post() call
+     * 
+     * @params string $params List of matched identifiers in the router
+     */
     public function _index(...$params)
     {
-        $this->getBestLang();
+        $this->_getBestLang();
         $method = $this->request->getMethod();
         try {
             $this->_call($method, $params);
         } catch (\Exception $ex) {
-            $this->response([
-                'message' => $ex->getMessage(),
-                'code'    => $ex->getCode(),
-                //'type'    => \get_class($ex),
-                //'file'    => $ex->getFile(),
-                //'line'    => $ex->getLine()
-            ], ($ex instanceof Exception\Exception) ? $ex->getCode() : Response::INTERNAL_ERROR);
+            $msg = $this->_devEnv ?
+                [
+                    'message' => $ex->getMessage(),
+                    'code'    => $ex->getCode(),
+                    'type'    => \get_class($ex),
+                    'file'    => $ex->getFile(),
+                    'line'    => $ex->getLine(),
+                    'trace'   => $ex->getTrace(),
+                ]
+                    :
+                [
+                    'message' => Response::INTERNAL_ERROR,
+                    'code'    => Response::$status[Response::INTERNAL_ERROR],
+                ];
+            $this->response($msg,
+                ($ex instanceof Exception\Exception ? 
+                    $ex->getCode() : 
+                    Response::INTERNAL_ERROR
+                ),
+                $this->_devEnv ? trim($ex->getMessage()) : null
+            );
         }
         return $this->response;
+    }
+    
+    public function devEnv($closure)
+    {
+        $this->_devEnv = $closure();
     }
     
     /**
@@ -96,8 +127,18 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     protected function _getOne($id, $params)
     {
+        if (!method_exists($this, 'getOne')) {
+            throw new Exception\MethodNotAllowed();
+        }
+        
         array_unshift($params, $id);
-        $this->response(call_user_func_array([$this, 'getOne'], $params));
+        $rsp = call_user_func_array([$this, 'getOne'], $params);
+        
+        if ($rsp === false){
+            throw new Exception\BadRequest();
+        }
+        
+        $this->response($rsp);
     }
 
     /**
@@ -105,7 +146,14 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     protected function _get($params)
     {
-        $this->response(call_user_func_array([$this, 'get'], $params));
+        if (!method_exists($this, 'get')) {
+            throw new Exception\MethodNotAllowed();
+        }
+        $rsp = $this->response(call_user_func_array([$this, 'get'], $params));
+        if ($rsp === false) {
+            throw new Exception\BadRequest();
+        }
+        $this->response($rsp);
     }
 
     /**
@@ -113,9 +161,20 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     protected function _post($params)
     {
+        if (!method_exists($this, 'post')) {
+            throw new Exception\MethodNotAllowed();
+        }
+        
         $obj = $this->request->getPost();
         array_push($params, $obj);
-        $this->response(call_user_func_array([$this, 'post'], $params), Response::CREATED);
+        
+        $rsp = call_user_func_array([$this, 'post'], $params);
+        
+        if ($rsp === false) {
+            throw new Exception\BadRequest();
+        }
+        
+        $this->response($rsp, Response::CREATED);
     }
 
     /**
@@ -125,10 +184,19 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     protected function _put($id, $params)
     {
+        if (!method_exists($this, 'put')) {
+            throw new Exception\MethodNotAllowed();
+        }
         
         $obj = $this->request->getPost();
         array_push($params, $id, $obj);
-        $this->response(call_user_func_array([$this, 'put'], $params));
+        
+        $rsp = call_user_func_array([$this, 'put'], $params);
+        
+        if ($rsp === false) {
+            throw new Exception\BadRequest();
+        }
+        $this->response($rsp);
     }
 
     /**
@@ -138,8 +206,18 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     protected function _delete($id, $params)
     {
+        if (!method_exists($this, 'delete')) {
+            throw new Exception\MethodNotAllowed();
+        }
+        
         array_unshift($params, $id);
-        call_user_func_array([$this, 'delete'], $params);
+        
+        $rsp = call_user_func_array([$this, 'delete'], $params);
+        
+        if ($rsp === false) {
+            throw new Exception\BadRequest();
+        }
+        
         $this->response(null);
     }
     
@@ -148,7 +226,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * 
      * @param string[] $moreAvailable
      */
-    protected function getBestLang($moreAvailable=[])
+    protected function _getBestLang($moreAvailable=[])
     {
         $merged = array_unique(
             array_merge(
@@ -164,6 +242,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }
     }
     
+
     /**
      * Disallow an acceptable language for this controller
      * 

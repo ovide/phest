@@ -1,8 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php
 
-require_once __DIR__.'/../mocks/BasicMock.php';
-require_once __DIR__.'/../mocks/FooMock.php';
-require_once __DIR__.'/../mocks/FooVarMock.php';
+use Ovide\Libs\Mvc\Rest\App;
 
 class RestAppTest extends \Codeception\TestCase\Test
 {

@@ -1,4 +1,4 @@
-<?php
+<?php namespace Mocks\Controllers;
 
 use Ovide\Libs\Mvc\Rest;
 

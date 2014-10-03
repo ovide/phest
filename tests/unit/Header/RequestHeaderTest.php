@@ -1,8 +1,4 @@
 <?php
-namespace Header;
-
-require_once __DIR__.'/../../mocks/InvalidRequestHeaderMock.php';
-require_once __DIR__.'/../../mocks/SimpleHeaderMock.php';
 
 class RequestHeaderTest extends \Codeception\TestCase\Test
 {
