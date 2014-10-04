@@ -188,10 +188,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         
         $rsp = call_user_func_array([$this, $method], $params);
         
-        if ($rsp === false){
-            throw new Exception\BadRequest();
-        }
-        
         if ($method == 'post') {
             $code = Response::CREATED;
         }
