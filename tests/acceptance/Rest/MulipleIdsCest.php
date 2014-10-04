@@ -1,13 +1,14 @@
 <?php
 use \AcceptanceTester;
 use Ovide\Libs\Mvc\Rest;
+use Mocks\Controllers\FooVar;
 
 class MulipleIdsCest
 {
     public function _before(AcceptanceTester $I)
     {
         $app = Rest\App::instance();
-        $app->addResource('foo/{fooId:[0-9]*}/var', FooVarMock::class);
+        $app->addResource('foo/{fooId:[0-9]*}/var', FooVar::class);
     }
 
     public function _after(AcceptanceTester $I)
@@ -19,14 +20,14 @@ class MulipleIdsCest
     {
         $I->sendGET('/foo/1/var');
         $I->seeResponseCodeIs(200);
-        $I->seeResponseEquals(json_encode(FooVarMock::$data[0]));
+        $I->seeResponseEquals(json_encode(FooVar::$data[0]));
     }
     
     public function testGetOne(AcceptanceTester $I)
     {
         $I->sendGET('/foo/1/var/1');
         $I->seeResponseCodeIs(200);
-        $I->seeResponseEquals(json_encode(FooVarMock::$data[0][0]));
+        $I->seeResponseEquals(json_encode(FooVar::$data[0][0]));
     }
     
     public function testPost(AcceptanceTester $I)
