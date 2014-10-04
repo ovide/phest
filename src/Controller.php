@@ -104,6 +104,8 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * @todo
      * @param array $classNames
      */
+    
+    /*
     public static function registerHeaders(Array $classNames)
     {
         foreach($classNames as $className) {
@@ -129,6 +131,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }
     }
     
+     * 
+     */
+    
     /**
      * Select the HTTP method to call
      * 
@@ -141,25 +146,59 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         switch ($method) {
             case 'GET':
                 if ($id === '') {
-                    $this->_get($params);
+                    $this->_method('get', null, $params);
                 } else {
-                    $this->_getOne($id, $params);
+                    $this->_method('getOne', $id, $params);
                 }
                 break;
             case 'POST':
-                $this->_post($params);
+                $this->_method('post', null, $params);
                 break;
             case 'PUT':
-                $this->_put($id, $params);
+                $this->_method('put', $id, $params);
                 break;
             case 'DELETE':
-                $this->_delete($id, $params);
+                $this->_method('delete', $id, $params);
                 break;
             default:
                 $this->response(null, Response::NOT_ALLOWED);
         }        
     }
 
+    protected function _method($method, $id, $params=null)
+    {
+        $code = null;
+        
+        if (!method_exists($this, $method)) {
+            throw new Exception\MethodNotAllowed();
+        }
+        
+        if ($method == 'getOne' || $method == 'delete') {
+            array_unshift($params, $id);
+        } elseif ($method == 'post') {
+            $obj = $this->request->getPost();
+            array_push($params, $obj);
+        } elseif ($method == 'put') {
+            $obj = $this->request->getPost();
+            array_push($params, $id, $obj);
+        }
+
+        //@todo Insert location of the new resource after POST
+        //$this->response->setHeader('Location', '');
+        
+        $rsp = call_user_func_array([$this, $method], $params);
+        
+        if ($rsp === false){
+            throw new Exception\BadRequest();
+        }
+        
+        if ($method == 'post') {
+            $code = Response::CREATED;
+        }
+        
+        $this->response($rsp, $code);
+    }
+    
     /**
      * Sets the response content, status code and status message
      * following some basic REST concepts
@@ -174,112 +213,11 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     }
 
     /**
-     * GET a single resource
-     * 
-     * @param string $id
-     */
-    protected function _getOne($id, $params)
-    {
-        if (!method_exists($this, 'getOne')) {
-            throw new Exception\MethodNotAllowed();
-        }
-        
-        array_unshift($params, $id);
-        $rsp = call_user_func_array([$this, 'getOne'], $params);
-        
-        if ($rsp === false){
-            throw new Exception\BadRequest();
-        }
-        
-        $this->response($rsp);
-    }
-
-    /**
-     * GET a collection resource
-     */
-    protected function _get($params)
-    {
-        if (!method_exists($this, 'get')) {
-            throw new Exception\MethodNotAllowed();
-        }
-        $rsp = call_user_func_array([$this, 'get'], $params);
-        if ($rsp === false) {
-            throw new Exception\BadRequest();
-        }
-        $this->response($rsp);
-    }
-
-    /**
-     * POST a new resource to the collection
-     */
-    protected function _post($params)
-    {
-        if (!method_exists($this, 'post')) {
-            throw new Exception\MethodNotAllowed();
-        }
-        
-        $obj = $this->request->getPost();
-        array_push($params, $obj);
-        
-        $rsp = call_user_func_array([$this, 'post'], $params);
-        
-        if ($rsp === false) {
-            throw new Exception\BadRequest();
-        }
-        //@todo Insert location of the new resource
-        //$this->response->setHeader('Location', '');
-        $this->response($rsp, Response::CREATED);
-    }
-
-    /**
-     * PUT a existent resource updating it
-     * 
-     * @param string $id
-     */
-    protected function _put($id, $params)
-    {
-        if (!method_exists($this, 'put')) {
-            throw new Exception\MethodNotAllowed();
-        }
-        
-        $obj = $this->request->getPost();
-        array_push($params, $id, $obj);
-        
-        $rsp = call_user_func_array([$this, 'put'], $params);
-        
-        if ($rsp === false) {
-            throw new Exception\BadRequest();
-        }
-        $this->response($rsp);
-    }
-
-    /**
-     * DELETE a resource
-     * 
-     * @param type $id
-     */
-    protected function _delete($id, $params)
-    {
-        if (!method_exists($this, 'delete')) {
-            throw new Exception\MethodNotAllowed();
-        }
-        
-        array_unshift($params, $id);
-        
-        $rsp = call_user_func_array([$this, 'delete'], $params);
-        
-        if ($rsp === false) {
-            throw new Exception\BadRequest();
-        }
-        
-        $this->response(null);
-    }
-    
-    /**
      * Sets $_locale attribute from the Accept-Language request header
      * 
      * @param string[] $moreAvailable
      */
+    /*
     protected function _getBestLang($moreAvailable=[])
     {
         $merged = array_unique(
@@ -296,14 +234,19 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }
     }
     
+     * 
+     */
     /**
      * Disallow an acceptable language for this controller
      * 
      * @param string $lang
      */
+    /*
     protected function disallowLanguage($lang)
     {
         if (!in_array($lang, $this->_disalowedLanguages))
             $this->_disalowedLanguages[] = $lang;
     }
+     * 
+     */
 }
