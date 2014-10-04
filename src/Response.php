@@ -51,10 +51,12 @@ class Response extends \Phalcon\Http\Response
     public function __construct($content = null, $code = null, $status = null) {
         parent::__construct($content, $code, $status);
         if ($this->_content) {
+            /*
             if (($code === null || $code < 300) && ($this->eTag())){
                 $this->_content = '';
                 return;
             }
+             */
             $this->buildBody();
             if (!$code) {
                 $code = self::OK;
@@ -63,7 +65,7 @@ class Response extends \Phalcon\Http\Response
             $code = self::NO_CONTENT;
         }
         if (!$status) {
-            $status = self::$status[$code];
+            $status = isset(self::$status[$code]) ? self::$status[$code] : '';
         }
         $this->setStatusCode($code, $status);
     }
@@ -75,18 +77,23 @@ class Response extends \Phalcon\Http\Response
      * @param string $content
      * @return boolean true if matches
      */
+    /*
     protected function eTag()
     {
+        
         $et = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? $_SERVER['HTTP_IF_NONE_MATCH'] : '';
         //$et = filter_input(INPUT_SERVER, 'HTTP_IF_NONE_MATCH');
         $net = '"'.md5(serialize($this->_content)).'"';
         $this->setEtag($net);
         if ($et === $net) {
-            $this->setStatusCode(self::NOT_MODIFIED, self::$status[self::NOT_MODIFIED]);
+            $this->setStatusCode(self::NOT_MODIFIED, 
+                    self::$status[self::NOT_MODIFIED]);
             return true;
         }
         return false;
     }
+     * 
+     */
     
     /**
      * Build the body using an acceptable format
