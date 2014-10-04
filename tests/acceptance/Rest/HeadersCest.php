@@ -1,6 +1,7 @@
 <?php
 use \AcceptanceTester;
 use Ovide\Libs\Mvc\Rest;
+use Mocks\Controllers;
 
 class HeadersCest
 {
@@ -8,8 +9,7 @@ class HeadersCest
     public function _before(AcceptanceTester $I)
     {
         Rest\App::addResources([
-            'basic'     => BasicMock::class,
-            'basic/foo' => FooMock::class
+            'basic/foo' => Controllers\Foo::class
         ]);
     }
 
@@ -20,7 +20,7 @@ class HeadersCest
 
     public function testEtag(AcceptanceTester $I)
     {
-        $uris = ['/basic/1', '/basic/2'];
+        $uris = ['/basic/foo/1', '/basic/foo/2'];
         foreach ($uris as $uri) {
             $I->sendGET($uri);
             $I->seeHttpHeader('ETag');
