@@ -24,6 +24,9 @@ class Foo extends Rest\Controller
     
     public function getOne($id)
     {
+        if (!is_numeric($id)) {
+            throw new \Exception('Foo exception', 555);
+        }
         if (!isset(self::$data[$id - 1])) {
             throw new Rest\Exception\NotFound("$id not found");
         }
@@ -37,6 +40,8 @@ class Foo extends Rest\Controller
             'name'        => $obj['name'],
             'description' => $obj['description']
         ];
+        
+        return self::$data[count(self::$data) - 1];
     }
     
     public function delete($id)

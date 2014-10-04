@@ -1,13 +1,16 @@
 <?php
 use \AcceptanceTester;
 use Ovide\Libs\Mvc\Rest;
+use Mocks\Controllers;
 
 class BasicCest
 {
     public function _before(AcceptanceTester $I)
     {
-        $app = Rest\App::instance();
-        $app->addResource('basic', BasicMock::class);
+        Rest\App::addResources([
+            'basic' => Controllers\Foo::class
+        ]);
+        Controllers\Foo::devEnv(function(){return true;});
     }
 
     public function _after(AcceptanceTester $I)
@@ -20,7 +23,7 @@ class BasicCest
     {
         $I->sendGET('/basic');
         $I->seeResponseCodeIs(200);
-        $I->seeResponseEquals(json_encode(BasicMock::$data));
+        $I->seeResponseEquals(json_encode(Controllers\Foo::$data));
     }
 
     /**
@@ -31,24 +34,27 @@ class BasicCest
     {
         $I->sendGET('/basic/1');
         $I->seeResponseCodeIs(200);
-        $expected = BasicMock::$data[0];
+        $expected = Controllers\Foo::$data[0];
         $I->seeResponseEquals(json_encode($expected));
     }
 
     public function testPost(AcceptanceTester $I)
     {
-        $post = ['id' => 3, 'name' => 'Post'];
+        $post    = ['name' => 'Post', 'description' => 'PostDesc'];
+        $prepend = ['id' => 3];
         $I->sendPOST('/basic/', $post);
+        $prepend += $post;
         $I->seeResponseCodeIs(201);
-        $I->seeResponseEquals(json_encode($post));
+        //TODO
+        //$I->seeHttpHeader('Location', '/basic/3');
+        $I->seeResponseEquals(json_encode($prepend));
     }
 
     public function testPut(AcceptanceTester $I)
     {
-        $put = ['id' => 3, 'name' => 'Put'];
+        $put = ['id' => 3, 'name' => 'Put', 'description' => 'PUT'];
         $I->sendPUT('/basic/3', $put);
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseEquals(json_encode($put));
+        $I->seeResponseCodeIs(204);
     }
 
     public function testDelete(AcceptanceTester $I)
@@ -77,10 +83,10 @@ class BasicCest
      */
     public function testError500(AcceptanceTester $I)
     {
-        $I->sendGET('/basic/4');
+        $I->sendGET('/basic/dsadf');
         $expected = [
-            'message' => 'Undefined offset: 3',
-            'code'    => 0,
+            'message' => 'Foo exception',
+            'code'    => 555,
             //'type'    => 'ErrorException',
             //'line'    => 28
         ];

@@ -226,7 +226,8 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         if ($rsp === false) {
             throw new Exception\BadRequest();
         }
-        
+        //@todo Insert location of the new resource
+        //$this->response->setHeader('Location', '');
         $this->response($rsp, Response::CREATED);
     }
 
