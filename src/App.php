@@ -34,12 +34,12 @@ class App extends Micro
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $app = self::$app;
-            $app->notFound(function() use($app){
+            $app->_notFoundHandler = function() use($app){
                 $response = new Response();
                 $response->notFound();
                 $app->response = $response;
                 return $app->response;
-            });
+            };
         } else {
             throw new \RuntimeException("Can't instance RestApp more than once");
         }
@@ -50,7 +50,6 @@ class App extends Micro
      */
     public final static function instance()
     {
-        
         if (self::$app === null) {
             $class = static::class;
             new $class();
