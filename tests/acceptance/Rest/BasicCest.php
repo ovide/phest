@@ -10,7 +10,6 @@ class BasicCest
         Rest\App::addResources([
             'basic' => Controllers\Foo::class
         ]);
-        Controllers\Foo::devEnv(function(){return true;});
     }
 
     public function _after(AcceptanceTester $I)
@@ -85,12 +84,10 @@ class BasicCest
     {
         $I->sendGET('/basic/dsadf');
         $expected = [
-            'message' => 'Foo exception',
-            'code'    => 555,
-            //'type'    => 'ErrorException',
-            //'line'    => 28
+            'message' => Rest\Response::$status[Rest\Response::INTERNAL_ERROR],
+            'code'    => Rest\Response::INTERNAL_ERROR,
         ];
-        $I->seeResponseCodeIs(500);
+        $I->seeResponseCodeIs(Rest\Response::INTERNAL_ERROR);
         $I->seeResponseContainsJson($expected);
     }
     

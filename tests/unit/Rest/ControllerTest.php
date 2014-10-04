@@ -388,11 +388,11 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
         
-        Rest\Controller::devEnv(function() {
-            return true;
-        });
+        Rest\Controller::devEnv(function() { return true; });
         
         $resp = $controller->_index('foo', 'bar');
+        
+        Rest\Controller::devEnv(function(){ return false; });
         
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
