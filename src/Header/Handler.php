@@ -1,5 +1,7 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Header;
 
+use Ovide\Libs\Mvc\Rest\App;
+
 abstract class Handler implements HandlerInterface {
     /**
      * @var \Phalcon\Http\RequestInterface
@@ -15,6 +17,16 @@ abstract class Handler implements HandlerInterface {
     public function __construct(\Phalcon\Http\RequestInterface $r)
     {
         $this->_request = $r;
+    }
+    
+    public function setConfig($key, $value)
+    {
+        App::instance()->setConfig(static::HEADER, $key, $value);
+    }
+    
+    public function getConfig($key)
+    {
+        App::instance()->getConfig(static::HEADER, $key);
     }
     
     public function init()

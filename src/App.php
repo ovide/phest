@@ -15,14 +15,13 @@ class App extends Micro
      * @var App Singleton instance
      */
     private static $app;
-    
-    /**
-     * @var string[]
-     */
-    protected $availableLanguages = [];
-    
-    protected $headerHandlers = [];
 
+    /**
+     * Configuration sets for HeaderHandlers
+     * @var Array
+     */
+    private $_config = [];
+    
     /**
      * Constructs the app.
      * 
@@ -34,14 +33,18 @@ class App extends Micro
      * @param FactoryDefault $dependencyInjector
      * @throws \RuntimeException
      */
-    public function __construct($dependencyInjector=null) {
+    public function __construct($dependencyInjector=null)
+    {
         if (self::$app === null) {
+            
             if ($dependencyInjector === null) {
                 $dependencyInjector = new FactoryDefault();
             }
+            
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $app = self::$app;
+            
             $app->_notFoundHandler = function() use($app) {
                 $response = new Response();
                 $response->notFound();
@@ -49,12 +52,35 @@ class App extends Micro
                 return $app->response;
             };
             
-            $app->before(function() use ($app) {
-                
-            });
         } else {
             throw new \RuntimeException("Can't instance RestApp more than once");
         }
+    }
+    
+    /**
+     * Sets a config value for a set-key pair
+     * 
+     * @param string $set
+     * @param mixed $key
+     * @param mixed $value
+     */
+    public function setConfig($set, $key, $value)
+    {
+        $this->_config[$set][$key] = $value;
+    }
+    
+    /**
+     * Returns the config value for a set-key pair
+     * 
+     * @param string $set
+     * @param mixed $key
+     * @return mixed
+     */
+    public function getConfig($set, $key)
+    {
+        return isset($this->_config[$set][$key]) ?
+            $this->_config[$set][$key] :
+            null;
     }
   
     /**
@@ -102,6 +128,7 @@ class App extends Micro
     }
     
     /**
+     * Adds a HeaderHandler to the application.
      * 
      * @param string $headerHandler Class name of a HeaderHandler
      */
@@ -111,7 +138,9 @@ class App extends Micro
             $handler = new $headerHandler(self::$app->request);
             self::$app->before(function() use ($handler) {
                 $handler->init();
-                $handler->handle();
+                if ($handler->get()) {
+                    $handler->handle();
+                }
             });
         } else {
             $msg = "$headerHandler is not a ".Header\Handler::class;

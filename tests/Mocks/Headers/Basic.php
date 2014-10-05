@@ -6,9 +6,18 @@ class Basic extends Rest\Header\Handler
 {
     const HEADER = 'FOO';
     
-    public static $_called = 0;
+    public static $_handleCalled = 0;
     
-    public function handle() {
-        self::$_called++;
+    public static $_initCalled = 0;
+    
+    public function init()
+    {
+        parent::init();
+        self::$_initCalled++;
+    }
+    
+    public function handle()
+    {
+        self::$_handleCalled++;
     }
 }

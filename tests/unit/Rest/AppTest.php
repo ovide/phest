@@ -106,32 +106,6 @@ class RestAppTest extends \Codeception\TestCase\Test
         }
     }
     
-    public function testGetAvailableLanguages()
-    {
-        $I = $this->tester;
-        $rapp = new \ReflectionClass(App::class);
-        $ral = $rapp->getProperty('availableLanguages');
-        $ral->setAccessible(true);
-        $ral->setValue(App::instance(), ['es', 'en']);
-        $ral->setAccessible(false);
-        
-        $langs = App::getAvailableLanguages();
-        $I->assertEquals(['es', 'en'], $langs);
-    }
-    
-    /**
-     * @depends testGetAvailableLanguages
-     */
-    public function testAddLanguages()
-    {
-        $I = $this->tester;
-        
-        App::addLanguages(['en','es']);
-        $I->assertEquals(['en', 'es'], App::getAvailableLanguages());
-        App::addLanguages(['en', 'ca']);
-        $I->assertEquals(['en', 'es', 'ca'], App::getAvailableLanguages());
-    }
-    
     public function testAddResourceWithMultipleIds()
     {
         $I = $this->tester;
@@ -180,14 +154,61 @@ class RestAppTest extends \Codeception\TestCase\Test
     {
         $I = $this->tester;
         
-        //$mock = $this->getMockBuilder(Mocks\Headers\Basic::class)
-        //        ->setMockClassName('MockHeader');
-        //$mock->getMock()->expects($this->atLeastOnce());
-        
         $app = App::instance();
         $app->addResource('foo', Mocks\Controllers\Basic::class);
         $app->addHeaderHandler(Mocks\Headers\Basic::class);
         $app->handle('/foo');
-        $I->assertEquals(1, Mocks\Headers\Basic::$_called);
+        
+        $I->assertEquals(1, Mocks\Headers\Basic::$_initCalled);
+        $I->assertEquals(0, Mocks\Headers\Basic::$_handleCalled);
+        
+        Mocks\Headers\Basic::$_initCalled = 0;
+    }
+    
+    /**
+     * @depends testAddRequestHeader
+     */
+    public function testHandleRequestHeader()
+    {
+        $I = $this->tester;
+        
+        $_SERVER['FOO'] = 'bar';
+        $app = App::instance();
+        $app->addResource('foo', Mocks\Controllers\Basic::class);
+        $app->addHeaderHandler(Mocks\Headers\Basic::class);
+        $app->handle('/foo');
+        
+        $I->assertEquals(1, Mocks\Headers\Basic::$_initCalled);
+        $I->assertEquals(1, Mocks\Headers\Basic::$_handleCalled);
+        
+        Mocks\Headers\Basic::$_initCalled   = 0;
+        Mocks\Headers\Basic::$_handleCalled = 0;
+    }
+    
+    public function testSetConfig()
+    {
+        $I = $this->tester;
+        
+        $app = App::instance();
+        $app->setConfig('foo', 'bar', 'var');
+        
+        $this->assertEquals(['foo' => ['bar' => 'var']],
+                PHPUnit_Framework_Assert::readAttribute($app, '_config'));
+    }
+    
+    /**
+     * @depends testSetConfig
+     */
+    public function testGetConfig()
+    {
+        $I = $this->tester;
+        
+        $app = App::instance();
+        $app->setConfig('foo', 'bar', 'var');
+        
+        $actual   = $app->getConfig('foo', 'bar');
+        $expected = 'var';
+        
+        $I->assertEquals($expected, $actual);
     }
 }
