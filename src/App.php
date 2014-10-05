@@ -12,7 +12,7 @@ use Phalcon\DI\FactoryDefault;
 class App extends Micro
 {
     /**
-     * @var App
+     * @var App Singleton instance
      */
     private static $app;
     
@@ -22,6 +22,12 @@ class App extends Micro
     protected $availableLanguages = [];
 
     /**
+     * Constructs the app.
+     * 
+     * <ul>
+     * <li>Checks singleton instance</li>
+     * <li>Adds a dependency injector if none provided</li>
+     * <li>Sets the notFound handler</li>
      * 
      * @param FactoryDefault $dependencyInjector
      * @throws \RuntimeException
@@ -50,7 +56,6 @@ class App extends Micro
      */
     public final static function instance()
     {
-        
         if (self::$app === null) {
             $class = static::class;
             new $class();
@@ -59,9 +64,21 @@ class App extends Micro
     }
 
     /**
+     * Adds a new resource to the app
+     * 
      * @param string $route
+     * The route associated to the resource.
+     * Allows regular expressions and wildcards
      * @param string $controller
+     * The name of the controller class. Must interhit from Controller
+     * @param string $idP
+     * The regular expression for the main resource identifier.
+     * Used as $id in the controller method.
      * @throws \LogicException
+     * If the controller class name provided is not a Controller
+     * @example App::addResource('/foo/bar', Foo::class);
+     * @example App::addResource('/foo/{fooId}/bar', Foo::class);
+     * @example App::addResource('/foo/{[0-9]*}/bar', Foo::class, '[a-z]*');
      */
     public static function addResource($route, $controller, $idP='[a-zA-Z0-9_-]*')
     {
@@ -97,6 +114,9 @@ class App extends Micro
     }
     
     /**
+     * Adds new resources to the app
+     * 
+     * @see addResource()
      * @param array $array []
      *  path => resourceClassName
      */
