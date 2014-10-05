@@ -1,6 +1,7 @@
 <?php
 
 use Ovide\Libs\Mvc\Rest\App;
+use Ovide\Libs\Mvc\Rest;
 use Mockery as m;
 
 class RestAppTest extends \Codeception\TestCase\Test
@@ -27,6 +28,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $ral->setAccessible(true);
         $ral->setValue(null, null);
         $ral->setAccessible(false);
+        m::close();
     }
 
     public function testInstance()
@@ -134,7 +136,6 @@ class RestAppTest extends \Codeception\TestCase\Test
     {
         $I = $this->tester;
         
-        $I = $this->tester;
         App::addResources([
             'route'              => Mocks\Controllers\Basic::class,
             'foo'                => Mocks\Controllers\Foo::class,
@@ -147,5 +148,46 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I->assertEquals('/route[/]?{id:[a-zA-Z0-9_-]*}[/]?', $route->getPattern());
         $I->assertEquals('/foo[/]?{id:[a-zA-Z0-9_-]*}[/]?', $foo->getPattern());
         $I->assertEquals('/foo/{fooId:[0-9]*}[/]?{id:[a-zA-Z0-9_-]*}[/]?', $fooVar->getPattern());
+    }
+    
+    public function testNotFound()
+    {
+        $I = $this->tester;
+
+        //We need at least a resource to init the routes handler
+        $app = App::instance();
+        $app->addResource('var', Mocks\Controllers\Basic::class);
+        /* @var $res \Ovide\Libs\Mvc\Rest\Response */
+        $res = $app->handle('/foo');
+        
+        $this->assertInstanceOf(\Ovide\Libs\Mvc\Rest\Response::class, $res);
+        $I->assertEquals('404 Not Found', $res->getHeaders()->get('Status'));
+    }
+    
+    public function testAddRequestHeaderBadClassName()
+    {
+        $I = $this->tester;
+        $app = App::instance();
+        try {
+            $app->addHeaderHandler(Phalcon\Mvc\Controller::class);
+            $I->assertTrue(false);
+        } catch (LogicException $ex) {
+            $I->assertTrue(true);
+        }
+    }
+    
+    public function testAddRequestHeader()
+    {
+        $I = $this->tester;
+        
+        //$mock = $this->getMockBuilder(Mocks\Headers\Basic::class)
+        //        ->setMockClassName('MockHeader');
+        //$mock->getMock()->expects($this->atLeastOnce());
+        
+        $app = App::instance();
+        $app->addResource('foo', Mocks\Controllers\Basic::class);
+        $app->addHeaderHandler(Mocks\Headers\Basic::class);
+        $app->handle('/foo');
+        $I->assertEquals(1, Mocks\Headers\Basic::$_called);
     }
 }
