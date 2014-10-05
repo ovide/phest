@@ -19,25 +19,6 @@
 abstract class Controller extends \Phalcon\Mvc\Controller
 {
     /**
-     * The best language accepted for the client.
-     * Setted automatically at start from the 'Accept-Language' request header
-     * 
-     * @var string
-     */
-    protected $_locale = null;
-    protected $_availableLanguages = [];
-    protected $_disalowedLanguages = [];
-    
-    protected $_instanceHeaders = [];
-
-    /**
-     * List of registered RequestHeaders to check.
-     * 
-     * @var Header\RequestHeader[]
-     */
-    protected static $_globalHeaders = [];
-    
-    /**
      * Sets if we are on development so we can dump real errors
      * 
      * @var bool
@@ -95,42 +76,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         self::$_devEnv = $closure();
     }
 
-    /**
-     * 
-     * 
-     * @todo
-     * @param array $classNames
-     */
-    
-    /*
-    public static function registerHeaders(Array $classNames)
-    {
-        foreach($classNames as $className) {
-            $rc = new \ReflectionClass($className);
-            if ($rc->isSubclassOf(Header\RequestHeader::class)) {
-                self::$_globalHeaders[] = $className;
-            }
-        }
-        
-    }
-    
-    protected function checkHeaders()
-    {
-        $merged = array_unique(
-            array_merge(
-                static::$_globalHeaders,
-                $this->_instanceHeaders
-        ));
-        $available = array_diff($merged, $this->_disalowedLanguages);
-        
-        foreach ($available as $header) {
-            $register = new $header($this->request);
-        }
-    }
-    
-     * 
-     */
-    
     /**
      * Select the HTTP method to call
      * 
@@ -204,42 +149,4 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     {
         $this->response = new Response($content, $code, $message);
     }
-
-    /**
-     * Sets $_locale attribute from the Accept-Language request header
-     * 
-     * @param string[] $moreAvailable
-     */
-    /*
-    protected function _getBestLang($moreAvailable=[])
-    {
-        $merged = array_unique(
-            array_merge(
-                App::getAvailableLanguages(),
-                $this->_availableLanguages,
-                $moreAvailable
-        ));
-        $available  = array_diff($merged, $this->_disalowedLanguages);
-        
-        $acceptLanguage = new Header\AcceptLanguage($this->request);
-        if ($locale = $acceptLanguage->getBestLanguage($available)) {
-            $this->_locale = $locale;
-        }
-    }
-    
-     * 
-     */
-    /**
-     * Disallow an acceptable language for this controller
-     * 
-     * @param string $lang
-     */
-    /*
-    protected function disallowLanguage($lang)
-    {
-        if (!in_array($lang, $this->_disalowedLanguages))
-            $this->_disalowedLanguages[] = $lang;
-    }
-     * 
-     */
 }
