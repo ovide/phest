@@ -1,7 +1,7 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Header;
 
 
-class AcceptLanguage extends RequestHeader
+class AcceptLanguage extends Handler
 {
     protected $_request;
     protected $_content;
@@ -10,9 +10,9 @@ class AcceptLanguage extends RequestHeader
     
     const HEADER = 'HTTP_ACCEPT_LANGUAGE';
     
-    protected function _init()
+    public function init()
     {
-        parent::_init();
+        parent::init();
         $this->_acceptable = $this->__parseAcceptableLanguages();
     }
     
@@ -61,4 +61,9 @@ class AcceptLanguage extends RequestHeader
         }
         return [];
     }
+
+    public function handle() {
+        
+    }
+
 }

@@ -1,6 +1,6 @@
 <?php namespace Ovide\Libs\Mvc\Rest\Header;
 
-abstract class RequestHeader {
+abstract class Handler implements HandlerInterface {
     /**
      * @var \Phalcon\Http\RequestInterface
      */
@@ -15,13 +15,13 @@ abstract class RequestHeader {
     public function __construct(\Phalcon\Http\RequestInterface $r)
     {
         $this->_request = $r;
-        $this->_init();
     }
     
-    protected function _init()
+    public function init()
     {
         if (!static::HEADER) {
-            throw new \LogicException(get_class() . " constant 'HEADER' is not defined");
+            $msg = get_class() . " constant 'HEADER' is not defined";
+            throw new \LogicException($msg);
         }
         $this->_content = $this->_request->getHeader(static::HEADER);
     }

@@ -1,6 +1,7 @@
 <?php
 
 use Ovide\Libs\Mvc\Rest\App;
+use Ovide\Libs\Mvc\Rest;
 use Mockery as m;
 
 class RestAppTest extends \Codeception\TestCase\Test
@@ -161,5 +162,32 @@ class RestAppTest extends \Codeception\TestCase\Test
         
         $this->assertInstanceOf(\Ovide\Libs\Mvc\Rest\Response::class, $res);
         $I->assertEquals('404 Not Found', $res->getHeaders()->get('Status'));
+    }
+    
+    public function testAddRequestHeaderBadClassName()
+    {
+        $I = $this->tester;
+        $app = App::instance();
+        try {
+            $app->addHeaderHandler(Phalcon\Mvc\Controller::class);
+            $I->assertTrue(false);
+        } catch (LogicException $ex) {
+            $I->assertTrue(true);
+        }
+    }
+    
+    public function testAddRequestHeader()
+    {
+        $I = $this->tester;
+        
+        //$mock = $this->getMockBuilder(Mocks\Headers\Basic::class)
+        //        ->setMockClassName('MockHeader');
+        //$mock->getMock()->expects($this->atLeastOnce());
+        
+        $app = App::instance();
+        $app->addResource('foo', Mocks\Controllers\Basic::class);
+        $app->addHeaderHandler(Mocks\Headers\Basic::class);
+        $app->handle('/foo');
+        $I->assertEquals(1, Mocks\Headers\Basic::$_called);
     }
 }
