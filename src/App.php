@@ -5,7 +5,6 @@ use Phalcon\Mvc\Micro;
 use Phalcon\DI\FactoryDefault;
 
 /**
- * Description of App
  * 
  * @author Albert Ovide <albert@ovide.net>
  */
@@ -25,10 +24,9 @@ class App extends Micro
     /**
      * Constructs the app.
      * 
-     * <ul>
-     * <li>Checks singleton instance</li>
-     * <li>Adds a dependency injector if none provided</li>
-     * <li>Sets the notFound handler</li>
+     * Checks singleton instance
+     * Adds a dependency injector if none provided
+     * Sets the notFound handler
      * 
      * @param FactoryDefault $dependencyInjector
      * @throws \RuntimeException
@@ -147,27 +145,6 @@ class App extends Micro
             throw new \LogicException($msg);
         }
         
-    }
-    
-    
-    
-    /**
-     * @param string[] $langs
-     */
-    public static function addLanguages($langs)
-    {
-        $app = static::instance();
-        foreach ($langs as $lang) {
-            if (!in_array($lang, $app->availableLanguages)) {
-                $app->availableLanguages[] = $lang;
-            }
-        }
-    }
-    
-    public static function getAvailableLanguages()
-    {
-        $ins = static::instance();
-        return $ins->availableLanguages;
     }
     
     /**

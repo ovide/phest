@@ -53,9 +53,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     public function _index(...$params)
     {
-        //$this->_getBestLang();
-        //$this->checkHeaders();
-                
         $method = $this->request->getMethod();
         try {
             $this->_call($method, $params);

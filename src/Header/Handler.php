@@ -26,7 +26,7 @@ abstract class Handler implements HandlerInterface {
     
     public function getConfig($key)
     {
-        App::instance()->getConfig(static::HEADER, $key);
+        return App::instance()->getConfig(static::HEADER, $key);
     }
     
     public function init()
