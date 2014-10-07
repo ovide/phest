@@ -11,11 +11,6 @@ class ControllerTest extends \Codeception\TestCase\Test
     */
     protected $tester;
     
-    /**
-     * @var Rest\Controller
-     */
-    protected $controller;
-    
     protected function _before()
     {
         Rest\App::instance();
@@ -302,6 +297,39 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $actual = $resp->getHeaders()->get('Allow');
         $I->assertEquals('GET, PUT', $actual);
+    }
+    
+    public function testOptionsWithAcl()
+    {
+        $I = $this->tester;
+        
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+
+        $resource = new \Phalcon\Acl\Resource('/foo');
+        $role     = new \Phalcon\Acl\Role('foo');
+        $acl      = new Phalcon\Acl\Adapter\Memory();
+        $acl->setDefaultAction(Phalcon\Acl::DENY);
+        $acl->addResource($resource);
+        $acl->addRole($role);
+        $acl->addResourceAccess($resource->getName(), 
+                ['GET', 'POST', 'PUT', 'DELETE']);
+        $acl->allow($role->getName(), $resource->getName(), 'GET');
+        $acl->allow($role->getName(), $resource->getName(), 'POST');
+        $acl->isAllowed($role->getName(), $resource->getName(), 'GET');
+        $app = Rest\App::instance();
+        //$app->di->set('acl', $acl);
+        $app->setService('acl', $acl);
+        
+        $controller = $this->getMockForAbstractClass(
+            Rest\Controller::class,
+            [], '', true, true, true, ['get', 'put']
+        );
+        $controller->setDI($app->di);
+
+        $resp = $controller->_index();
+
+        $actual = $resp->getHeaders()->get('Allow');
+        $I->assertEquals('GET', $actual);        
     }
     
     public function testOptionsNothingAllowed()

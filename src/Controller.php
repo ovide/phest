@@ -125,10 +125,23 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         /* @var $methods \ReflectionMethod[] */
         $methods = $rc->getMethods();
         
+        $acl = null;
+        $srv = $this->di->getServices();
+        if ($this->di->has('acl')) {
+            /* @var $acl \Phalcon\Acl\Adapter\Memory */
+            $acl      = $this->di->get('acl');
+            $role     = $acl->getActiveRole();
+            $resource = $acl->getActiveResource();
+        }
+        
         foreach ($methods as $method) {
             $name = $method->getName();
             if (isset($all[$name]) && !in_array($all[$name], $options)) {
-                $options[] = $all[$name];
+                if ($acl === null) {
+                    $options[] = $all[$name];
+                } elseif ($acl->isAllowed($role, $resource, $all[$name])) {
+                    $options[] = $all[$name];
+                }
             }
         }
         
