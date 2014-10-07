@@ -251,6 +251,64 @@ class ControllerTest extends \Codeception\TestCase\Test
         );        
     }
     
+    public function testOptions()
+    {
+        $I = $this->tester;
+        
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+        
+        $controller = m::mock(Controllers\Basic::class.'[options]')
+                ->shouldReceive('options')
+                ->once()
+                ->withNoArgs()
+                ->getMock()
+        ;
+        
+        $resp = $controller->_index('');
+    }
+    
+    public function testOptionsAllAllowed()
+    {
+        $I = $this->tester;
+        
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+        
+        $controller = new Controllers\Basic();
+        
+        $resp = $controller->_index();
+        
+        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
+        $status = $resp->getHeaders()->get('Status');
+        $h = explode(' ', $status, 2);
+        $I->assertEquals(200, $h[0],
+            "$status: May didn't call the mock method"
+        );
+        $actual = $resp->getHeaders()->get('Allow');
+        $I->assertEquals('DELETE, GET, POST, PUT', $actual);
+    }
+    
+    public function testOptionsSomeAllowed()
+    {
+        $I = $this->tester;
+        
+        $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
+        
+        $controller = $this->getMockForAbstractClass(
+            Rest\Controller::class,
+            [], '', true, true, true, ['get', 'put']
+        );
+        
+        $resp = $controller->_index();
+
+        $actual = $resp->getHeaders()->get('Allow');
+        $I->assertEquals('GET, PUT', $actual);
+    }
+    
+    public function testOptionsNothingAllowed()
+    {
+        
+    }
+    
     public function testGetNotAllowed()
     {
         /* @var $controller Rest\Controller */

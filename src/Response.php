@@ -48,6 +48,8 @@ class Response extends \Phalcon\Http\Response
         503 => 'Service unavailable',
     );
     
+    
+    
     public function __construct($content = null, $code = null, $status = null) {
         parent::__construct($content, $code, $status);
         if ($this->_content) {

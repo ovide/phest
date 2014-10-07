@@ -102,9 +102,41 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             case 'DELETE':
                 $this->_method('delete', $id, $params);
                 break;
+            case 'OPTIONS':
+                $this->options();
+                break;
             default:
                 $this->response(null, Response::NOT_ALLOWED);
         }        
+    }
+    
+    public function options()
+    {
+        $options = [];
+        $all     = [
+            'get'    => 'GET',
+            'getOne' => 'GET',
+            'put'    => 'PUT',
+            'post'   => 'POST',
+            'delete' => 'DELETE'
+        ];
+        $rc = new \ReflectionObject($this);
+        
+        /* @var $methods \ReflectionMethod[] */
+        $methods = $rc->getMethods();
+        
+        foreach ($methods as $method) {
+            $name = $method->getName();
+            if (isset($all[$name]) && !in_array($all[$name], $options)) {
+                $options[] = $all[$name];
+            }
+        }
+        
+        sort($options);
+        
+        $list = implode(', ', $options);
+        $this->response('', Response::OK);
+        $this->response->setHeader('Allow', $list);
     }
 
     protected function _method($method, $id, $params=null)

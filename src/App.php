@@ -38,15 +38,15 @@ class App extends Micro
             if ($dependencyInjector === null) {
                 $dependencyInjector = new FactoryDefault();
             }
-            
+            $dependencyInjector->setShared('response', function() {
+                return new Response();
+            });
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $app = self::$app;
             
             $app->_notFoundHandler = function() use($app) {
-                $response = new Response();
-                $response->notFound();
-                $app->response = $response;
+                $app->response->notFound();
                 return $app->response;
             };
             
