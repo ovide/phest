@@ -46,12 +46,13 @@ class FooVar extends Rest\Controller
     
     public function post($fooId, $varObj)
     {
-        self::$data[$fooId-1][] = [
+        $new = [
             'id'          => count(self::$data[$fooId-1]) + 1,
             'name'        => $varObj['name'],
             'description' => $varObj['description']
         ];
-        return $varObj;
+        self::$data[$fooId-1][] = $new;
+        return $new;
     }
     
     public function delete($fooId, $varId)
@@ -69,12 +70,14 @@ class FooVar extends Rest\Controller
     {
         if (!isset($varObj['name']) || !isset($varObj['description']))
             throw new Rest\Exception\BadRequest();
-        
-        self::$data[$fooId-1][$varId - 1] = [
-            'id'          => $varId - 1,
+
+        $obj = [
+            'id'          => (int)$varObj['id'],
             'name'        => $varObj['name'],
-            'description' => $varObj['description']
+            'description' => $varObj['description']            
         ];
-        return $varObj;
+        
+        self::$data[$fooId-1][$varId - 1] = $obj;
+        return $obj;
     }
 }

@@ -14,8 +14,6 @@ class ControllerTest extends \Codeception\TestCase\Test
     protected function _before()
     {
         Rest\App::instance();
-        //$_SERVER['REQUEST_URI'] = 'logs';
-        //$_GET["_url"] = '/logs';
     }
 
     protected function _after()
@@ -487,6 +485,24 @@ class ControllerTest extends \Codeception\TestCase\Test
         $I->assertEquals($expected, $h[1]);
     }
 
+    public function testSetLocationAfterPost()
+    {
+        /* @var $controller Rest\Controller */
+        $I = $this->tester;
+        
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['REQUEST_URI']    = '/foo';
+        
+        $controller = m::mock(Controllers\Basic::class.'[post]')
+                ->shouldReceive('post')
+                ->andReturn(['id' => 'bar', 'content' => 'foo'])
+                ->getMock()
+        ;
+        $resp = $controller->_index();
+        $location = $resp->getHeaders()->get('Location');
+        $I->assertEquals('/foo/bar', $location);
+        
+    }
 
     public function testRegisterHeaders()
     {
