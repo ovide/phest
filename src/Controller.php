@@ -2,34 +2,38 @@
 
 /**
  * Controller for REST applications
- * 
+ *
  * Use get() method for GET /resource
  * Use getOne($id) method for GET /resource/{$id}
  * Use put($id, $obj) method for PUT /resource/{$id}
  * Use post($obj) method for POST /resource
  * Use delete($id) method for DELETE /resource/{$id}
- * 
+ *
  * Use App class for add the controllers to the router
- * 
+ *
  * @example
  * App::addResources(['resource' => MyResource::class]);
- * 
+ *
  * @author Albert Ovide <albert@ovide.net>
  */
 abstract class Controller extends \Phalcon\Mvc\Controller
 {
     /**
      * Sets if we are on development so we can dump real errors
-     * 
+     *
      * @var bool
      */
     protected static $_devEnv = false;
     
+    /**
+     * The key name used to identify unique resources
+     */
+    const ID = 'id';
 
     /**
      * Last argument is matched as the resource main id
      * so must pass an empty string to request a get() or post() call
-     * 
+     *
      * @params string $params List of matched identifiers in the router
      */
     public function _index(...$params)
@@ -42,11 +46,10 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             //determines if the error message is visible or hidden
             $ix  = ($ex instanceof Exception\Exception);
             $code    = $ix ? $ex->getCode() : Response::INTERNAL_ERROR;
-            $message = ($ix || self::$_devEnv) ? 
-                trim($ex->getMessage()) : 
+            $message = ($ix || self::$_devEnv) ?
+                trim($ex->getMessage()) :
                 Response::$status[$code];
-            
-            
+
             //If $_devEnv is up shows also the debug trace
             $msg     = self::$_devEnv ?
                 [
@@ -64,11 +67,12 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 ];
             $this->response($msg, $code, $message);
         }
+
         return $this->response;
     }
-    
+
     /**
-     * 
+     *
      * @param \Closure $closure
      */
     public static function devEnv(\Closure $closure)
@@ -78,7 +82,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
 
     /**
      * Select the HTTP method to call
-     * 
+     *
      * @param string $method
      * @param string $id
      */
@@ -107,9 +111,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 break;
             default:
                 $this->response(null, Response::NOT_ALLOWED);
-        }        
+        }
     }
-    
+
     public function options()
     {
         $options = [];
@@ -118,13 +122,13 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             'getOne' => 'GET',
             'put'    => 'PUT',
             'post'   => 'POST',
-            'delete' => 'DELETE'
+            'delete' => 'DELETE',
         ];
         $rc = new \ReflectionObject($this);
-        
+
         /* @var $methods \ReflectionMethod[] */
         $methods = $rc->getMethods();
-        
+
         $acl = null;
         $srv = $this->di->getServices();
         if ($this->di->has('acl')) {
@@ -133,7 +137,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             $role     = $acl->getActiveRole();
             $resource = $acl->getActiveResource();
         }
-        
+
         foreach ($methods as $method) {
             $name = $method->getName();
             if (isset($all[$name]) && !in_array($all[$name], $options)) {
@@ -144,22 +148,22 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 }
             }
         }
-        
+
         sort($options);
-        
+
         $list = implode(', ', $options);
         $this->response('', Response::OK);
         $this->response->setHeader('Allow', $list);
     }
 
-    protected function _method($method, $id, $params=null)
+    protected function _method($method, $id, $params = null)
     {
         $code = null;
-        
+
         if (!method_exists($this, $method)) {
             throw new Exception\MethodNotAllowed();
         }
-        
+
         if ($method == 'getOne' || $method == 'delete') {
             array_unshift($params, $id);
         } elseif ($method == 'post') {
@@ -172,25 +176,33 @@ abstract class Controller extends \Phalcon\Mvc\Controller
 
         //@todo Insert location of the new resource after POST
         //$this->response->setHeader('Location', '');
-        
+
         $rsp = call_user_func_array([$this, $method], $params);
         
         if ($method == 'post') {
             $code = Response::CREATED;
         }
-        
+
         $this->response($rsp, $code);
+        $response = $this->response;
+        
+        if ($method == 'post' && isset($rsp[static::ID])) {
+            $id  = $rsp[static::ID];
+            $new = $this->request->getServer('REQUEST_URI')."/$id";
+            $this->response->setHeader('Location', $new);
+            $response = $this->response;
+        }
     }
-    
+
     /**
      * Sets the response content, status code and status message
      * following some basic REST concepts
-     * 
+     *
      * @param string $content The content body
-     * @param int $code The status code
+     * @param int    $code    The status code
      * @param string $message The status message
      */
-    protected function response($content=null, $code=null, $message=null)
+    protected function response($content = null, $code = null, $message = null)
     {
         $this->response = new Response($content, $code, $message);
     }
