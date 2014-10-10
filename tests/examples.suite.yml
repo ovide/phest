@@ -1,11 +1,11 @@
-class_name: AcceptanceTester
+class_name: Tester
 modules:
     enabled:
-        - AcceptanceHelper
+        - FunctionalHelper
         - Phalcon1
         - REST
     config:
         Phalcon1:
-            bootstrap: 'tests/acceptance/_bootstrap.php'
+            bootstrap: 'tests/examples/_bootstrap.php'
             cleanup: false
             savepoints: false
