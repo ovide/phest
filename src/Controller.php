@@ -8,9 +8,9 @@
  * Use put($id, $obj) method for PUT /resource/{$id}
  * Use post($obj) method for POST /resource
  * Use delete($id) method for DELETE /resource/{$id}
- * 
+ *
  * Just prepend more arguments for more identifiers in the route
- * 
+ *
  * put($article, $commentId, $content) <= /articles/{article}/comments/{[0-9]*}
  *
  * Use App class for add the controllers to the router
@@ -178,24 +178,26 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             array_push($params, $id, $obj);
         }
 
-        //@todo Insert location of the new resource after POST
-        //$this->response->setHeader('Location', '');
+        $rsp      = call_user_func_array([$this, $method], $params);
+		$status   = null;
+		$location = null;
 
-        $rsp = call_user_func_array([$this, $method], $params);
 
         if ($method == 'post') {
-            $code = Response::CREATED;
+			$code = Response::CREATED;
+			if (isset($rsp[static::ID])) {
+				$id       = $rsp[static::ID];
+				$location = $this->request->getServer('REQUEST_URI')."/$id";
+				$status = Response::$status[Response::CREATED].' with '.static::ID." $id";
+			}
         }
 
-        $this->response($rsp, $code);
-        $response = $this->response;
+		$this->response($rsp, $code, $status);
 
-        if ($method == 'post' && isset($rsp[static::ID])) {
-            $id  = $rsp[static::ID];
-            $new = $this->request->getServer('REQUEST_URI')."/$id";
-            $this->response->setHeader('Location', $new);
-            $response = $this->response;
-        }
+		if ($location !== null) {
+			$this->response->setHeader('Location', $location);
+		}
+
     }
 
     /**
