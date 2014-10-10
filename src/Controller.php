@@ -8,6 +8,10 @@
  * Use put($id, $obj) method for PUT /resource/{$id}
  * Use post($obj) method for POST /resource
  * Use delete($id) method for DELETE /resource/{$id}
+ * 
+ * Just prepend more arguments for more identifiers in the route
+ * 
+ * put($article, $commentId, $content) <= /articles/{article}/comments/{[0-9]*}
  *
  * Use App class for add the controllers to the router
  *
@@ -24,7 +28,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * @var bool
      */
     protected static $_devEnv = false;
-    
+
     /**
      * The key name used to identify unique resources
      */
@@ -178,14 +182,14 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         //$this->response->setHeader('Location', '');
 
         $rsp = call_user_func_array([$this, $method], $params);
-        
+
         if ($method == 'post') {
             $code = Response::CREATED;
         }
 
         $this->response($rsp, $code);
         $response = $this->response;
-        
+
         if ($method == 'post' && isset($rsp[static::ID])) {
             $id  = $rsp[static::ID];
             $new = $this->request->getServer('REQUEST_URI')."/$id";

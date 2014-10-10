@@ -46,6 +46,7 @@ class App extends Micro
 
             $app->_notFoundHandler = function () use ($app) {
                 $app->response->notFound();
+
                 return $app->response;
             };
         } else {
@@ -95,12 +96,12 @@ class App extends Micro
     /**
      * Adds a new resource to the app
      *
-     * @param  string $route The route associated to the resource.
-     * Allows regular expressions and wildcards
-     * @param  string $controller The name of the controller class.
-     * Must interhit from Controller
-     * @param  string $idP The regexp for the main resource identifier.
-     * Used as $id in the controller method.
+     * @param  string          $route      The route associated to the resource.
+     *                                     Allows regexp and wildcards
+     * @param  string          $controller The name of the controller class.
+     *                                     Must interhit from Controller
+     * @param  string          $idP        The regexp for the main resource id.
+     *                                     Used as $id in the controller method.
      * @throws \LogicException
      * @example App::addResource('/foo/bar', Foo::class);
      * @example App::addResource('/foo/{fooId}/bar', Foo::class);
