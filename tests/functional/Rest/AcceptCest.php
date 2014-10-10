@@ -1,37 +1,38 @@
-<?php
-use \AcceptanceTester;
-use Ovide\Libs\Mvc\Rest;
+<?php namespace Ovide\Libs\Mvc\Rest;
+
+use Ovide\Libs\Mvc\FunctionalTester;
 use Mocks\Controllers;
+
 
 class AcceptCest
 {
-    public function _before(AcceptanceTester $I)
+    public function _before(FunctionalTester $I)
     {
-        Rest\App::addResources([
+        App::addResources([
             'basic'     => Controllers\Basic::class,
             'basic/foo' => Controllers\Foo::class
         ]);
     }
 
-    public function _after(AcceptanceTester $I)
+    public function _after(FunctionalTester $I)
     {
     }
 
-    public function testGet(AcceptanceTester $I)
+    public function testGet(FunctionalTester $I)
     {
         $I->sendGET('/basic/foo/');
         $I->seeResponseCodeIs(200);
         $I->seeResponseEquals(json_encode(Controllers\Foo::$data));
     }
-    
-    public function testGetOne(AcceptanceTester $I)
+
+    public function testGetOne(FunctionalTester $I)
     {
         $I->sendGET('/basic/foo/2');
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson(json_encode(Controllers\Foo::$data[1]));
     }
-    
-    public function testNotFound(AcceptanceTester $I)
+
+    public function testNotFound(FunctionalTester $I)
     {
         $I->sendGET('/basic/foo/3');
         $I->seeResponseCodeIs(404);
@@ -41,8 +42,8 @@ class AcceptCest
             'code'    => 404
         ]));
     }
-    
-    public function testBadRequest(AcceptanceTester $I)
+
+    public function testBadRequest(FunctionalTester $I)
     {
         $I->sendPUT('/basic/foo/2', ['foo' => 'var']);
         $I->seeResponseCodeIs(400);
@@ -51,8 +52,8 @@ class AcceptCest
             'code'    => 400
         ]));
     }
-    
-    public function testForbidden(AcceptanceTester $I)
+
+    public function testForbidden(FunctionalTester $I)
     {
         $I->sendDELETE('/basic/foo/1');
         $I->seeResponseCodeIs(403);
@@ -61,8 +62,8 @@ class AcceptCest
             'code'    => 403
         ]));
     }
-    
-    public function testInternalServerError(AcceptanceTester $I)
+
+    public function testInternalServerError(FunctionalTester $I)
     {
         $I->sendDELETE('/basic/foo/0');
         $I->seeResponseCodeIs(500);

@@ -4,7 +4,7 @@
 // You should not change it manually as it will be overwritten on next build
 // @codingStandardsIgnoreFile
 
-
+namespace Ovide\Libs\Mvc;
 use Codeception\Module\Asserts;
 use Codeception\Module\UnitHelper;
 

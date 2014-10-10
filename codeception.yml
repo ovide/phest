@@ -1,3 +1,4 @@
+namespace: Ovide\Libs\Mvc
 actor: Tester
 paths:
     tests: tests
