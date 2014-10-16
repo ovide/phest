@@ -138,10 +138,15 @@ public function post($fooObj)
     return $newObj->toArray();
 }
 ```
-###Handled request headers (by now)
+###Next
 
-1. Etag (If-None-Match)
-2. Accept-Language (Sets attribute `$this->_locale` to your controller)
+- Add header handlers:
+  - Content-Type / Accept
+  - ETag / If-None-Match
+
+- Add more options to the router
+- Add HEAD and PATCH verbs
+
 
 
 [![Build Status](https://travis-ci.org/ovide/phest.svg?branch=master)](https://travis-ci.org/ovide/phest)
