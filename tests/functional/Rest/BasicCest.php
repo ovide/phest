@@ -3,13 +3,12 @@
 use Ovide\Libs\Mvc\FunctionalTester;
 use Mocks\Controllers;
 
-
 class BasicCest
 {
     public function _before(FunctionalTester $I)
     {
         App::addResources([
-            'basic' => Controllers\Foo::class
+            'basic' => Controllers\Foo::class,
         ]);
     }
 
@@ -73,7 +72,7 @@ class BasicCest
         $I->seeResponseCodeIs(404);
         $I->seeResponseEquals(json_encode([
             'message' => 'Not Found',
-            'code'    => 404
+            'code'    => 404,
         ]));
     }
 

@@ -6,7 +6,7 @@ use Mockery as m;
 
 class RestAppTest extends \Codeception\TestCase\Test
 {
-   /**
+    /**
     * @var \UnitTester
     */
     protected $tester;
@@ -38,7 +38,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I->assertTrue($app === $this->app);
         $I->assertTrue($app instanceof App);
     }
-    
+
     public function testConstructor()
     {
         $I = $this->tester;
@@ -49,7 +49,7 @@ class RestAppTest extends \Codeception\TestCase\Test
             $I->assertTrue(true);
         }
     }
-    
+
     /**
      * @depends testInstance
      */
@@ -62,7 +62,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         /* @var $route \Phalcon\Mvc\Router\Route */
         $I->assertEquals('/route[/]?{id:[a-zA-Z0-9_-]*}[/]?', $route->getPattern());
     }
-    
+
     /**
      * @depends testAddResource
      */
@@ -75,7 +75,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         /* @var $route \Phalcon\Mvc\Router\Route */
         $I->assertEquals('/route[/]?{id:[0-9]*}[/]?', $route->getPattern());
     }
-    
+
     /**
      * @depends testAddResource
      */
@@ -84,7 +84,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I = $this->tester;
         App::addResources([
             'route' => Mocks\Controllers\Basic::class,
-            'foo'   => Mocks\Controllers\Basic::class
+            'foo'   => Mocks\Controllers\Basic::class,
         ]);
         $routes = $this->app->router->getRoutes();
         $route  = $routes[0];
@@ -92,7 +92,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I->assertEquals('/route[/]?{id:[a-zA-Z0-9_-]*}[/]?', $route->getPattern());
         $I->assertEquals('/foo[/]?{id:[a-zA-Z0-9_-]*}[/]?', $foo->getPattern());
     }
-    
+
     public function testAddResourcesException()
     {
         $I = $this->tester;
@@ -105,11 +105,11 @@ class RestAppTest extends \Codeception\TestCase\Test
             $I->assertTrue(true);
         }
     }
-    
+
     public function testAddResourceWithMultipleIds()
     {
         $I = $this->tester;
-        
+
         App::addResources([
             'route'              => Mocks\Controllers\Basic::class,
             'foo'                => Mocks\Controllers\Foo::class,
@@ -123,7 +123,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I->assertEquals('/foo[/]?{id:[a-zA-Z0-9_-]*}[/]?', $foo->getPattern());
         $I->assertEquals('/foo/{fooId:[0-9]*}[/]?{id:[a-zA-Z0-9_-]*}[/]?', $fooVar->getPattern());
     }
-    
+
     public function testNotFound()
     {
         $I = $this->tester;
@@ -133,11 +133,11 @@ class RestAppTest extends \Codeception\TestCase\Test
         $app->addResource('var', Mocks\Controllers\Basic::class);
         /* @var $res \Ovide\Libs\Mvc\Rest\Response */
         $res = $app->handle('/foo');
-        
+
         $this->assertInstanceOf(\Ovide\Libs\Mvc\Rest\Response::class, $res);
         $I->assertEquals('404 Not Found', $res->getHeaders()->get('Status'));
     }
-    
+
     public function testAddRequestHeaderBadClassName()
     {
         $I = $this->tester;
@@ -149,66 +149,66 @@ class RestAppTest extends \Codeception\TestCase\Test
             $I->assertTrue(true);
         }
     }
-    
+
     public function testAddRequestHeader()
     {
         $I = $this->tester;
-        
+
         $app = App::instance();
         $app->addResource('foo', Mocks\Controllers\Basic::class);
         $app->addHeaderHandler(Mocks\Headers\Basic::class);
         $app->handle('/foo');
-        
+
         $I->assertEquals(1, Mocks\Headers\Basic::$_initCalled);
         $I->assertEquals(0, Mocks\Headers\Basic::$_handleCalled);
-        
+
         Mocks\Headers\Basic::$_initCalled = 0;
     }
-    
+
     /**
      * @depends testAddRequestHeader
      */
     public function testHandleRequestHeader()
     {
         $I = $this->tester;
-        
+
         $_SERVER['FOO'] = 'bar';
         $app = App::instance();
         $app->addResource('foo', Mocks\Controllers\Basic::class);
         $app->addHeaderHandler(Mocks\Headers\Basic::class);
         $app->handle('/foo');
-        
+
         $I->assertEquals(1, Mocks\Headers\Basic::$_initCalled);
         $I->assertEquals(1, Mocks\Headers\Basic::$_handleCalled);
-        
+
         Mocks\Headers\Basic::$_initCalled   = 0;
         Mocks\Headers\Basic::$_handleCalled = 0;
     }
-    
+
     public function testSetConfig()
     {
         $I = $this->tester;
-        
+
         $app = App::instance();
         $app->setConfig('foo', 'bar', 'var');
-        
+
         $this->assertEquals(['foo' => ['bar' => 'var']],
                 PHPUnit_Framework_Assert::readAttribute($app, '_config'));
     }
-    
+
     /**
      * @depends testSetConfig
      */
     public function testGetConfig()
     {
         $I = $this->tester;
-        
+
         $app = App::instance();
         $app->setConfig('foo', 'bar', 'var');
-        
+
         $actual   = $app->getConfig('foo', 'bar');
         $expected = 'var';
-        
+
         $I->assertEquals($expected, $actual);
     }
 }

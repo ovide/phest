@@ -3,14 +3,13 @@
 use Ovide\Libs\Mvc\FunctionalTester;
 use Mocks\Controllers;
 
-
 class AcceptCest
 {
     public function _before(FunctionalTester $I)
     {
         App::addResources([
             'basic'     => Controllers\Basic::class,
-            'basic/foo' => Controllers\Foo::class
+            'basic/foo' => Controllers\Foo::class,
         ]);
     }
 
@@ -39,7 +38,7 @@ class AcceptCest
         $I->seeResponseIsJson();
         $I->seeResponseEquals(json_encode([
             'message' => '3 not found',
-            'code'    => 404
+            'code'    => 404,
         ]));
     }
 
@@ -49,7 +48,7 @@ class AcceptCest
         $I->seeResponseCodeIs(400);
         $I->seeResponseEquals(json_encode([
             'message' => 'Bad Request',
-            'code'    => 400
+            'code'    => 400,
         ]));
     }
 
@@ -59,7 +58,7 @@ class AcceptCest
         $I->seeResponseCodeIs(403);
         $I->seeResponseEquals(json_encode([
             'message' => 'I need that resource for testing',
-            'code'    => 403
+            'code'    => 403,
         ]));
     }
 
@@ -69,7 +68,7 @@ class AcceptCest
         $I->seeResponseCodeIs(500);
         $I->seeResponseEquals(json_encode([
             'message' => 'Internal server error',
-            'code'    => 500
+            'code'    => 500,
         ]));
     }
 }

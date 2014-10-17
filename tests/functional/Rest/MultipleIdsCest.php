@@ -3,8 +3,7 @@
 use Ovide\Libs\Mvc\FunctionalTester;
 use Mocks\Controllers\FooVar;
 
-
-class MulipleIdsCest
+class MultipleIdsCest
 {
     public function _before(FunctionalTester $I)
     {
