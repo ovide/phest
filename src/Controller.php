@@ -40,8 +40,10 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      *
      * @params string $params List of matched identifiers in the router
      */
-    public function _index(...$params)
+    public function _index($arguments=null)
     {
+        $params    = func_get_args();
+
         $method = $this->request->getMethod();
         try {
             $this->_call($method, $params);
