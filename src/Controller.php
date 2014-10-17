@@ -40,7 +40,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      *
      * @params string $params List of matched identifiers in the router
      */
-    public function _index($arguments=null)
+    public function _index($arguments = null)
     {
         $params    = func_get_args();
 
@@ -181,25 +181,23 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }
 
         $rsp      = call_user_func_array([$this, $method], $params);
-		$status   = null;
-		$location = null;
-
+        $status   = null;
+        $location = null;
 
         if ($method == 'post') {
-			$code = Response::CREATED;
-			if (isset($rsp[static::ID])) {
-				$id       = $rsp[static::ID];
-				$location = $this->request->getServer('REQUEST_URI')."/$id";
-				$status = Response::$status[Response::CREATED].' with '.static::ID." $id";
-			}
+            $code = Response::CREATED;
+            if (isset($rsp[static::ID])) {
+                $id       = $rsp[static::ID];
+                $location = $this->request->getServer('REQUEST_URI')."/$id";
+                $status = Response::$status[Response::CREATED].' with '.static::ID." $id";
+            }
         }
 
-		$this->response($rsp, $code, $status);
+        $this->response($rsp, $code, $status);
 
-		if ($location !== null) {
-			$this->response->setHeader('Location', $location);
-		}
-
+        if ($location !== null) {
+            $this->response->setHeader('Location', $location);
+        }
     }
 
     /**
