@@ -37,9 +37,7 @@ class App extends Micro
             if ($dependencyInjector === null) {
                 $dependencyInjector = new FactoryDefault();
             }
-            $dependencyInjector->setShared('response', function () {
-                return new Response();
-            });
+            $dependencyInjector->setShared('response', Response::class);
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $app = self::$app;
@@ -50,7 +48,7 @@ class App extends Micro
                 return $app->response;
             };
         } else {
-            throw new \RuntimeException("Can't instance RestApp more than once");
+            throw new \RuntimeException("Can't instance App more than once");
         }
     }
 
