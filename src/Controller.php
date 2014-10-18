@@ -71,7 +71,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                     'message' => $message,
                     'code'    => $code,
                 ];
-            $this->response($msg, $code, $message);
+            $this->response = new Response($msg, $code, $message);
         }
 
         return $this->response;
@@ -116,7 +116,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 $this->options();
                 break;
             default:
-                $this->response(null, Response::NOT_ALLOWED);
+                $this->response = new Response(null, Response::NOT_ALLOWED);
         }
     }
 
@@ -136,7 +136,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $methods = $rc->getMethods();
 
         $acl = null;
-        $srv = $this->di->getServices();
+
         if ($this->di->has('acl')) {
             /* @var $acl \Phalcon\Acl\Adapter\Memory */
             $acl      = $this->di->get('acl');
@@ -147,9 +147,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         foreach ($methods as $method) {
             $name = $method->getName();
             if (isset($all[$name]) && !in_array($all[$name], $options)) {
-                if ($acl === null) {
-                    $options[] = $all[$name];
-                } elseif ($acl->isAllowed($role, $resource, $all[$name])) {
+                if ($acl === null ||
+                    $acl->isAllowed($role, $resource, $all[$name]))
+                {
                     $options[] = $all[$name];
                 }
             }
@@ -158,7 +158,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         sort($options);
 
         $list = implode(', ', $options);
-        $this->response('', Response::OK);
+        $this->response = new Response('', Response::OK);
         $this->response->setHeader('Allow', $list);
     }
 
@@ -169,15 +169,20 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         if (!method_exists($this, $method)) {
             throw new Exception\MethodNotAllowed();
         }
-
-        if ($method == 'getOne' || $method == 'delete') {
-            array_unshift($params, $id);
-        } elseif ($method == 'post') {
-            $obj = $this->request->getPost();
-            array_push($params, $obj);
-        } elseif ($method == 'put') {
-            $obj = $this->request->getPost();
-            array_push($params, $id, $obj);
+        
+        switch ($method) {
+            case 'getOne':
+            case 'delete':
+                array_unshift($params, $id);
+                break;
+            case 'post':
+                $obj = $this->request->getPost();
+                array_push($params, $obj);
+                break;
+            case 'put':
+                $obj = $this->request->getPost();
+                array_push($params, $id, $obj);
+                break;
         }
 
         $rsp      = call_user_func_array([$this, $method], $params);
@@ -188,28 +193,16 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             $code = Response::CREATED;
             if (isset($rsp[static::ID])) {
                 $id       = $rsp[static::ID];
+                $text     = Response::$status[Response::CREATED];
                 $location = $this->request->getServer('REQUEST_URI')."/$id";
-                $status = Response::$status[Response::CREATED].' with '.static::ID." $id";
+                $status   = "$text with ".static::ID." $id";
             }
         }
-
-        $this->response($rsp, $code, $status);
+        
+        $this->response = new Response($rsp, $code, $status);
 
         if ($location !== null) {
             $this->response->setHeader('Location', $location);
         }
-    }
-
-    /**
-     * Sets the response content, status code and status message
-     * following some basic REST concepts
-     *
-     * @param string $content The content body
-     * @param int    $code    The status code
-     * @param string $message The status message
-     */
-    protected function response($content = null, $code = null, $message = null)
-    {
-        $this->response = new Response($content, $code, $message);
     }
 }
