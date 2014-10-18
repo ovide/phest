@@ -16,8 +16,17 @@ class Basic extends Rest\Header\Handler
         self::$_initCalled++;
     }
     
-    public function handle()
+    public function before()
     {
         self::$_handleCalled++;
     }
+
+    public function after() {
+        
+    }
+
+    public function finish() {
+        
+    }
+
 }

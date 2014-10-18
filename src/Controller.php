@@ -34,6 +34,11 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     const ID = 'id';
 
+    public function onConstruct()
+    {
+        $this->_eventsManager = $this->di->getEventsManager();
+    }
+    
     /**
      * Last argument is matched as the resource main id
      * so must pass an empty string to request a get() or post() call
@@ -137,9 +142,11 @@ abstract class Controller extends \Phalcon\Mvc\Controller
 
         $acl = null;
 
-        if ($this->di->has('acl')) {
+        
+        //if ($this->di->has('acl')) {
+        if ($this->_dependencyInjector->has('acl')) {
             /* @var $acl \Phalcon\Acl\Adapter\Memory */
-            $acl      = $this->di->get('acl');
+            $acl      = $this->_dependencyInjector->get('acl');
             $role     = $acl->getActiveRole();
             $resource = $acl->getActiveResource();
         }
@@ -161,7 +168,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $this->response = new Response('', Response::OK);
         $this->response->setHeader('Allow', $list);
     }
-
+    
     protected function _method($method, $id, $params = null)
     {
         $code = null;
@@ -185,7 +192,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 break;
         }
 
+        $this->_eventsManager->fire(static::class.':beforeCall', $this);
         $rsp      = call_user_func_array([$this, $method], $params);
+        $this->_eventsManager->fire(static::class.':afterCall', $this);
         $status   = null;
         $location = null;
 

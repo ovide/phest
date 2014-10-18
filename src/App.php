@@ -132,7 +132,17 @@ class App extends Micro
             self::$app->before(function () use ($handler) {
                 $handler->init();
                 if ($handler->get()) {
-                    $handler->handle();
+                    $handler->before();
+                }
+            });
+            self::$app->after(function () use ($handler) {
+                if ($handler->get()) {
+                    $handler->after();
+                }
+            });
+            self::$app->finish(function () use ($handler) {
+                if ($handler->get()) {
+                    $handler->finish();
                 }
             });
         } else {

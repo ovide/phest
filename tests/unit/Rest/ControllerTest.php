@@ -266,6 +266,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
 
         $controller = new Controllers\Basic();
+        $controller->setDI(Rest\App::instance()->getDI());
 
         $resp = $controller->_index();
 
@@ -289,6 +290,8 @@ class ControllerTest extends \Codeception\TestCase\Test
             Rest\Controller::class,
             [], '', true, true, true, ['get', 'put']
         );
+        
+        $controller->setDI(Rest\App::instance()->getDI());
 
         $resp = $controller->_index();
 
@@ -314,14 +317,15 @@ class ControllerTest extends \Codeception\TestCase\Test
         $acl->allow($role->getName(), $resource->getName(), 'POST');
         $acl->isAllowed($role->getName(), $resource->getName(), 'GET');
         $app = Rest\App::instance();
-        //$app->di->set('acl', $acl);
-        $app->setService('acl', $acl);
+
+        $app->setService('acl', $acl, true);
+        $tmp = $app->di->has('acl');
 
         $controller = $this->getMockForAbstractClass(
             Rest\Controller::class,
             [], '', true, true, true, ['get', 'put']
         );
-        $controller->setDI($app->di);
+        $controller->setDI($app->getDI());
 
         $resp = $controller->_index();
 
