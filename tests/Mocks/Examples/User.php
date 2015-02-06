@@ -6,7 +6,7 @@ use Ovide\Libs\Mvc\Rest\Exception;
 class User extends Controller
 {
 	const ID   = 'username';
-	const PATH = 'users';
+	const PATH = '/users';
 	const RX   = '[a-z]*';
 
 	/**
@@ -83,8 +83,8 @@ class User extends Controller
 	{
 		return [
 			'username' => $username,
-			'uri'      => '/'.static::PATH."/$username",
-			'articles' => '/'.static::PATH."/$username/articles"
+			'uri'      => static::PATH."/$username",
+			'articles' => static::PATH."/$username/articles"
 		];
 	}
 }

@@ -36,7 +36,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo');
+        $resp = $controller->handle('foo');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -57,7 +57,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo', 'var', 'foovar');
+        $resp = $controller->handle('foovar', 'foo', 'var');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -80,7 +80,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('');
+        $resp = $controller->handle('');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -102,7 +102,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo', 'var', '');
+        $resp = $controller->handle('foo', 'var', '');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -124,7 +124,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('');
+        $resp = $controller->handle('');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -146,7 +146,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo', 'var', '');
+        $resp = $controller->handle('foo', 'var', '');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -168,7 +168,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo');
+        $resp = $controller->handle('foo');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -190,7 +190,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo', 'var', 'foovar');
+        $resp = $controller->handle('foo', 'var', 'foovar');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -212,7 +212,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo');
+        $resp = $controller->handle('foo');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -234,7 +234,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo','var','foovar');
+        $resp = $controller->handle('foovar','foo','var');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -256,7 +256,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('');
+        $resp = $controller->handle('');
     }
 
     public function testOptionsAllAllowed()
@@ -268,7 +268,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $controller = new Controllers\Basic();
         $controller->setDI(Rest\App::instance()->getDI());
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
 
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
@@ -290,10 +290,10 @@ class ControllerTest extends \Codeception\TestCase\Test
             Rest\Controller::class,
             [], '', true, true, true, ['get', 'put']
         );
-        
+
         $controller->setDI(Rest\App::instance()->getDI());
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
 
         $actual = $resp->getHeaders()->get('Allow');
         $I->assertEquals('GET, PUT', $actual);
@@ -327,7 +327,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         );
         $controller->setDI($app->getDI());
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
 
         $actual = $resp->getHeaders()->get('Allow');
         $I->assertEquals('GET', $actual);
@@ -346,7 +346,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -362,7 +362,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -378,7 +378,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -394,7 +394,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -409,7 +409,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->_index();
+        $resp = $controller->handle();
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -431,7 +431,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo');
+        $resp = $controller->handle('foo');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -453,7 +453,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->_index('foo');
+        $resp = $controller->handle('foo');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -476,7 +476,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         Rest\Controller::devEnv(function () { return true; });
 
-        $resp = $controller->_index('foo', 'bar');
+        $resp = $controller->handle('bar', 'foo');
 
         Rest\Controller::devEnv(function () { return false; });
 
@@ -500,7 +500,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->andReturn(['id' => 'bar', 'content' => 'foo'])
                 ->getMock()
         ;
-        $resp = $controller->_index();
+        $resp = $controller->handle();
         $location = $resp->getHeaders()->get('Location');
         $I->assertEquals('/foo/bar', $location);
     }

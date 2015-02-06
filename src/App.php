@@ -38,6 +38,7 @@ class App extends Micro
                 $dependencyInjector = new FactoryDefault();
             }
             $dependencyInjector->setShared('response', Response::class);
+            $dependencyInjector->setShared('router'  , Router::class);
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $app = self::$app;
@@ -79,6 +80,40 @@ class App extends Micro
     }
 
     /**
+     * @param string $path
+     */
+    public function mountRoutes($path)
+    {
+        /* @var $di \Phalcon\DI */
+        $di    = $this->_dependencyInjector;
+        $cache = null;
+        if ($di->has('cache')) {
+            $cache  = $di->getShared('cache');
+            $key    = "router@$path";
+            $cached = $cache->get($key);
+        }
+        if (!$cached) {
+            $routes = include $path;
+            //Carreguem totes les rutes
+            foreach ($routes as $route => $val) {
+                if (is_array($val)) {
+                    $this->addResource($route, $val[0], $val[1]);
+                } else {
+                    $this->addResource($route, $val);
+                }
+            }
+
+            if ($cache !== null) {
+                $cache->save($key, ['router' => $this->_router, 'handlers' => $this->_handlers]);
+            }
+        } else {
+            $this->_handlers = $cached['handlers'];
+            $this->_router   = $cached['router'];
+            $this->_dependencyInjector->setShared('router', $cached['router']);
+        }
+    }
+
+    /**
      * @return App
      */
     final public static function instance()
@@ -108,11 +143,10 @@ class App extends Micro
     public static function addResource($route, $controller, $idP = '[a-zA-Z0-9_-]*')
     {
         if (is_subclass_of($controller, Controller::class)) {
-            $route = trim($route, '/');
             $col   = new Collection();
             $col->setHandler($controller, true);
-            $col->setPrefix("/$route");
-            $col->map("[/]?{id:$idP}[/]?", '_index');
+            $col->setPrefix($route);
+            $col->map("[/]?{id:$idP}[/]?", 'handle', $route);
             static::$app->mount($col);
         } else {
             $msg = "$controller is not a ".Controller::class;

@@ -23,6 +23,20 @@
 abstract class Controller extends \Phalcon\Mvc\Controller
 {
     /**
+     * The resolved method name to call
+     *
+     * @var string
+     */
+    protected $_curMethod;
+
+    /**
+     * The response represented as an array
+     *
+     * @var array
+     */
+    protected $array_response;
+
+    /**
      * Sets if we are on development so we can dump real errors
      *
      * @var bool
@@ -32,11 +46,17 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     /**
      * The key name used to identify unique resources
      */
-    const ID = 'id';
+    const ID   = 'id';
+
+    /**
+     * The base path for the resource used as alias
+     */
+    const PATH = '';
 
     public function onConstruct()
     {
         $this->_eventsManager = $this->di->getEventsManager();
+		$this->_eventsManager->attach(static::class, $this);
     }
     
     /**
@@ -45,13 +65,12 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      *
      * @params string $params List of matched identifiers in the router
      */
-    public function _index($arguments = null)
+    public function handle($arguments = null)
     {
         $params    = func_get_args();
 
-        $method = $this->request->getMethod();
         try {
-            $this->_call($method, $params);
+            $this->_call($params);
         } catch (\Exception $ex) {
             //Check if is an internal exception
             //determines if the error message is visible or hidden
@@ -97,25 +116,30 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * @param string $method
      * @param string $id
      */
-    protected function _call($method, $params)
+    protected function _call($params)
     {
         $id = array_pop($params);
-        switch ($method) {
+        switch ($this->request->getMethod()) {
             case 'GET':
                 if ($id === '') {
-                    $this->_method('get', null, $params);
+                    $this->_curMethod = 'get';
+                    $this->_method(null, $params);
                 } else {
-                    $this->_method('getOne', $id, $params);
+                    $this->_curMethod = 'getOne';
+                    $this->_method($id, $params);
                 }
                 break;
             case 'POST':
-                $this->_method('post', null, $params);
+                $this->_curMethod = 'post';
+                $this->_method(null, $params);
                 break;
             case 'PUT':
-                $this->_method('put', $id, $params);
+                $this->_curMethod = 'put';
+                $this->_method($id, $params);
                 break;
             case 'DELETE':
-                $this->_method('delete', $id, $params);
+                $this->_curMethod = 'delete';
+                $this->_method($id, $params);
                 break;
             case 'OPTIONS':
                 $this->options();
@@ -142,8 +166,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
 
         $acl = null;
 
-        
-        //if ($this->di->has('acl')) {
         if ($this->_dependencyInjector->has('acl')) {
             /* @var $acl \Phalcon\Acl\Adapter\Memory */
             $acl      = $this->_dependencyInjector->get('acl');
@@ -168,47 +190,86 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $this->response = new Response('', Response::OK);
         $this->response->setHeader('Allow', $list);
     }
-    
-    protected function _method($method, $id, $params = null)
+
+    /**
+     *
+     * @return array
+     * @throws Exception\NotAcceptable
+     */
+	protected function _getInput()
+	{
+		$content = $this->request->getRawBody();
+        if (!$content) {
+            return $this->request->getPost();
+        }
+		if ($this->request->getServer('CONTENT_TYPE') === 'application/json') {
+			$content = json_decode($content, true);
+		} else {
+			$content = json_decode($content, true);
+			if (!is_array($content)) {
+				throw new Exception\NotAcceptable();
+			}
+		}
+
+		return $content;
+	}
+
+    /**
+     * Internal call to the correct method.
+     * Fires a beforeCall and an afterCall event and sets the Response.
+     *
+     * @param string $id
+     * @param array $params
+     * @throws Exception\MethodNotAllowed
+     */
+    protected function _method($id, $params = null)
     {
         $code = null;
 
-        if (!method_exists($this, $method)) {
+        if (!method_exists($this, $this->_curMethod)) {
             throw new Exception\MethodNotAllowed();
         }
-        
-        switch ($method) {
+
+        switch ($this->_curMethod) {
             case 'getOne':
             case 'delete':
-                array_unshift($params, $id);
+                array_push($params, $id);
                 break;
             case 'post':
-                $obj = $this->request->getPost();
+				$obj = $this->_getInput();
                 array_push($params, $obj);
                 break;
             case 'put':
-                $obj = $this->request->getPost();
+				$obj = $this->_getInput();
                 array_push($params, $id, $obj);
                 break;
         }
 
         $this->_eventsManager->fire(static::class.':beforeCall', $this);
-        $rsp      = call_user_func_array([$this, $method], $params);
-        $this->_eventsManager->fire(static::class.':afterCall', $this);
+		try {
+			$this->array_response = call_user_func_array([$this, $this->_curMethod], $params);
+		} catch (\Exception $ex) {
+			$this->_eventsManager->fire(static::class.':onErrorCall', $this, $ex);
+			throw $ex;
+		} finally {
+			$this->_eventsManager->fire(static::class.':afterCall', $this);
+		}
+		$this->_eventsManager->fire(static::class.':onSuccessCall', $this);
+
         $status   = null;
         $location = null;
 
-        if ($method == 'post') {
+        if ($this->_curMethod == 'post') {
             $code = Response::CREATED;
-            if (isset($rsp[static::ID])) {
-                $id       = $rsp[static::ID];
+            if (isset($this->array_response[static::ID])) {
+                $id       = $this->array_response[static::ID];
                 $text     = Response::$status[Response::CREATED];
-                $location = $this->request->getServer('REQUEST_URI')."/$id";
+                $location = rtrim($this->request->getServer('REQUEST_URI'), '/')."/$id";
                 $status   = "$text with ".static::ID." $id";
             }
         }
-        
-        $this->response = new Response($rsp, $code, $status);
+
+        $this->response = new Response($this->array_response, $code, $status);
 
         if ($location !== null) {
             $this->response->setHeader('Location', $location);

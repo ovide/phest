@@ -30,12 +30,12 @@ class FooVar extends Rest\Controller
             ]
         ]
     ];
-    
+
     public function get($fooId)
     {
         return self::$data[$fooId-1];
     }
-    
+
     public function getOne($fooId, $varId)
     {
         if (!isset(self::$data[$fooId-1][$varId - 1])) {
@@ -43,7 +43,7 @@ class FooVar extends Rest\Controller
         }
         return self::$data[$fooId-1][$varId-1];
     }
-    
+
     public function post($fooId, $varObj)
     {
         $new = [
@@ -54,18 +54,18 @@ class FooVar extends Rest\Controller
         self::$data[$fooId-1][] = $new;
         return $new;
     }
-    
+
     public function delete($fooId, $varId)
     {
-        if ($varId < 1)
+        if ($fooId < 1)
             throw new Rest\Exception\InternalServerError();
-        
-        if ($fooId < 3)
+
+        if ($varId < 3)
             throw new Rest\Exception\Forbidden('I need that resource for testing');
-        
+
         unset(self::$data[$fooId-1][$varId-1]);
     }
-    
+
     public function put($fooId, $varId, $varObj)
     {
         if (!isset($varObj['name']) || !isset($varObj['description']))
@@ -74,9 +74,9 @@ class FooVar extends Rest\Controller
         $obj = [
             'id'          => (int)$varObj['id'],
             'name'        => $varObj['name'],
-            'description' => $varObj['description']            
+            'description' => $varObj['description']
         ];
-        
+
         self::$data[$fooId-1][$varId - 1] = $obj;
         return $obj;
     }

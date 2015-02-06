@@ -8,7 +8,7 @@ class MultipleIdsCest
     public function _before(FunctionalTester $I)
     {
         $app = App::instance();
-        $app->addResource('foo/{fooId:[0-9]*}/var', FooVar::class);
+        $app->addResource('/foo/{fooId:[0-9]*}/var', FooVar::class);
     }
 
     public function _after(FunctionalTester $I)

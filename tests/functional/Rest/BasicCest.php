@@ -8,7 +8,7 @@ class BasicCest
     public function _before(FunctionalTester $I)
     {
         App::addResources([
-            'basic' => Controllers\Foo::class,
+            '/basic' => Controllers\Foo::class,
         ]);
     }
 

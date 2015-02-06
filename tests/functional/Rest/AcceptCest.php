@@ -8,8 +8,8 @@ class AcceptCest
     public function _before(FunctionalTester $I)
     {
         App::addResources([
-            'basic'     => Controllers\Basic::class,
-            'basic/foo' => Controllers\Foo::class,
+            '/basic'     => Controllers\Basic::class,
+            '/basic/foo' => Controllers\Foo::class,
         ]);
     }
 

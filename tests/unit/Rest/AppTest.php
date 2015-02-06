@@ -56,7 +56,7 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResource()
     {
         $I = $this->tester;
-        $this->app->addResource('route', Mocks\Controllers\Basic::class);
+        $this->app->addResource('/route', Mocks\Controllers\Basic::class);
         $routes = $this->app->router->getRoutes();
         $route = $routes[0];
         /* @var $route \Phalcon\Mvc\Router\Route */
@@ -69,7 +69,7 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResourceWithPattern()
     {
         $I = $this->tester;
-        $this->app->addResource('route', Mocks\Controllers\Basic::class, '[0-9]*');
+        $this->app->addResource('/route', Mocks\Controllers\Basic::class, '[0-9]*');
         $routes = $this->app->router->getRoutes();
         $route = $routes[0];
         /* @var $route \Phalcon\Mvc\Router\Route */
@@ -83,8 +83,8 @@ class RestAppTest extends \Codeception\TestCase\Test
     {
         $I = $this->tester;
         App::addResources([
-            'route' => Mocks\Controllers\Basic::class,
-            'foo'   => Mocks\Controllers\Basic::class,
+            '/route' => Mocks\Controllers\Basic::class,
+            '/foo'   => Mocks\Controllers\Basic::class,
         ]);
         $routes = $this->app->router->getRoutes();
         $route  = $routes[0];
@@ -98,7 +98,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I = $this->tester;
         try {
             App::addResources([
-                'route' => __CLASS__,
+                '/route' => __CLASS__,
             ]);
             $I->assertTrue(false);
         } catch (\Exception $ex) {
@@ -111,9 +111,9 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I = $this->tester;
 
         App::addResources([
-            'route'              => Mocks\Controllers\Basic::class,
-            'foo'                => Mocks\Controllers\Foo::class,
-            'foo/{fooId:[0-9]*}' => Mocks\Controllers\FooVar::class,
+            '/route'              => Mocks\Controllers\Basic::class,
+            '/foo'                => Mocks\Controllers\Foo::class,
+            '/foo/{fooId:[0-9]*}' => Mocks\Controllers\FooVar::class,
         ]);
         $routes = $this->app->router->getRoutes();
         $route  = $routes[0];
@@ -130,7 +130,7 @@ class RestAppTest extends \Codeception\TestCase\Test
 
         //We need at least a resource to init the routes handler
         $app = App::instance();
-        $app->addResource('var', Mocks\Controllers\Basic::class);
+        $app->addResource('/var', Mocks\Controllers\Basic::class);
         /* @var $res \Ovide\Libs\Mvc\Rest\Response */
         $res = $app->handle('/foo');
 
@@ -155,7 +155,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I = $this->tester;
 
         $app = App::instance();
-        $app->addResource('foo', Mocks\Controllers\Basic::class);
+        $app->addResource('/foo', Mocks\Controllers\Basic::class);
         $app->addHeaderHandler(Mocks\Headers\Basic::class);
         $app->handle('/foo');
 
@@ -174,7 +174,7 @@ class RestAppTest extends \Codeception\TestCase\Test
 
         $_SERVER['FOO'] = 'bar';
         $app = App::instance();
-        $app->addResource('foo', Mocks\Controllers\Basic::class);
+        $app->addResource('/foo', Mocks\Controllers\Basic::class);
         $app->addHeaderHandler(Mocks\Headers\Basic::class);
         $app->handle('/foo');
 
