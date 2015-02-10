@@ -16,7 +16,7 @@
  * Use App class for add the controllers to the router
  *
  * @example
- * App::addResources(['resource' => MyResource::class]);
+ * App::addResources(['/articles/{artId:([0-9]+)}/comments' => Comment::class]);
  *
  * @author Albert Ovide <albert@ovide.net>
  */
@@ -56,9 +56,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
     public function onConstruct()
     {
         $this->_eventsManager = $this->di->getEventsManager();
-		$this->_eventsManager->attach(static::class, $this);
+        $this->_eventsManager->attach(static::class, $this);
     }
-    
+
     /**
      * Last argument is matched as the resource main id
      * so must pass an empty string to request a get() or post() call
@@ -177,8 +177,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             $name = $method->getName();
             if (isset($all[$name]) && !in_array($all[$name], $options)) {
                 if ($acl === null ||
-                    $acl->isAllowed($role, $resource, $all[$name]))
-                {
+                    $acl->isAllowed($role, $resource, $all[$name])) {
                     $options[] = $all[$name];
                 }
             }
@@ -196,30 +195,30 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * @return array
      * @throws Exception\NotAcceptable
      */
-	protected function _getInput()
-	{
-		$content = $this->request->getRawBody();
+    protected function _getInput()
+    {
+        $content = $this->request->getRawBody();
         if (!$content) {
             return $this->request->getPost();
         }
-		if ($this->request->getServer('CONTENT_TYPE') === 'application/json') {
-			$content = json_decode($content, true);
-		} else {
-			$content = json_decode($content, true);
-			if (!is_array($content)) {
-				throw new Exception\NotAcceptable();
-			}
-		}
+        if ($this->request->getServer('CONTENT_TYPE') === 'application/json') {
+            $content = json_decode($content, true);
+        } else {
+            $content = json_decode($content, true);
+            if (!is_array($content)) {
+                throw new Exception\NotAcceptable();
+            }
+        }
 
-		return $content;
-	}
+        return $content;
+    }
 
     /**
      * Internal call to the correct method.
      * Fires a beforeCall and an afterCall event and sets the Response.
      *
-     * @param string $id
-     * @param array $params
+     * @param  string                     $id
+     * @param  array                      $params
      * @throws Exception\MethodNotAllowed
      */
     protected function _method($id, $params = null)
@@ -236,25 +235,25 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 array_push($params, $id);
                 break;
             case 'post':
-				$obj = $this->_getInput();
+                $obj = $this->_getInput();
                 array_push($params, $obj);
                 break;
             case 'put':
-				$obj = $this->_getInput();
+                $obj = $this->_getInput();
                 array_push($params, $id, $obj);
                 break;
         }
 
         $this->_eventsManager->fire(static::class.':beforeCall', $this);
-		try {
-			$this->array_response = call_user_func_array([$this, $this->_curMethod], $params);
-		} catch (\Exception $ex) {
-			$this->_eventsManager->fire(static::class.':onErrorCall', $this, $ex);
-			throw $ex;
-		} finally {
-			$this->_eventsManager->fire(static::class.':afterCall', $this);
-		}
-		$this->_eventsManager->fire(static::class.':onSuccessCall', $this);
+        try {
+            $this->array_response = call_user_func_array([$this, $this->_curMethod], $params);
+        } catch (\Exception $ex) {
+            $this->_eventsManager->fire(static::class.':onErrorCall', $this, $ex);
+            throw $ex;
+        } finally {
+            $this->_eventsManager->fire(static::class.':afterCall', $this);
+        }
+        $this->_eventsManager->fire(static::class.':onSuccessCall', $this);
 
         $status   = null;
         $location = null;

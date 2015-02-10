@@ -1,6 +1,5 @@
 <?php namespace Ovide\Libs\Mvc\Rest;
 
-
 class Router extends \Phalcon\Mvc\Router implements \Serializable
 {
     public function serialize()
@@ -15,6 +14,7 @@ class Router extends \Phalcon\Mvc\Router implements \Serializable
         }
 
         $this->_dependencyInjector = $di;
+
         return serialize($data);
     }
 
