@@ -80,27 +80,24 @@ class App extends Micro
     }
 
     /**
-     * @param string $path
+     * Adds new resources to the app
+     *
+     * @see addResource()
+     * @param array $resources resource class Names
      */
-    public function mountRoutes($path)
+    public function addResources(array $resources)
     {
         /* @var $di \Phalcon\DI */
         $di    = $this->_dependencyInjector;
-        $cache = null;
+        $cache = $cached = null;
         if ($di->has('cache')) {
             $cache  = $di->getShared('cache');
-            $key    = "router@$path";
+            $key    = "router";
             $cached = $cache->get($key);
         }
         if (!$cached) {
-            $routes = include $path;
-            //Carreguem totes les rutes
-            foreach ($routes as $route => $val) {
-                if (is_array($val)) {
-                    $this->addResource($route, $val[0], $val[1]);
-                } else {
-                    $this->addResource($route, $val);
-                }
+            foreach ($resources as $resource) {
+                $this->mountResource($resource);
             }
 
             if ($cache !== null) {
@@ -114,44 +111,19 @@ class App extends Micro
     }
 
     /**
-     * @return App
-     */
-    final public static function instance()
-    {
-        if (self::$app === null) {
-            $class = static::class;
-            new $class();
-        }
-
-        return self::$app;
-    }
-
-    /**
      * Adds a new resource to the app
      *
-     * @param  string          $route      The route associated to the resource.
-     *                                     Allows regexp and wildcards
-     * @param  string          $controller The name of the controller class.
-     *                                     Must interhit from Controller
-     * @param  string          $idP        The regexp for the main resource id.
-     *                                     Used as $id in the controller method.
-     * @throws \LogicException
-     * @example App::addResource('/foo/bar', Foo::class);
-     * @example App::addResource('/foo/{fooId}/bar', Foo::class);
-     * @example App::addResource('/foo/{[0-9]*}/bar', Foo::class, '[a-z]*');
+     * @param  string $controller The name of the controller class.
      */
-    public static function addResource($route, $controller, $idP = '[a-zA-Z0-9_-]*')
+    public function mountResource($controller)
     {
-        if (is_subclass_of($controller, Controller::class)) {
-            $col   = new Collection();
-            $col->setHandler($controller, true);
-            $col->setPrefix($route);
-            $col->map("[/]?{id:$idP}[/]?", 'handle', $route);
-            static::$app->mount($col);
-        } else {
-            $msg = "$controller is not a ".Controller::class;
-            throw new \LogicException($msg);
-        }
+        $rx  = $controller::RX;
+        $col = new Collection();
+        $col->setHandler($controller, true);
+        $col->setPrefix($controller::PATH);
+        $col->map("[/]?{id:$}", 'handle', $controller::PATH);
+        $col->map("/{id:$rx}[/]?", 'handle', $controller::PATH);
+        $this->mount($col);
     }
 
     /**
@@ -186,17 +158,15 @@ class App extends Micro
     }
 
     /**
-     * Adds new resources to the app
-     *
-     * @see addResource()
-     * @param array $array []
-     *                     path => resourceClassName
+     * @return App
      */
-    public static function addResources($array)
+    final public static function instance()
     {
-        $i = static::instance();
-        foreach ($array as $path => $class) {
-            $i->addResource($path, $class);
+        if (self::$app === null) {
+            $class = static::class;
+            new $class();
         }
+
+        return self::$app;
     }
 }

@@ -4,9 +4,6 @@ use Ovide\Libs\Mvc\Rest;
 
 class FooVar extends Rest\Controller
 {
-
-    const PATH = '/foo/{fooId:[0-9]+}/var';
-
     public static $data = [
         [
             [

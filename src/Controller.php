@@ -15,8 +15,6 @@
  *
  * Use App class for add the controllers to the router
  *
- * @example
- * App::addResources(['/articles/{artId:([0-9]+)}/comments' => Comment::class]);
  *
  * @author Albert Ovide <albert@ovide.net>
  */
@@ -53,6 +51,11 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     const PATH = '';
 
+    /**
+     * Regular expression that must match with the entity key
+     */
+    const RX = '[a-zA-Z0-9_-]+';
+
     public function onConstruct()
     {
         $this->_eventsManager = $this->di->getEventsManager();
@@ -70,35 +73,40 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         $params    = func_get_args();
 
         try {
-            $this->_call($params);
+            $this->_call(func_get_args());
         } catch (\Exception $ex) {
-            //Check if is an internal exception
-            //determines if the error message is visible or hidden
-            $ix  = ($ex instanceof Exception\Exception);
-            $code    = $ix ? $ex->getCode() : Response::INTERNAL_ERROR;
-            $message = ($ix || self::$_devEnv) ?
-                trim($ex->getMessage()) :
-                Response::$status[$code];
-
-            //If $_devEnv is up shows also the debug trace
-            $msg     = self::$_devEnv ?
-                [
-                    'message' => trim($ex->getMessage()),
-                    'code'    => $ex->getCode(),
-                    'type'    => \get_class($ex),
-                    'file'    => $ex->getFile(),
-                    'line'    => $ex->getLine(),
-                    'trace'   => $ex->getTrace(),
-                ]
-                    :
-                [
-                    'message' => $message,
-                    'code'    => $code,
-                ];
-            $this->response = new Response($msg, $code, $message);
+            $this->handleException($ex);
         }
 
         return $this->response;
+    }
+
+    protected function handleException(\Exception $ex)
+    {
+        //Check if is an internal exception
+        //determines if the error message is visible or hidden
+        $ix  = ($ex instanceof Exception\Exception);
+        $code    = $ix ? $ex->getCode() : Response::INTERNAL_ERROR;
+        $message = ($ix || self::$_devEnv) ?
+            trim($ex->getMessage()) :
+            Response::$status[$code];
+
+        //If $_devEnv is up shows also the debug trace
+        $msg     = self::$_devEnv ?
+            [
+                'message' => trim($ex->getMessage()),
+                'code'    => $ex->getCode(),
+                'type'    => \get_class($ex),
+                'file'    => $ex->getFile(),
+                'line'    => $ex->getLine(),
+                'trace'   => $ex->getTrace(),
+            ]
+                :
+            [
+                'message' => $message,
+                'code'    => $code,
+            ];
+        $this->response = new Response($msg, $code, $message);
     }
 
     /**
@@ -177,7 +185,8 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             $name = $method->getName();
             if (isset($all[$name]) && !in_array($all[$name], $options)) {
                 if ($acl === null ||
-                    $acl->isAllowed($role, $resource, $all[$name])) {
+                    $acl->isAllowed($role, $resource, $all[$name]))
+                {
                     $options[] = $all[$name];
                 }
             }
@@ -230,9 +239,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }
 
         switch ($this->_curMethod) {
-            case 'getOne':
-            case 'delete':
-                array_push($params, $id);
+            case 'get':
                 break;
             case 'post':
                 $obj = $this->_getInput();
@@ -241,6 +248,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             case 'put':
                 $obj = $this->_getInput();
                 array_push($params, $id, $obj);
+                break;
+            default:
+                array_push($params, $id);
                 break;
         }
 

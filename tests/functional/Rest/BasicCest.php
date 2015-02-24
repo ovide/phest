@@ -7,9 +7,7 @@ class BasicCest
 {
     public function _before(FunctionalTester $I)
     {
-        App::addResources([
-            '/basic' => Controllers\Foo::class,
-        ]);
+        App::instance()->addResources([Controllers\Foo::class]);
     }
 
     public function _after(FunctionalTester $I)
@@ -20,7 +18,7 @@ class BasicCest
 
     public function testGet(FunctionalTester $I)
     {
-        $I->sendGET('/basic');
+        $I->sendGET('/foo');
         $I->seeResponseCodeIs(200);
         $I->seeResponseEquals(json_encode(Controllers\Foo::$data));
     }
@@ -31,7 +29,7 @@ class BasicCest
      */
     public function testGetOne(FunctionalTester $I)
     {
-        $I->sendGET('/basic/1');
+        $I->sendGET('/foo/1');
         $I->seeResponseCodeIs(200);
         $expected = Controllers\Foo::$data[0];
         $I->seeResponseEquals(json_encode($expected));
@@ -41,7 +39,7 @@ class BasicCest
     {
         $post    = ['name' => 'Post', 'description' => 'PostDesc'];
         $prepend = ['id' => 3];
-        $I->sendPOST('/basic/', $post);
+        $I->sendPOST('/foo/', $post);
         $prepend += $post;
         $I->seeResponseCodeIs(201);
         //TODO
@@ -52,13 +50,13 @@ class BasicCest
     public function testPut(FunctionalTester $I)
     {
         $put = ['id' => 3, 'name' => 'Put', 'description' => 'PUT'];
-        $I->sendPUT('/basic/3', $put);
+        $I->sendPUT('/foo/3', $put);
         $I->seeResponseCodeIs(204);
     }
 
     public function testDelete(FunctionalTester $I)
     {
-        $I->sendDELETE('/basic/3');
+        $I->sendDELETE('/foo/3');
         $I->seeResponseCodeIs(204);
     }
 
@@ -68,27 +66,12 @@ class BasicCest
      */
     public function testNotFound(FunctionalTester $I)
     {
-        $I->sendGET('/');
+        $I->sendGET('/foobar/foo/bar');
         $I->seeResponseCodeIs(404);
         $I->seeResponseEquals(json_encode([
             'message' => 'Not Found',
             'code'    => 404,
         ]));
-    }
-
-    /**
-     * @depends testGetOne
-     * @param AcceptanceTester $I
-     */
-    public function testError500(FunctionalTester $I)
-    {
-        $I->sendGET('/basic/dsadf');
-        $expected = [
-            'message' => Response::$status[Response::INTERNAL_ERROR],
-            'code'    => Response::INTERNAL_ERROR,
-        ];
-        $I->seeResponseCodeIs(Response::INTERNAL_ERROR);
-        $I->seeResponseContainsJson($expected);
     }
 
     public function testNotAllowed(FunctionalTester $I)

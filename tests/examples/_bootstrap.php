@@ -5,7 +5,7 @@ use Phalcon\Acl;
 
 $app = App::instance();
 
-$app->addResource(User::PATH, User::class, User::RX);
+$app->mountResource(User::class);
 
 $app->di->set('acl', function() {
 	$guest = new Acl\Role('guest');

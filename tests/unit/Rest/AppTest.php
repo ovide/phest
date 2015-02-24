@@ -56,11 +56,12 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResource()
     {
         $I = $this->tester;
-        $this->app->addResource('/route', Mocks\Controllers\Basic::class);
+        $this->app->mountResource(Mocks\Controllers\Basic::class);
         $routes = $this->app->router->getRoutes();
-        $route = $routes[0];
-        /* @var $route \Phalcon\Mvc\Router\Route */
-        $I->assertEquals('/route[/]?{id:[a-zA-Z0-9_-]*}[/]?', $route->getPattern());
+        $route0 = $routes[0];
+        $route1 = $routes[1];
+        $I->assertEquals('[/]?{id:$}'              , $route0->getPattern());
+        $I->assertEquals('/{id:[a-zA-Z0-9_-]+}[/]?', $route1->getPattern());
     }
 
     /**
@@ -69,11 +70,12 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResourceWithPattern()
     {
         $I = $this->tester;
-        $this->app->addResource('/route', Mocks\Controllers\Basic::class, '[0-9]*');
+        $this->app->mountResource(Mocks\Controllers\Foo::class);
         $routes = $this->app->router->getRoutes();
-        $route = $routes[0];
-        /* @var $route \Phalcon\Mvc\Router\Route */
-        $I->assertEquals('/route[/]?{id:[0-9]*}[/]?', $route->getPattern());
+        $route0 = $routes[0];
+        $route1 = $routes[1];
+        $I->assertEquals('/foo[/]?{id:$}'      , $route0->getPattern());
+        $I->assertEquals('/foo/{id:[0-9]+}[/]?', $route1->getPattern());
     }
 
     /**
@@ -82,24 +84,24 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResources()
     {
         $I = $this->tester;
-        App::addResources([
-            '/route' => Mocks\Controllers\Basic::class,
-            '/foo'   => Mocks\Controllers\Basic::class,
-        ]);
+        $app = App::instance();
+        $app->addResources([Mocks\Controllers\Basic::class, Mocks\Controllers\Foo::class]);
         $routes = $this->app->router->getRoutes();
-        $route  = $routes[0];
-        $foo    = $routes[1];
-        $I->assertEquals('/route[/]?{id:[a-zA-Z0-9_-]*}[/]?', $route->getPattern());
-        $I->assertEquals('/foo[/]?{id:[a-zA-Z0-9_-]*}[/]?', $foo->getPattern());
+        $route0  = $routes[0];
+        $route1  = $routes[1];
+        $foo0    = $routes[2];
+        $foo1    = $routes[3];
+        $I->assertEquals('[/]?{id:$}'              , $route0->getPattern());
+        $I->assertEquals('/foo[/]?{id:$}'          , $foo0->getPattern());
+        $I->assertEquals('/{id:[a-zA-Z0-9_-]+}[/]?', $route1->getPattern());
+        $I->assertEquals('/foo/{id:[0-9]+}[/]?'    , $foo1->getPattern());
     }
 
     public function testAddResourcesException()
     {
         $I = $this->tester;
         try {
-            App::addResources([
-                '/route' => __CLASS__,
-            ]);
+            App::addResources([__CLASS__]);
             $I->assertTrue(false);
         } catch (\Exception $ex) {
             $I->assertTrue(true);
@@ -110,18 +112,26 @@ class RestAppTest extends \Codeception\TestCase\Test
     {
         $I = $this->tester;
 
-        App::addResources([
-            '/route'              => Mocks\Controllers\Basic::class,
-            '/foo'                => Mocks\Controllers\Foo::class,
-            '/foo/{fooId:[0-9]*}' => Mocks\Controllers\FooVar::class,
+        $app = App::instance();
+
+        $app->addResources([
+            Mocks\Controllers\Basic::class,
+            Mocks\Controllers\Foo::class,
+            Mocks\Controllers\FooVar::class,
         ]);
         $routes = $this->app->router->getRoutes();
-        $route  = $routes[0];
-        $foo    = $routes[1];
-        $fooVar = $routes[2];
-        $I->assertEquals('/route[/]?{id:[a-zA-Z0-9_-]*}[/]?', $route->getPattern());
-        $I->assertEquals('/foo[/]?{id:[a-zA-Z0-9_-]*}[/]?', $foo->getPattern());
-        $I->assertEquals('/foo/{fooId:[0-9]*}[/]?{id:[a-zA-Z0-9_-]*}[/]?', $fooVar->getPattern());
+        $route0  = $routes[0];
+        $route1  = $routes[1];
+        $foo0    = $routes[2];
+        $foo1    = $routes[3];
+        $fooVar0 = $routes[4];
+        $fooVar1 = $routes[5];
+        $I->assertEquals('[/]?{id:$}'                                     , $route0->getPattern());
+        $I->assertEquals('/foo[/]?{id:$}'                                 , $foo0->getPattern());
+        $I->assertEquals('/foo/{fooId:[0-9]+}/var[/]?{id:$}'              , $fooVar0->getPattern());
+        $I->assertEquals('/{id:[a-zA-Z0-9_-]+}[/]?'                       , $route1->getPattern());
+        $I->assertEquals('/foo/{id:[0-9]+}[/]?'                           , $foo1->getPattern());
+        $I->assertEquals('/foo/{fooId:[0-9]+}/var/{id:[a-zA-Z0-9_-]+}[/]?', $fooVar1->getPattern());
     }
 
     public function testNotFound()
@@ -130,9 +140,9 @@ class RestAppTest extends \Codeception\TestCase\Test
 
         //We need at least a resource to init the routes handler
         $app = App::instance();
-        $app->addResource('/var', Mocks\Controllers\Basic::class);
-        /* @var $res \Ovide\Libs\Mvc\Rest\Response */
-        $res = $app->handle('/foo');
+        $app->mountResource(Mocks\Controllers\Foo::class);
+        /* @var $res \Igm\Rest\Response */
+        $res = $app->handle('/bar');
 
         $this->assertInstanceOf(\Ovide\Libs\Mvc\Rest\Response::class, $res);
         $I->assertEquals('404 Not Found', $res->getHeaders()->get('Status'));
@@ -155,7 +165,7 @@ class RestAppTest extends \Codeception\TestCase\Test
         $I = $this->tester;
 
         $app = App::instance();
-        $app->addResource('/foo', Mocks\Controllers\Basic::class);
+        $app->mountResource(Mocks\Controllers\Basic::class);
         $app->addHeaderHandler(Mocks\Headers\Basic::class);
         $app->handle('/foo');
 
@@ -174,7 +184,7 @@ class RestAppTest extends \Codeception\TestCase\Test
 
         $_SERVER['FOO'] = 'bar';
         $app = App::instance();
-        $app->addResource('/foo', Mocks\Controllers\Basic::class);
+        $app->mountResource(Mocks\Controllers\Basic::class);
         $app->addHeaderHandler(Mocks\Headers\Basic::class);
         $app->handle('/foo');
 
@@ -210,5 +220,68 @@ class RestAppTest extends \Codeception\TestCase\Test
         $expected = 'var';
 
         $I->assertEquals($expected, $actual);
+    }
+
+    public function testMountRoutesNotCached()
+    {
+        $rc = new ReflectionClass(App::class);
+        $prop = $rc->getProperty('app');
+        $prop->setAccessible(true);
+        $prop->setValue(null, null);
+
+        $mock = $this->getMockBuilder(App::class)->setMethods(['mountResource'])->getMock();
+        $mock
+            ->expects($this->exactly(2))
+            ->method('mountResource')
+            ->withConsecutive([$this->equalTo(\Mocks\Controllers\FooVar::class)],[Mocks\Controllers\Basic::class])
+        ;
+
+        $mock->addResources([\Mocks\Controllers\FooVar::class, Mocks\Controllers\Basic::class]);
+    }
+
+    public function testMountRoutesCached()
+    {
+        $rc = new ReflectionClass(App::class);
+        $prop = $rc->getProperty('app');
+        $prop->setAccessible(true);
+        $prop->setValue(null, null);
+
+        $cached = [
+            'handlers' => 'handlers',
+            'router'   => new stdClass()
+        ];
+        $stub = $this->getMockBuilder(stdClass::class)->setMethods(['get'])->getMock();
+        $stub->expects($this->once())->method('get')->with($this->anything())->willReturn($cached);
+
+        $app = App::instance();
+        $di = $app->getDI();
+        $di->setShared('cache', $stub);
+
+        $app->addResources([\Mocks\Controllers\FooVar::class, Mocks\Controllers\Basic::class]);
+        $this->assertEquals('handlers', $app->getHandlers());
+        $this->assertInstanceOf(stdClass::class, $app->getRouter());
+        $this->assertSame($app->getRouter(), $app->getDI()->getShared('router'));
+    }
+
+    public function testMountRoutesSaveCache()
+    {
+        $rc = new ReflectionClass(App::class);
+        $prop = $rc->getProperty('app');
+        $prop->setAccessible(true);
+        $prop->setValue(null, null);
+        $app = App::instance();
+
+        $stub = $this->getMockBuilder(stdClass::class)->setMethods(['get', 'save'])->getMock();
+        $stub->expects($this->once())->method('get')->with($this->anything())->willReturn(false);
+        $stub->expects($this->once())->method('save')->with($this->anything(), $this->callback(
+            function(array $param) use ($app){
+                return ($param['router'] === $app->getRouter() && $param['handlers'] === $app->getHandlers());
+            }
+        ));
+
+        $di = $app->getDI();
+        $di->setShared('cache', $stub);
+
+        $app->addResources([\Mocks\Controllers\FooVar::class, Mocks\Controllers\Basic::class]);
     }
 }

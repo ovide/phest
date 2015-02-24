@@ -53,11 +53,11 @@ class ControllerTest extends \Codeception\TestCase\Test
         $controller = m::mock(Controllers\Basic::class.'[getOne]')
                 ->shouldReceive('getOne')
                 ->once()
-                ->withArgs(['foovar', 'foo', 'var'])
+                ->withArgs(['foo', 'var', 'foovar'])
                 ->getMock()
         ;
 
-        $resp = $controller->handle('foovar', 'foo', 'var');
+        $resp = $controller->handle('foo', 'var', 'foovar');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -230,11 +230,11 @@ class ControllerTest extends \Codeception\TestCase\Test
         $controller = m::mock(Controllers\Basic::class.'[delete]')
                 ->shouldReceive('delete')
                 ->once()
-                ->withArgs(['foovar', 'foo', 'var'])
+                ->withArgs(['foo', 'var', 'foovar'])
                 ->getMock()
         ;
 
-        $resp = $controller->handle('foovar','foo','var');
+        $resp = $controller->handle('foo','var','foovar');
         $I->assertTrue($resp instanceof \Phalcon\Http\Response);
         $status = $resp->getHeaders()->get('Status');
         $h = explode(' ', $status, 2);
@@ -319,7 +319,6 @@ class ControllerTest extends \Codeception\TestCase\Test
         $app = Rest\App::instance();
 
         $app->setService('acl', $acl, true);
-        $tmp = $app->di->has('acl');
 
         $controller = $this->getMockForAbstractClass(
             Rest\Controller::class,
@@ -520,5 +519,51 @@ class ControllerTest extends \Codeception\TestCase\Test
         //$c = new $headerClass();
 
         //Rest\Controller::registerHeaders([$headerClass]);
+    }
+
+    public function testGetInputJSON()
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_SERVER['CONTENT_TYPE']   = 'application/json';
+        $stub = $this->getMockBuilder(\Phalcon\Http\Request::class)->setMethods(['getRawBody'])->getMock();
+        $stub->expects($this->once())->method('getRawBody')->willReturn(json_encode(['foo' => 'bar']));
+        $controller = m::mock(Controllers\Basic::class.'[post]')
+                ->shouldReceive('post')
+                ->once()
+                ->withArgs([['foo'=>'bar']])
+                ->getMock();
+
+        $controller->request = $stub;
+        $controller->handle('/foo');
+    }
+
+    public function testGetInputNotAcceptable()
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $stub = $this->getMockBuilder(\Phalcon\Http\Request::class)->setMethods(['getRawBody'])->getMock();
+        $stub->expects($this->once())->method('getRawBody')->willReturn('foo');
+        $controller = m::mock(Controllers\Basic::class.'[post]')
+                ->shouldReceive('post')
+                ->getMock();
+
+        $controller->request = $stub;
+        /* @var $res \Igm\Rest\Response */
+        $res = $controller->handle('/foo');
+        $this->assertEquals('406 Not Acceptable', $res->getHeaders()->get('Status'));
+    }
+
+    public function testGetInputJSONNoHeader()
+    {
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $stub = $this->getMockBuilder(\Phalcon\Http\Request::class)->setMethods(['getRawBody'])->getMock();
+        $stub->expects($this->once())->method('getRawBody')->willReturn(json_encode(['foo' => 'bar']));
+        $controller = m::mock(Controllers\Basic::class.'[post]')
+                ->shouldReceive('post')
+                ->once()
+                ->withArgs([['foo'=>'bar']])
+                ->getMock();
+
+        $controller->request = $stub;
+        $controller->handle('/foo');
     }
 }
