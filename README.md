@@ -34,8 +34,8 @@ $app = App::instance();
 $app->addResources([
     'myresource/path'             => MyResource::class,
     'myresource/path/subresource' => SubResource::class,
-    'users'                       => User::class
-    'users/{userID}/comments'     => Comment::class
+    'users'                       => User::class,
+    'users/{userID}/comments'     => Comment::class,
 ]);
 
 $app->handle();
