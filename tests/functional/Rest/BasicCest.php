@@ -76,7 +76,7 @@ class BasicCest
 
     public function testNotAllowed(FunctionalTester $I)
     {
-        $I->sendAjaxRequest('FOO', '/basic');
+        $I->sendAjaxRequest('PATCH', '/foo');
         $I->seeResponseCodeIs(405);
     }
 }

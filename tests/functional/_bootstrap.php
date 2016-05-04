@@ -1,6 +1,6 @@
 <?php
 
-if (!class_exists('FunctionalApp')) {
+/*if (!class_exists('FunctionalApp')) {
     class FunctionalApp extends \Ovide\Libs\Mvc\Rest\App
     {
         public function handle($uri=NULL)
@@ -10,5 +10,5 @@ if (!class_exists('FunctionalApp')) {
     }
 }
 
-return FunctionalApp::instance();
-//return Ovide\Libs\Mvc\Rest\App::instance();
+return FunctionalApp::instance();*/
+return Ovide\Libs\Mvc\Rest\App::instance();
