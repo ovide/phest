@@ -1,8 +1,10 @@
 var/cache/*
 var/log/*
 vendor
-tests/_output/*
 /composer.lock
 tests/examples/Tester.php
 tests/functional/FunctionalTester.php
 tests/unit/UnitTester.php
+
+/tests/_output/
+/tests/_support/_generated/

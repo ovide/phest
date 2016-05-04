@@ -1,9 +1,10 @@
-class_name: Tester
+class_name: FunctionalTester
 modules:
     enabled:
-        - FunctionalHelper
+        - \Ovide\Libs\Mvc\Helper\Functional
         - Phalcon1
-        - REST
+        - REST:
+            depends: PhpBrowser
     config:
         Phalcon1:
             bootstrap: 'tests/examples/_bootstrap.php'

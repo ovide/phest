@@ -5,7 +5,7 @@ use Ovide\Libs\Mvc\Rest\App;
 class RestAppTest extends \Codeception\TestCase\Test
 {
     /**
-    * @var \UnitTester
+    * @var Ovide\Libs\Mvc\UnitTester
     */
     protected $tester;
 
@@ -97,8 +97,9 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResourcesException()
     {
         $I = $this->tester;
+        
         try {
-            App::addResources([__CLASS__]);
+            $this->app->addResources([__CLASS__]);
             $I->assertTrue(false);
         } catch (\Exception $ex) {
             $I->assertTrue(true);
