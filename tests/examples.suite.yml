@@ -4,7 +4,7 @@ modules:
         - \Ovide\Libs\Mvc\Helper\Functional
         - Phalcon2
         - REST:
-            depends: PhpBrowser
+            depends: Phalcon2
     config:
         Phalcon2:
             bootstrap: 'tests/examples/_bootstrap.php'

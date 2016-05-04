@@ -1,6 +1,6 @@
-<?php use Ovide\Libs\Mvc\Tester;
+<?php use Ovide\Libs\Mvc\FunctionalTester;
+$I = new FunctionalTester($scenario);
 
-$I = new Tester($scenario);
 $I->wantTo('Do some CRUD operations with users');
 
 $foo = [
