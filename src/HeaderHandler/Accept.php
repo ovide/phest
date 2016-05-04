@@ -49,6 +49,9 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
 
     protected function parseContent(App $app)
     {
+        if (!$this->contentType) {
+            $this->contentType = static::DEF;
+        }
         $func = $this->acceptable[$this->contentType];
         $this->$func($app);
     }

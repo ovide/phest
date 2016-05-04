@@ -13,3 +13,7 @@ $loader->registerNamespaces([
     'Mocks\Middlewares'                 => __DIR__.'/Mocks/Middlewares/',
 ]);
 $loader->register();
+
+set_error_handler(function($errNumber, $errStr, $errFile, $errLine) {
+    throw new \ErrorException($errStr, 0, $errNumber, $errFile, $errLine);
+});

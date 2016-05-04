@@ -97,13 +97,9 @@ class RestAppTest extends \Codeception\TestCase\Test
     public function testAddResourcesException()
     {
         $I = $this->tester;
-        
-        try {
+        $I->expectException(RuntimeException::class, function(){
             $this->app->addResources([__CLASS__]);
-            $I->assertTrue(false);
-        } catch (\Exception $ex) {
-            $I->assertTrue(true);
-        }
+        });
     }
 
     public function testAddResourceWithMultipleIds()
@@ -138,6 +134,10 @@ class RestAppTest extends \Codeception\TestCase\Test
 
         //We need at least a resource to init the routes handler
         $app = App::instance();
+        //$stub = Codeception\Util\Stub::construct(Ovide\Libs\Mvc\Rest\Response::class, [],[
+        //    'send' => function() {return new Ovide\Libs\Mvc\Rest\Response();}
+        //]);
+        //$app->di->set('response', $stub, true);
         $app->mountResource(Mocks\Controllers\Foo::class);
         /* @var $res \Ovide\Libs\Mvc\Rest\Response */
         $res = $app->handle('/bar');

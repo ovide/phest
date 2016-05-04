@@ -19,8 +19,9 @@
 class UnitTester extends \Codeception\Actor
 {
     use _generated\UnitTesterActions;
-
-   /**
-    * Define custom actions here
-    */
+    
+    public function setExpectedException($exception)
+    {
+        $this->expectException($exception, $callback);
+    }
 }

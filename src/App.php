@@ -21,6 +21,8 @@ class App extends Micro
      * @var boolean
      */
     public $devEnv = false;
+    
+    protected $_config = [];
 
 
     /**
@@ -48,6 +50,7 @@ class App extends Micro
 
             $this->_errorHandler    = function(\Exception $ex) { return $this->errorHandler($ex); };
             $this->_notFoundHandler = function()               { return $this->notFoundHandler(); };
+            $this->addHeaderHandler(new HeaderHandler\Accept());
         } else {
             throw new \RuntimeException("Can't instance App more than once");
         }
@@ -127,7 +130,11 @@ class App extends Micro
      */
     public function mountResource($controller)
     {
+        if (!is_subclass_of($controller, Controller::class)) {
+            throw new \RuntimeException($controller.' is not a '.Controller::class);
+        }
         $rx  = $controller::RX;
+
         $col = new Collection();
         $col->setHandler($controller, true);
         $col->setPrefix($controller::PATH);
@@ -157,6 +164,25 @@ class App extends Micro
         }
 
         return self::$app;
+    }
+    
+    
+    public function setConfig($handler, $key, $value)
+    {
+        if (!isset($this->_config[$handler])) {
+            $this->_config[$handler] = [];
+        }
+        
+        $this->_config[$handler][$key] = $value;
+    }
+    
+    public function getConfig($handler, $key)
+    {
+        if (isset($this->_config[$handler][$key])) {
+            return $this->_config[$handler][$key];
+        } else {
+            throw new \RuntimeException("'$key' value not found for '$handler'");
+        }
     }
 
     /**

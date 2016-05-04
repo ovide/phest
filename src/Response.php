@@ -53,7 +53,7 @@ class Response extends \Phalcon\Http\Response
         $this->_content = $content;
         $this->_cookies = null;
         $this->_file    = null;
-        $this->_headers = null;
+        $this->_headers = new \Phalcon\Http\Response\Headers();
         $this->_sent    = 0;
         if ($this->_content) {
             if (!$code) {
@@ -65,6 +65,7 @@ class Response extends \Phalcon\Http\Response
         if (!$status) {
             $status = isset(self::$status[$code]) ? self::$status[$code] : '';
         }
+        
         $this->setStatusCode($code, $status);
     }
 
