@@ -14,7 +14,7 @@ class Accept extends Rest\Middleware
                     $app->response->setContentType($accept, 'utf-8');
                     $xml = new \SimpleXMLElement('<xml/>');
                     $array = $app->response->getContent();
-                    array_walk_recursive($app->response->getContent(), array ($xml, 'addChild'));
+                    array_walk_recursive($array, [$xml, 'addChild']);
                     $app->response->setContent($xml->asXML());
                     break;
                 case 'application/json' :
