@@ -23,6 +23,7 @@ class App extends Micro
     public $devEnv = false;
     
     protected $_config = [];
+    protected $_handlers = [];
 
 
     /**
@@ -54,6 +55,11 @@ class App extends Micro
         } else {
             throw new \RuntimeException("Can't instance App more than once");
         }
+    }
+    
+    public static function reset()
+    {
+        self::$app = null;
     }
 
     protected function notFoundHandler()
@@ -150,6 +156,10 @@ class App extends Micro
      */
     public static function addHeaderHandler($headerHandler)
     {
+        if (isset(static::$app->_handlers[$headerHandler::HEADER])) {
+            static::$app->_eventsManager->detach('micro', static::$app->_handlers[$headerHandler::HEADER]);
+        }
+        static::$app->_handlers[$headerHandler::HEADER] = $headerHandler;
         static::$app->_eventsManager->attach('micro', $headerHandler);
     }
 

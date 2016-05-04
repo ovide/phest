@@ -16,6 +16,7 @@ class HeadersCest
 
     public function _after(FunctionalTester $I)
     {
+        App::reset();
     }
 
     // tests
