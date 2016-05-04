@@ -1,7 +1,7 @@
 <?php namespace Mocks\Examples;
 
-use Igm\Rest\Controller;
-use Igm\Rest\Exception;
+use Ovide\Libs\Mvc\Rest\Controller;
+use Ovide\Libs\Mvc\Rest\Exception;
 
 class User extends Controller
 {

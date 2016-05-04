@@ -1,6 +1,6 @@
-<?php
-namespace Igm\Rest;
-use Igm\FunctionalTester;
+<?php namespace Ovide\Libs\Mvc\Rest;
+
+use Ovide\Libs\Mvc\FunctionalTester;
 
 class HeadersCest
 {

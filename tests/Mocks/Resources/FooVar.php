@@ -1,6 +1,6 @@
 <?php namespace Mocks\Controllers;
 
-use Igm\Rest;
+use Ovide\Libs\Mvc\Rest;
 
 class FooVar extends Rest\Controller
 {

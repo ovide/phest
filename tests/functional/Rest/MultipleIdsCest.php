@@ -1,6 +1,6 @@
-<?php namespace Igm\Rest;
+<?php namespace Ovide\Libs\Mvc\Rest;
 
-use Igm\FunctionalTester;
+use Ovide\Libs\Mvc\FunctionalTester;
 use Mocks\Controllers\FooVar;
 
 class MultipleIdsCest

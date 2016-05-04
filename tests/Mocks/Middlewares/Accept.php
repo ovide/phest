@@ -1,10 +1,12 @@
 <?php namespace Mocks\Middlewares;
 
-class Accept extends \Igm\Rest\Middleware
+use Ovide\Libs\Mvc\Rest;
+
+class Accept extends Rest\Middleware
 {
     const HEADER = 'Accept';
 
-    public function afterExecuteRoute(\Phalcon\Events\Event $evt, \Igm\Rest\App $app, $data)
+    public function afterExecuteRoute(\Phalcon\Events\Event $evt, Rest\App $app, $data)
     {
         if ($accept = $this->getHeader()) {
             switch ($accept) {
@@ -23,20 +25,20 @@ class Accept extends \Igm\Rest\Middleware
         }
     }
 
-    public function beforeExecuteRoute(\Phalcon\Events\Event $evt, \Igm\Rest\App $app, $data)
+    public function beforeExecuteRoute(\Phalcon\Events\Event $evt, Rest\App $app, $data)
     {
         $acceptable = ['application/xml', 'application/json'];
         if ($accept = $this->getHeader()) {
             if (!in_array($accept, $acceptable)) {
                 $evt->stop();
-                throw new \Igm\Rest\Exception\NotAcceptable("Cant generate $accept content");
+                throw new Rest\Exception\NotAcceptable("Cant generate $accept content");
             }
         }
     }
 
-    public function afterException(\Phalcon\Events\Event $evt, \Igm\Rest\App $app, $data)
+    public function afterException(\Phalcon\Events\Event $evt, Rest\App $app, $data)
     {
-        if ($data instanceof \Igm\Rest\Exception\NotAcceptable) {
+        if ($data instanceof Rest\Exception\NotAcceptable) {
             static::parseContent($app);
         }
     }
