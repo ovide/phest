@@ -48,17 +48,14 @@ class Response extends \Phalcon\Http\Response
         503 => 'Service unavailable',
     );
 
-    public function __construct($content = null, $code = null, $status = null)
+    public function rebuild($content = null, $code = null, $status = null)
     {
-        parent::__construct($content, $code, $status);
+        $this->_content = $content;
+        $this->_cookies = null;
+        $this->_file    = null;
+        $this->_headers = null;
+        $this->_sent    = 0;
         if ($this->_content) {
-            /*
-            if (($code === null || $code < 300) && ($this->eTag())){
-                $this->_content = '';
-                return;
-            }
-             */
-            $this->buildBody();
             if (!$code) {
                 $code = self::OK;
             }
@@ -72,55 +69,17 @@ class Response extends \Phalcon\Http\Response
     }
 
     /**
-     * Check if response ETag matches with the request header If-None-Match
-     * Clear the content body if matches and set the status code 304
-     *
-     * @param  string  $content
-     * @return boolean true if matches
-     */
-    /*
-    protected function eTag()
-    {
-
-        $et = isset($_SERVER['HTTP_IF_NONE_MATCH']) ? $_SERVER['HTTP_IF_NONE_MATCH'] : '';
-        //$et = filter_input(INPUT_SERVER, 'HTTP_IF_NONE_MATCH');
-        $net = '"'.md5(serialize($this->_content)).'"';
-        $this->setEtag($net);
-        if ($et === $net) {
-            $this->setStatusCode(self::NOT_MODIFIED,
-                    self::$status[self::NOT_MODIFIED]);
-            return true;
-        }
-        return false;
-    }
-     *
-     */
-
-    /**
-     * Build the body using an acceptable format
-     * @todo Must add ResponseFormatters (xml, csv, xls,...)
-     *
-     * @param \Phalcon\HTTP\ResponseInterface $rsp
-     * @param array                           $content
-     */
-    protected function buildBody()
-    {
-        $this->setContentType('application/json');
-        $this->setJsonContent($this->_content);
-    }
-
-    /**
      * Build a Not Found standard response
      *
      * @param \Phalcon\HTTP\ResponseInterface $rsp
      */
     public function notFound()
     {
+        $this->_sent = 0; //TODO Fix it!
         $this->setStatusCode(self::NOT_FOUND, self::$status[self::NOT_FOUND]);
         $this->_content = [
             'message' => self::$status[self::NOT_FOUND],
             'code'    => self::NOT_FOUND,
         ];
-        $this->buildBody();
     }
 }

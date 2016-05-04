@@ -309,7 +309,7 @@ class ControllerTest extends \Codeception\TestCase\Test
         $role     = new \Phalcon\Acl\Role('foo');
         $acl      = new Phalcon\Acl\Adapter\Memory();
         $acl->setDefaultAction(Phalcon\Acl::DENY);
-        $acl->addResource($resource);
+        $acl->addResource($resource, []);
         $acl->addRole($role);
         $acl->addResourceAccess($resource->getName(),
                 ['GET', 'POST', 'PUT', 'DELETE']);
@@ -345,11 +345,13 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->handle();
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
+        try {
+            $controller->handle();
+            $this->assertTrue(false, "Should throw a exception");
+        } catch (Rest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        }
     }
 
     public function testPostNotAllowed()
@@ -361,11 +363,13 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->handle();
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
+        try {
+            $controller->handle();
+            $this->assertTrue(false, "Should throw a exception");
+        } catch (Rest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        }
     }
 
     public function testPutNotAllowed()
@@ -377,11 +381,13 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->handle();
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
+        try {
+            $controller->handle();
+            $this->assertTrue(false, "Should throw a exception");
+        } catch (Rest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        }
     }
 
     public function testDeleteNotAllowed()
@@ -393,11 +399,13 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->handle();
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
+        try {
+            $controller->handle();
+            $this->assertTrue(false, "Should throw a exception");
+        } catch (Rest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        }
     }
 
     public function testAnyNotAllowed()
@@ -408,11 +416,13 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $controller = m::mock(Rest\Controller::class.'[]');
 
-        $resp = $controller->handle();
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $I->assertEquals(Rest\Response::NOT_ALLOWED, $h[0]);
+        try {
+            $controller->handle('foo');
+            $this->assertTrue(false, "Should throw a exception");
+        } catch (Rest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        }
     }
 
     public function testException()
@@ -426,15 +436,16 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->shouldReceive('getOne')
                 ->once()
                 ->withArgs(['foo'])
-                ->andThrow(new Exception())
+                ->andThrow(new Exception('foo'))
                 ->getMock()
         ;
 
-        $resp = $controller->handle('foo');
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $I->assertEquals(Rest\Response::INTERNAL_ERROR, $h[0]);
+        try {
+            $controller->handle('foo');
+            $this->assertTrue(false, "Should throw a exception");
+        } catch (\Exception $ex) {
+            $this->assertEquals('foo', $ex->getMessage());
+        }
     }
 
     public function testRestException()
@@ -452,39 +463,15 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock()
         ;
 
-        $resp = $controller->handle('foo');
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $I->assertEquals(Rest\Response::CONFLICT, $h[0]);
+        try {
+            $controller->handle('foo');
+        } catch (\Ovide\Libs\Mvc\Rest\Exception\Conflict $ex) {
+            $this->assertEquals(Rest\Response::CONFLICT, $ex->getCode());
+            $this->assertEquals('Foo', $ex->getMessage());
+        }
     }
 
-    public function testSeeDetailedErrorIfDevEnv()
-    {
-        /* @var $controller Rest\Controller */
-        $I = $this->tester;
 
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-
-        $controller = m::mock(Controllers\Basic::class.'[getOne]')
-                ->shouldReceive('getOne')
-                ->withArgs(['foo'])
-                ->andThrow(new RuntimeException('FooBar'))
-                ->getMock()
-        ;
-
-        Rest\Controller::devEnv(function () { return true; });
-
-        $resp = $controller->handle('bar', 'foo');
-
-        Rest\Controller::devEnv(function () { return false; });
-
-        $I->assertTrue($resp instanceof \Phalcon\Http\Response);
-        $status = $resp->getHeaders()->get('Status');
-        $h = explode(' ', $status, 2);
-        $expected = 'No matching handler found for Mockery_0_Mocks_Controllers_Basic::getOne("bar", "foo"). Either the method was unexpected or its arguments matched no expected argument list for this method';
-        $I->assertEquals($expected, $h[1]);
-    }
 
     public function testSetLocationAfterPost()
     {
@@ -547,9 +534,13 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->getMock();
 
         $controller->request = $stub;
-        /* @var $res \Igm\Rest\Response */
-        $res = $controller->handle('/foo');
-        $this->assertEquals('406 Not Acceptable', $res->getHeaders()->get('Status'));
+        /* @var $res \Ovide\Libs\Mvc\Rest\Response */
+        try  {
+            $controller->handle('/foo');
+        } catch (\Ovide\Libs\Mvc\Rest\Exception\NotAcceptable $ex) {
+            $this->assertEquals(Rest\Response::NOT_ACCEPTABLE, $ex->getCode());
+            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ACCEPTABLE], $ex->getMessage());
+        }
     }
 
     public function testGetInputJSONNoHeader()

@@ -5,7 +5,7 @@ use Phalcon\Mvc\Micro;
 use Phalcon\DI\FactoryDefault;
 
 /**
- *
+ * @property Response $response
  * @author Albert Ovide <albert@ovide.net>
  */
 class App extends Micro
@@ -13,13 +13,15 @@ class App extends Micro
     /**
      * @var App Singleton instance
      */
-    private static $app;
+    protected static $app;
 
     /**
-     * Configuration sets for HeaderHandlers
-     * @var Array
+     * Sets if we are on development so we can dump real errors.
+     *
+     * @var boolean
      */
-    private $_config = [];
+    public $devEnv = false;
+
 
     /**
      * Constructs the app.
@@ -41,42 +43,50 @@ class App extends Micro
             $dependencyInjector->setShared('router'  , Router::class);
             parent::__construct($dependencyInjector);
             self::$app = $this;
+            $this->setEventsManager($dependencyInjector->getShared('eventsManager'));
             $app = self::$app;
 
-            $app->_notFoundHandler = function () use ($app) {
-                $app->response->notFound();
-
-                return $app->response;
-            };
+            $this->_errorHandler    = function(\Exception $ex) { return $this->errorHandler($ex); };
+            $this->_notFoundHandler = function()               { return $this->notFoundHandler(); };
         } else {
             throw new \RuntimeException("Can't instance App more than once");
         }
     }
 
-    /**
-     * Sets a config value for a set-key pair
-     *
-     * @param string $set
-     * @param mixed  $key
-     * @param mixed  $value
-     */
-    public function setConfig($set, $key, $value)
+    protected function notFoundHandler()
     {
-        $this->_config[$set][$key] = $value;
+        $this->response->notFound();
+        $this->_eventsManager->fire('micro:afterExecuteRoute', $this);
+        return $this->response;
     }
 
-    /**
-     * Returns the config value for a set-key pair
-     *
-     * @param  string $set
-     * @param  mixed  $key
-     * @return mixed
-     */
-    public function getConfig($set, $key)
+    public function errorHandler(\Exception $ex)
     {
-        return isset($this->_config[$set][$key]) ?
-            $this->_config[$set][$key] :
-            null;
+        $ix  = ($ex instanceof Exception\Exception);
+        $code    = $ix ? $ex->getCode() : Response::INTERNAL_ERROR;
+        $message = ($ix || $this->devEnv) ?
+            trim($ex->getMessage()) :
+            Response::$status[$code];
+
+        //If $_devEnv is up shows also the debug trace
+        $msg     = $this->devEnv ?
+            [
+                'message' => trim($ex->getMessage()),
+                'code'    => $ex->getCode(),
+                'type'    => \get_class($ex),
+                'file'    => $ex->getFile(),
+                'line'    => $ex->getLine(),
+                'trace'   => $ex->getTrace(),
+            ]:[
+                'message' => $message,
+                'code'    => $code,
+            ];
+        $this->response->rebuild($msg, $code, $message);
+
+        /* @var $evt \Phalcon\Events\Manager */
+        $this->_eventsManager->fire('micro:afterException', $this, $ex);
+
+        return $this->response;
     }
 
     /**
@@ -133,28 +143,7 @@ class App extends Micro
      */
     public static function addHeaderHandler($headerHandler)
     {
-        if (is_subclass_of($headerHandler, Header\Handler::class)) {
-            $handler = new $headerHandler(self::$app->request);
-            self::$app->before(function () use ($handler) {
-                $handler->init();
-                if ($handler->get()) {
-                    $handler->before();
-                }
-            });
-            self::$app->after(function () use ($handler) {
-                if ($handler->get()) {
-                    $handler->after();
-                }
-            });
-            self::$app->finish(function () use ($handler) {
-                if ($handler->get()) {
-                    $handler->finish();
-                }
-            });
-        } else {
-            $msg = "$headerHandler is not a ".Header\Handler::class;
-            throw new \LogicException($msg);
-        }
+        static::$app->_eventsManager->attach('micro', $headerHandler);
     }
 
     /**
@@ -169,4 +158,91 @@ class App extends Micro
 
         return self::$app;
     }
+
+    /**
+     * @todo remove me
+     * 
+     * @param \Phalcon\Mvc\Micro\CollectionInterface $collection
+     * @return \Ovide\Libs\Mvc\Rest\App
+     * @throws \Exception
+     */
+	public function mount(Micro\CollectionInterface $collection)
+	{
+        if (!is_object($collection)) {
+			throw new \Exception("Collection is not valid");
+		}
+
+		/**
+		 * Get the main handler
+		 */
+		$mainHandler = $collection->getHandler();
+
+		if (empty($mainHandler)) {
+			throw new \Exception("Collection requires a main handler");
+		}
+
+		$handlers = $collection->getHandlers();
+		if (!count($handlers)) {
+			throw new \Exception("There are no handlers to mount");
+		}
+
+		if (is_array($handlers)) {
+
+			/**
+			 * Check if handler is lazy
+			 */
+			if ($collection->isLazy()) {
+				$lazyHandler = new \Phalcon\Mvc\Micro\LazyLoader($mainHandler);
+			} else {
+				$lazyHandler = $mainHandler;
+			}
+
+			/**
+			 * Get the main prefix for the collection
+			 */
+			$prefix = $collection->getPrefix();
+
+            foreach ($handlers as $handler) {
+
+				if (!is_array($handler)) {
+					throw new \Exception("One of the registered handlers is invalid");
+				}
+
+				$methods    = $handler[0];
+				$pattern    = $handler[1];
+				$subHandler = $handler[2];
+				$name       = $handler[3];
+
+				/**
+				 * Create a real handler
+				 */
+				$realHandler = [$lazyHandler, $subHandler];
+
+				if (!empty($prefix)) {
+					if ($pattern == "/") {
+						$prefixedPattern = $prefix;
+					} else {
+						$prefixedPattern = $prefix . $pattern;
+					}
+				} else {
+					$prefixedPattern = $pattern;
+				}
+
+				/**
+				 * Map the route manually
+				 */
+				$route = $this->map($prefixedPattern, $realHandler);
+
+				if ((is_string($methods) && ($methods !== '')) || is_array($methods)) {
+					$route->via($methods);
+				}
+
+				if (is_string($name)) {
+					$route->setName($name);
+				}
+			}
+		}
+
+		return $this;
+	}
 }

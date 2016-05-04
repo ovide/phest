@@ -1,6 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Igm\Rest;
 
-use Ovide\Libs\Mvc\FunctionalTester;
+use Igm\FunctionalTester;
 use Mocks\Controllers;
 
 class BasicCest

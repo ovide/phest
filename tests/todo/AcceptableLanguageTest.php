@@ -20,11 +20,11 @@ class AcceptableLanguageTest extends \Codeception\TestCase\Test
     public function testParseAcceptableLanguages()
     {
         $I = $this->tester;
-        
+
         $request  = new \Phalcon\Http\Request();
-        
+
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'ca,es;q=0.7,en;q=0.3';
-        
+
         $header   = new AcceptLanguage($request);
         $expected = [
             'ca' => 1,

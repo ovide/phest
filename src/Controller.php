@@ -15,6 +15,8 @@
  *
  * Use App class for add the controllers to the router
  *
+ * @example
+ * App::addResources(['resource' => MyResource::class]);
  *
  * @author Albert Ovide <albert@ovide.net>
  */
@@ -34,12 +36,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      */
     protected $array_response;
 
-    /**
-     * Sets if we are on development so we can dump real errors
-     *
-     * @var bool
-     */
-    protected static $_devEnv = false;
 
     /**
      * The key name used to identify unique resources
@@ -58,74 +54,19 @@ abstract class Controller extends \Phalcon\Mvc\Controller
 
     public function onConstruct()
     {
-        $this->_eventsManager = $this->di->getEventsManager();
-        $this->_eventsManager->attach(static::class, $this);
-    }
-
-    /**
-     * Last argument is matched as the resource main id
-     * so must pass an empty string to request a get() or post() call
-     *
-     * @params string $params List of matched identifiers in the router
-     */
-    public function handle($arguments = null)
-    {
-        $params    = func_get_args();
-
-        try {
-            $this->_call(func_get_args());
-        } catch (\Exception $ex) {
-            $this->handleException($ex);
-        }
-
-        return $this->response;
-    }
-
-    protected function handleException(\Exception $ex)
-    {
-        //Check if is an internal exception
-        //determines if the error message is visible or hidden
-        $ix  = ($ex instanceof Exception\Exception);
-        $code    = $ix ? $ex->getCode() : Response::INTERNAL_ERROR;
-        $message = ($ix || self::$_devEnv) ?
-            trim($ex->getMessage()) :
-            Response::$status[$code];
-
-        //If $_devEnv is up shows also the debug trace
-        $msg     = self::$_devEnv ?
-            [
-                'message' => trim($ex->getMessage()),
-                'code'    => $ex->getCode(),
-                'type'    => \get_class($ex),
-                'file'    => $ex->getFile(),
-                'line'    => $ex->getLine(),
-                'trace'   => $ex->getTrace(),
-            ]
-                :
-            [
-                'message' => $message,
-                'code'    => $code,
-            ];
-        $this->response = new Response($msg, $code, $message);
-    }
-
-    /**
-     *
-     * @param \Closure $closure
-     */
-    public static function devEnv(\Closure $closure)
-    {
-        self::$_devEnv = $closure();
+        $this->_eventsManager = $this->di->get('eventsManager');
+		$this->_eventsManager->attach(static::class, $this);
     }
 
     /**
      * Select the HTTP method to call
      *
-     * @param string $method
-     * @param string $id
+     * Last argument is matched as the resource main id
+     * so must pass an empty string to request a get() or post() call
      */
-    protected function _call($params)
+    public function handle()
     {
+        $params = func_get_args();
         $id = array_pop($params);
         switch ($this->request->getMethod()) {
             case 'GET':
@@ -153,8 +94,10 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 $this->options();
                 break;
             default:
-                $this->response = new Response(null, Response::NOT_ALLOWED);
+                throw new Exception\MethodNotAllowed();
         }
+
+        return $this->response;
     }
 
     public function options()
@@ -195,7 +138,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         sort($options);
 
         $list = implode(', ', $options);
-        $this->response = new Response('', Response::OK);
+        $this->response->rebuild('', Response::OK);
         $this->response->setHeader('Allow', $list);
     }
 
@@ -204,30 +147,30 @@ abstract class Controller extends \Phalcon\Mvc\Controller
      * @return array
      * @throws Exception\NotAcceptable
      */
-    protected function _getInput()
-    {
-        $content = $this->request->getRawBody();
+	protected function _getInput()
+	{
+		$content = $this->request->getRawBody();
         if (!$content) {
             return $this->request->getPost();
         }
-        if ($this->request->getServer('CONTENT_TYPE') === 'application/json') {
-            $content = json_decode($content, true);
-        } else {
-            $content = json_decode($content, true);
-            if (!is_array($content)) {
-                throw new Exception\NotAcceptable();
-            }
-        }
+		if ($this->request->getServer('CONTENT_TYPE') === 'application/json') {
+			$content = json_decode($content, true);
+		} else {
+			$content = json_decode($content, true);
+			if (!is_array($content)) {
+				throw new Exception\NotAcceptable();
+			}
+		}
 
-        return $content;
-    }
+		return $content;
+	}
 
     /**
      * Internal call to the correct method.
      * Fires a beforeCall and an afterCall event and sets the Response.
      *
-     * @param  string                     $id
-     * @param  array                      $params
+     * @param string $id
+     * @param array $params
      * @throws Exception\MethodNotAllowed
      */
     protected function _method($id, $params = null)
@@ -242,11 +185,11 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             case 'get':
                 break;
             case 'post':
-                $obj = $this->_getInput();
+				$obj = $this->_getInput();
                 array_push($params, $obj);
                 break;
             case 'put':
-                $obj = $this->_getInput();
+				$obj = $this->_getInput();
                 array_push($params, $id, $obj);
                 break;
             default:
@@ -255,15 +198,15 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         }
 
         $this->_eventsManager->fire(static::class.':beforeCall', $this);
-        try {
-            $this->array_response = call_user_func_array([$this, $this->_curMethod], $params);
-        } catch (\Exception $ex) {
-            $this->_eventsManager->fire(static::class.':onErrorCall', $this, $ex);
-            throw $ex;
-        } finally {
-            $this->_eventsManager->fire(static::class.':afterCall', $this);
-        }
-        $this->_eventsManager->fire(static::class.':onSuccessCall', $this);
+		try {
+			$this->array_response = call_user_func_array([$this, $this->_curMethod], $params);
+		} catch (\Exception $ex) {
+			$this->_eventsManager->fire(static::class.':onErrorCall', $this, $ex);
+			throw $ex;
+		} finally {
+			$this->_eventsManager->fire(static::class.':afterCall', $this);
+		}
+		$this->_eventsManager->fire(static::class.':onSuccessCall', $this);
 
         $status   = null;
         $location = null;
@@ -278,7 +221,7 @@ abstract class Controller extends \Phalcon\Mvc\Controller
             }
         }
 
-        $this->response = new Response($this->array_response, $code, $status);
+        $this->response->rebuild($this->array_response, $code, $status);
 
         if ($location !== null) {
             $this->response->setHeader('Location', $location);

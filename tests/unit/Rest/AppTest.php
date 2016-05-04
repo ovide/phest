@@ -1,8 +1,6 @@
 <?php
 
 use Ovide\Libs\Mvc\Rest\App;
-use Ovide\Libs\Mvc\Rest;
-use Mockery as m;
 
 class RestAppTest extends \Codeception\TestCase\Test
 {
@@ -28,7 +26,6 @@ class RestAppTest extends \Codeception\TestCase\Test
         $ral->setAccessible(true);
         $ral->setValue(null, null);
         $ral->setAccessible(false);
-        m::close();
     }
 
     public function testInstance()
@@ -141,85 +138,11 @@ class RestAppTest extends \Codeception\TestCase\Test
         //We need at least a resource to init the routes handler
         $app = App::instance();
         $app->mountResource(Mocks\Controllers\Foo::class);
-        /* @var $res \Igm\Rest\Response */
+        /* @var $res \Ovide\Libs\Mvc\Rest\Response */
         $res = $app->handle('/bar');
 
         $this->assertInstanceOf(\Ovide\Libs\Mvc\Rest\Response::class, $res);
         $I->assertEquals('404 Not Found', $res->getHeaders()->get('Status'));
-    }
-
-    public function testAddRequestHeaderBadClassName()
-    {
-        $I = $this->tester;
-        $app = App::instance();
-        try {
-            $app->addHeaderHandler(Phalcon\Mvc\Controller::class);
-            $I->assertTrue(false);
-        } catch (LogicException $ex) {
-            $I->assertTrue(true);
-        }
-    }
-
-    public function testAddRequestHeader()
-    {
-        $I = $this->tester;
-
-        $app = App::instance();
-        $app->mountResource(Mocks\Controllers\Basic::class);
-        $app->addHeaderHandler(Mocks\Headers\Basic::class);
-        $app->handle('/foo');
-
-        $I->assertEquals(1, Mocks\Headers\Basic::$_initCalled);
-        $I->assertEquals(0, Mocks\Headers\Basic::$_handleCalled);
-
-        Mocks\Headers\Basic::$_initCalled = 0;
-    }
-
-    /**
-     * @depends testAddRequestHeader
-     */
-    public function testHandleRequestHeader()
-    {
-        $I = $this->tester;
-
-        $_SERVER['FOO'] = 'bar';
-        $app = App::instance();
-        $app->mountResource(Mocks\Controllers\Basic::class);
-        $app->addHeaderHandler(Mocks\Headers\Basic::class);
-        $app->handle('/foo');
-
-        $I->assertEquals(1, Mocks\Headers\Basic::$_initCalled);
-        $I->assertEquals(1, Mocks\Headers\Basic::$_handleCalled);
-
-        Mocks\Headers\Basic::$_initCalled   = 0;
-        Mocks\Headers\Basic::$_handleCalled = 0;
-    }
-
-    public function testSetConfig()
-    {
-        $I = $this->tester;
-
-        $app = App::instance();
-        $app->setConfig('foo', 'bar', 'var');
-
-        $this->assertEquals(['foo' => ['bar' => 'var']],
-                PHPUnit_Framework_Assert::readAttribute($app, '_config'));
-    }
-
-    /**
-     * @depends testSetConfig
-     */
-    public function testGetConfig()
-    {
-        $I = $this->tester;
-
-        $app = App::instance();
-        $app->setConfig('foo', 'bar', 'var');
-
-        $actual   = $app->getConfig('foo', 'bar');
-        $expected = 'var';
-
-        $I->assertEquals($expected, $actual);
     }
 
     public function testMountRoutesNotCached()
@@ -283,5 +206,48 @@ class RestAppTest extends \Codeception\TestCase\Test
         $di->setShared('cache', $stub);
 
         $app->addResources([\Mocks\Controllers\FooVar::class, Mocks\Controllers\Basic::class]);
+    }
+
+    public function testAddHeaderHandler()
+    {
+        $hh = $this->getMockForAbstractClass(\Ovide\Libs\Mvc\Rest\Middleware::class);
+        $this->app->addHeaderHandler($hh);
+
+        $em = $this->app->getEventsManager()->getListeners('micro');
+
+        $this->assertContains($hh, $em);
+    }
+
+    public function testErrorHandler()
+    {
+        $this->app->getEventsManager()->attach('micro', function(\Phalcon\Events\Event $evt, App $app) {
+            if ($evt->getType() === 'beforeHandleRoute') {
+                throw new \Exception('foo', 555, new \Exception('bar', 444));
+            }
+        });
+
+        $response = $this->app->handle('/');
+        $expected = ['message' => 'Internal server error', 'code' => 500];
+        $this->assertEquals($expected, json_decode($response->getContent(), true));
+        $this->assertEquals('500 Internal server error', $response->getHeaders()->get('Status'));
+    }
+
+    public function testErrorHandlerInDevMode()
+    {
+        $this->app->getEventsManager()->attach('micro', function(\Phalcon\Events\Event $evt, App $app) {
+            if ($evt->getType() === 'beforeHandleRoute') {
+                throw new \Exception('foo', 555, new \Exception('bar', 444));
+            }
+        });
+
+        $this->app->devEnv = true;
+
+        $response = $this->app->handle('/');
+        $actualContent   = json_decode($response->getContent());
+        $this->assertEquals(555, $actualContent->code);
+        $this->assertEquals('foo', $actualContent->message);
+        $this->assertEquals('Exception', $actualContent->type);
+        $this->assertInternalType('array', $actualContent->trace);
+        $this->assertEquals('500 foo', $response->getHeaders()->get('Status'));
     }
 }

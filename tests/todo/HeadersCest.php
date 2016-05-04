@@ -5,7 +5,7 @@ use Mocks\Controllers;
 
 class HeadersCest
 {
-    
+
     public function _before(AcceptanceTester $I)
     {
         Rest\App::addResources([
@@ -15,7 +15,7 @@ class HeadersCest
 
     public function _after(AcceptanceTester $I)
     {
-        
+
     }
 
     public function testEtag(AcceptanceTester $I)

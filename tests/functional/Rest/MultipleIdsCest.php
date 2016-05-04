@@ -1,13 +1,13 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Igm\Rest;
 
-use Ovide\Libs\Mvc\FunctionalTester;
+use Igm\FunctionalTester;
 use Mocks\Controllers\FooVar;
 
 class MultipleIdsCest
 {
     public function _before(FunctionalTester $I)
     {
-         App::instance()->mountResource(FooVar::class);
+        App::instance()->mountResource(FooVar::class);
     }
 
     public function _after(FunctionalTester $I)

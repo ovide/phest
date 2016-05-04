@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use Ovide\Libs\Mvc\Rest;
 use Mocks\Examples;
