@@ -2,50 +2,19 @@
 
 use Ovide\Libs\Mvc\Rest;
 
-class Accept extends Rest\Middleware
+class Accept extends Rest\HeaderHandler\Accept
 {
-    const HEADER = 'Accept';
-
-    public function afterExecuteRoute(\Phalcon\Events\Event $evt, Rest\App $app, $data)
+    protected $acceptable = [
+        'application/json' => 'json',
+        'application/xml'  => 'xml',
+    ];
+    
+    protected function xml($app)
     {
-        if ($accept = $this->getHeader()) {
-            switch ($accept) {
-                case 'application/xml' :
-                    $app->response->setContentType($accept, 'utf-8');
-                    $xml = new \SimpleXMLElement('<xml/>');
-                    $array = $app->response->getContent();
-                    array_walk_recursive($array, [$xml, 'addChild']);
-                    $app->response->setContent($xml->asXML());
-                    break;
-                case 'application/json' :
-                    static::parseContent($app);
-                    break;
-            }
-
-        }
-    }
-
-    public function beforeExecuteRoute(\Phalcon\Events\Event $evt, Rest\App $app, $data)
-    {
-        $acceptable = ['application/xml', 'application/json'];
-        if ($accept = $this->getHeader()) {
-            if (!in_array($accept, $acceptable)) {
-                $evt->stop();
-                throw new Rest\Exception\NotAcceptable("Cant generate $accept content");
-            }
-        }
-    }
-
-    public function afterException(\Phalcon\Events\Event $evt, Rest\App $app, $data)
-    {
-        if ($data instanceof Rest\Exception\NotAcceptable) {
-            static::parseContent($app);
-        }
-    }
-
-    protected static function parseContent($app)
-    {
-        $app->response->setContentType('application/json', 'utf-8');
-        $app->response->setContent(json_encode($app->response->getContent()));
+        $app->response->setContentType('application/xml', 'utf-8');
+        $xml = new \SimpleXMLElement('<xml/>');
+        $array = $app->response->getContent();
+        array_walk_recursive($array, [$xml, 'addChild']);
+        $app->response->setContent($xml->asXML());        
     }
 }

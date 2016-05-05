@@ -153,16 +153,10 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         if (!$content) {
             return $this->request->getPost();
         }
-		if ($this->request->getServer('CONTENT_TYPE') === 'application/json') {
-			$content = json_decode($content, true);
-		} else {
-			$content = json_decode($content, true);
-			if (!is_array($content)) {
-				throw new Exception\NotAcceptable();
-			}
-		}
-
-		return $content;
+        
+        /* @var $reader ContentType\Decoder */
+        $reader = $this->di->get('requestReader');
+        return $reader->decode($content);
 	}
 
     /**

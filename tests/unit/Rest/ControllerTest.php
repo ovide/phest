@@ -13,7 +13,10 @@ class ControllerTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        Rest\App::instance();
+        Rest\App::instance()->reset();
+        $di = Rest\App::instance()->di;
+        $di->setShared('requestReader' , Rest\ContentType\Json::class);
+        $di->setShared('responseWriter', Rest\ContentType\Json::class);
     }
 
     protected function _after()
@@ -489,72 +492,5 @@ class ControllerTest extends \Codeception\TestCase\Test
         $resp = $controller->handle();
         $location = $resp->getHeaders()->get('Location');
         $I->assertEquals('/foo/bar', $location);
-    }
-
-    public function testRegisterHeaders()
-    {
-        //TODO
-        /* @var $controller Rest\Controller */
-        $I = $this->tester;
-
-        $_SERVER['REQUEST_METHOD'] = 'GET';
-
-        //$headerClass = m::mock(Mocks\Headers\Basic::class)
-        //        ->shouldReceive('__construct')
-        //        ->once()
-        //;
-        //$c = new $headerClass();
-
-        //Rest\Controller::registerHeaders([$headerClass]);
-    }
-
-    public function testGetInputJSON()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $_SERVER['CONTENT_TYPE']   = 'application/json';
-        $stub = $this->getMockBuilder(\Phalcon\Http\Request::class)->setMethods(['getRawBody'])->getMock();
-        $stub->expects($this->once())->method('getRawBody')->willReturn(json_encode(['foo' => 'bar']));
-        $controller = m::mock(Controllers\Basic::class.'[post]')
-                ->shouldReceive('post')
-                ->once()
-                ->withArgs([['foo'=>'bar']])
-                ->getMock();
-
-        $controller->request = $stub;
-        $controller->handle('/foo');
-    }
-
-    public function testGetInputNotAcceptable()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $stub = $this->getMockBuilder(\Phalcon\Http\Request::class)->setMethods(['getRawBody'])->getMock();
-        $stub->expects($this->once())->method('getRawBody')->willReturn('foo');
-        $controller = m::mock(Controllers\Basic::class.'[post]')
-                ->shouldReceive('post')
-                ->getMock();
-
-        $controller->request = $stub;
-        /* @var $res \Ovide\Libs\Mvc\Rest\Response */
-        try  {
-            $controller->handle('/foo');
-        } catch (\Ovide\Libs\Mvc\Rest\Exception\NotAcceptable $ex) {
-            $this->assertEquals(Rest\Response::NOT_ACCEPTABLE, $ex->getCode());
-            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ACCEPTABLE], $ex->getMessage());
-        }
-    }
-
-    public function testGetInputJSONNoHeader()
-    {
-        $_SERVER['REQUEST_METHOD'] = 'POST';
-        $stub = $this->getMockBuilder(\Phalcon\Http\Request::class)->setMethods(['getRawBody'])->getMock();
-        $stub->expects($this->once())->method('getRawBody')->willReturn(json_encode(['foo' => 'bar']));
-        $controller = m::mock(Controllers\Basic::class.'[post]')
-                ->shouldReceive('post')
-                ->once()
-                ->withArgs([['foo'=>'bar']])
-                ->getMock();
-
-        $controller->request = $stub;
-        $controller->handle('/foo');
     }
 }

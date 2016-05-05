@@ -34,4 +34,6 @@ $app->before(function() use($app){
 	$acl = $app->di->getShared('acl');
 });
 
+$app->addHeaderHandler(new \Mocks\Middlewares\Accept());
+
 return $app;

@@ -53,7 +53,7 @@ class Response extends \Phalcon\Http\Response
         $this->_content = $content;
         $this->_cookies = null;
         $this->_file    = null;
-        $this->_headers = new \Phalcon\Http\Response\Headers();
+        //$this->_headers = new \Phalcon\Http\Response\Headers();
         $this->_sent    = 0;
         if ($this->_content) {
             if (!$code) {
@@ -78,9 +78,16 @@ class Response extends \Phalcon\Http\Response
     {
         $this->_sent = 0; //TODO Fix it!
         $this->setStatusCode(self::NOT_FOUND, self::$status[self::NOT_FOUND]);
-        $this->_content = [
-            'message' => self::$status[self::NOT_FOUND],
-            'code'    => self::NOT_FOUND,
-        ];
+        $this->_content = '';
+    }
+    
+    public function encodeContent()
+    {
+        /* @var $encoder Ovide\Libs\Mvc\Rest\ContentType\Encoder */
+        $encoder = $this->_dependencyInjector->get('responseWriter');
+        $this->_content = $encoder->encode($this->_content);
+        if ($encoder::CONTENT_TYPE) {
+            $this->setContentType($encoder::CONTENT_TYPE);
+        }
     }
 }

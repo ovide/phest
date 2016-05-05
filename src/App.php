@@ -23,8 +23,6 @@ class App extends Micro
     public $devEnv = false;
     
     protected $_config = [];
-    protected $_handlers = [];
-
 
     /**
      * Constructs the app.
@@ -47,11 +45,11 @@ class App extends Micro
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $this->setEventsManager($dependencyInjector->getShared('eventsManager'));
+            $this->addHeaderHandler(new HeaderHandler\Accept());
             $app = self::$app;
 
             $this->_errorHandler    = function(\Exception $ex) { return $this->errorHandler($ex); };
             $this->_notFoundHandler = function()               { return $this->notFoundHandler(); };
-            $this->addHeaderHandler(new HeaderHandler\Accept());
         } else {
             throw new \RuntimeException("Can't instance App more than once");
         }
@@ -91,6 +89,7 @@ class App extends Micro
                 'code'    => $code,
             ];
         $this->response->rebuild($msg, $code, $message);
+        $this->response->encodeContent();
 
         /* @var $evt \Phalcon\Events\Manager */
         $this->_eventsManager->fire('micro:afterException', $this, $ex);
