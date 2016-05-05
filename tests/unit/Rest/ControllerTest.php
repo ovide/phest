@@ -487,8 +487,9 @@ class ControllerTest extends \Codeception\TestCase\Test
         $controller = m::mock(Controllers\Basic::class.'[post]')
                 ->shouldReceive('post')
                 ->andReturn(['id' => 'bar', 'content' => 'foo'])
-                ->getMock()
-        ;
+                ->getMock();
+        
+        $controller->di->set('responseWriter', Rest\ContentType\Json::class, true);
         $resp = $controller->handle();
         $location = $resp->getHeaders()->get('Location');
         $I->assertEquals('/foo/bar', $location);

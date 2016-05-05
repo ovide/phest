@@ -30,10 +30,20 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
             'application/json' => ContentType\Json::class,
         ];
     }
+    
+    public function setAcceptable($contentType, $encoder)
+    {
+        $this->acceptable[$contentType] = $encoder;
+    }
+    
+    public function setSupported($contentType, $decoder)
+    {
+        $this->supported[$contentType] = $decoder;
+    }
 
     public function beforeExecuteRoute(Event $evt, App $app, $data)
     {
-        $this->acceptable();
+        $this->acceptable($evt, $app);
         
         //Can we parse this Content-Type?
         if (!($this->mediaType = $app->request->getHeader('Content-Type'))) {

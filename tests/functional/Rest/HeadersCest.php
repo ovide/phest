@@ -23,7 +23,10 @@ class HeadersCest
     public function testAccept(FunctionalTester $I)
     {
         $this->app->mountResource(\Mocks\Controllers\FooVar::class);
-        $this->app->addHeaderHandler(new \Mocks\Middlewares\Accept());
+        
+        $handlers = App::instance()->getHandlers();
+        $accept = $handlers[HeaderHandler\Accept::HEADER];
+        $accept->setAcceptable('application/xml', ContentType\XmlEncoder::class);
 
         $I->haveHttpHeader('Accept', 'application/xml');
         $I->sendGET('/foo/1/var');

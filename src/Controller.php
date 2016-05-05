@@ -214,9 +214,10 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 $status   = "$text with ".static::ID." $id";
             }
         }
-
+        
         $this->response->rebuild($this->array_response, $code, $status);
-
+        $this->response->encodeContent();
+        
         if ($location !== null) {
             $this->response->setHeader('Location', $location);
         }
