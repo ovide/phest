@@ -51,7 +51,7 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
         }
         if (!isset($this->supported[$this->mediaType])) {
             $evt->stop();
-            $this->accept = implode(', ', array_keys($this->supported));
+            $app->response->setHeader('Accept', implode(', ', array_keys($this->supported)));
             $msg = $this->mediaType.' is not supported by the requested resource';
             throw new Exception\UnsupportedMediaType($msg);
         }
@@ -83,4 +83,10 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
             $app->di->set('responseWriter', $this->acceptable[$this->contentType], true);
         }
     }
+
+    public function call(\Phalcon\Mvc\Micro $application)
+    {
+        $a = 'b';
+    }
+
 }

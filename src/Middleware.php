@@ -12,7 +12,7 @@
  * @method bool afterHandleRoute(\Phalcon\Events\Event $evt, \Ovide\Libs\Mvc\Rest\App $app, $data)
  * Triggered after completing the whole process in a successful way
  */
-abstract class Middleware
+abstract class Middleware //implements \Phalcon\Mvc\Micro\MiddlewareInterface
 {
     const HEADER = '';
 

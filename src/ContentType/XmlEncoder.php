@@ -8,18 +8,31 @@ class XmlEncoder implements Rest\ContentType\Encoder
     
     const CONTENT_TYPE = 'application/xml';
 
-    public function encode($data)
+    public function encode($data, $root = 'root')
     {
-        try {
-            $xml = new \SimpleXMLElement('<xml/>');
-            array_walk_recursive($data, [$xml, 'addChild']);
-
-            $result = $xml->asXML();
-        } catch (\Exception $ex) {
-            $msg = "Couldn't generate an XML response";
-            throw new InternalServerError($msg, Rest\Response::INTERNAL_ERROR, $ex);
+        $result = self::toXml($data);
+        return '<?xml version="1.0"?>'."\n<root>$result</root>";
+    }
+    
+    private static function toXml($array)
+    {
+        $result = '';
+        foreach ($array as $key => $value) {
+            $result .= (is_array($value)) ? self::toXml($value) : "<$key>".htmlentities($value)."</$key>";
         }
         
         return $result;
+    }
+    
+    private static function addChild(\SimpleXMLElement $element, $key, $value)
+    {
+        if ( !is_array( $value ) ) {
+            $element->addChild( $key, $value );
+        } else {
+            $nested = $element->addChild( $key );
+            foreach ( $value as $key2 => $value2 ) {
+                self::addChild( $nested, $key2, $value2 );
+            }
+        }
     }
 }

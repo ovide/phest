@@ -32,7 +32,7 @@ class HeadersCest
         $I->sendGET('/foo/1/var');
         $expected = <<< EOXML
 <?xml version="1.0"?>
-<xml><1>id</1><foo1>name</foo1><foo1 desc>description</foo1 desc><2>id</2><foo2>name</foo2><foo2 desc>description</foo2 desc></xml>
+<root><id>1</id><name>foo1</name><description>foo1 desc</description><id>2</id><name>foo2</name><description>foo2 desc</description></root>
 EOXML;
         $I->seeResponseContains($expected);
 

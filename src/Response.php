@@ -53,7 +53,7 @@ class Response extends \Phalcon\Http\Response
         $this->_content = $content;
         $this->_cookies = null;
         $this->_file    = null;
-        $this->_headers = new \Phalcon\Http\Response\Headers();
+        //$this->_headers = new \Phalcon\Http\Response\Headers();
         $this->_sent    = 0;
         if ($this->_content) {
             if (!$code) {

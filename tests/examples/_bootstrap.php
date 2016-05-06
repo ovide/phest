@@ -2,9 +2,13 @@
 use Mocks\Examples\User;
 use Ovide\Libs\Mvc\Rest\App;
 use Phalcon\Acl;
+use Ovide\Libs\Mvc\Rest\ContentType\XmlEncoder;
 
+App::reset();
 $app = App::instance();
-
+$handlers = $app->getHandlers();
+$accept = $handlers[\Ovide\Libs\Mvc\Rest\HeaderHandler\Accept::HEADER];
+$accept->setAcceptable(XmlEncoder::CONTENT_TYPE, XmlEncoder::class);
 $app->mountResource(User::class);
 
 $app->di->set('acl', function() {
@@ -28,11 +32,6 @@ $app->di->set('acl', function() {
 	$acl->isAllowed('guest', '', '');
 	return $acl;
 }, true);
-
-$app->before(function() use($app){
-	/* @var $acl Acl\Adapter\Memory */
-	$acl = $app->di->getShared('acl');
-});
 
 
 return $app;
