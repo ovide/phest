@@ -212,7 +212,6 @@ abstract class Controller extends \Phalcon\Mvc\Controller
                 $text     = Response::$status[Response::CREATED];
                 $location = rtrim($this->request->getServer('REQUEST_URI'), '/')."/$id";
                 $status   = "$text with ".static::ID." $id";
-                $this->array_response = null;
             }
         }
         
