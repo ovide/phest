@@ -24,10 +24,10 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
     public function __construct()
     {
         $this->acceptable = [
-            'application/json' => ContentType\Json::class,
+            static::DEF => ContentType\Json::class,
         ];
         $this->supported = [
-            'application/json' => ContentType\Json::class,
+            static::DEF => ContentType\Json::class,
         ];
     }
     
@@ -62,16 +62,44 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
     protected function acceptable(Event $evt, App $app)
     {
         //Can we generate this content type?
-        if (($this->contentType = $this->getHeader()) && (!isset($this->acceptable[$this->contentType]))) {
+        if (($this->contentType = self::match($this->getHeader('Accept'), array_keys($this->acceptable))) === null) {
             $evt->stop();
+            $msg = "Can't generate a '.$this->contentType.' response";
             $this->contentType = static::DEF;
             $this->accept = implode(', ', array_keys($this->acceptable));
-            throw new Exception\NotAcceptable("Can't generate a '.$this->contentType.' response");
-        } elseif (!$this->contentType) {
-            $this->contentType = static::DEF;
+            throw new Exception\NotAcceptable($msg);
         }
         
         $app->di->set('responseWriter', $this->acceptable[$this->contentType], true);
+    }
+    
+    /**
+     * 
+     * @param sting $type
+     * @param array $list
+     */
+    private static function match($type, array $list)
+    {
+        if (!count($list)) {
+            throw new \RuntimeException("No media types available");
+        }
+        if (!$type) {
+            return $list[0];
+        }
+        
+        $types = explode('/', $type);
+        if (($types[0] == '*') && ($types[1] != '*')) {
+            throw new \RuntimeException("Unmatchable media type: $type");
+        }
+        
+        foreach ($list as $option) {
+            $o = explode('/', $option);
+            if (($types[0] != '*') && ($o[0] != $types[0])) continue;
+            if (($types[1] != '*') && ($o[1] != $types[1])) continue;
+            return $option;
+        }
+        
+        return null;
     }
     
     public function beforeException(Event $evt, App $app, $data)
