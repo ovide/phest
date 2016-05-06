@@ -86,7 +86,6 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
 
     public function call(\Phalcon\Mvc\Micro $application)
     {
-        $a = 'b';
     }
 
 }
