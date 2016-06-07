@@ -45,6 +45,10 @@ class App extends Micro
             if (!$dependencyInjector->has('eventsManager')) {
                 $dependencyInjector->setShared('eventsManager', \Phalcon\Events\Manager::class);
             }
+            
+            if (!$dependencyInjector->has('request')) {
+                $dependencyInjector->setShared('request', \Phalcon\Http\Request::class);
+            }
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $this->setEventsManager($dependencyInjector->getShared('eventsManager'));
