@@ -2,7 +2,7 @@
 
 use Phalcon\Mvc\Micro\Collection;
 use Phalcon\Mvc\Micro;
-use Phalcon\DI\FactoryDefault;
+use Phalcon\Di\FactoryDefault;
 
 /**
  * @property Response $response
@@ -42,6 +42,9 @@ class App extends Micro
             }
             $dependencyInjector->setShared('response', Response::class);
             $dependencyInjector->setShared('router'  , Router::class);
+            if (!$dependencyInjector->has('eventsManager')) {
+                $dependencyInjector->setShared('eventsManager', \Phalcon\Events\Manager::class);
+            }
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $this->setEventsManager($dependencyInjector->getShared('eventsManager'));
