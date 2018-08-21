@@ -2,4 +2,4 @@ class_name: UnitTester
 modules:
     enabled:
         - Asserts
-        - \Ovide\Libs\Mvc\Helper\Unit
+        - \Ovide\Phest\Helper\Unit

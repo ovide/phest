@@ -1,17 +1,17 @@
 <?php
 use \AcceptanceTester;
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest;
 
 class LanguageCest
 {
     /**
-     * @var Rest\App
+     * @var Phest\App
      */
     protected $app;
 
     public function _before(AcceptanceTester $I)
     {
-        $app = Rest\App::instance();
+        $app = Phest\App::instance();
         $app->addResource('lang', LangMock::class);
         $app->addLanguages(['en', 'es']);
     }

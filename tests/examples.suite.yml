@@ -1,7 +1,7 @@
 class_name: FunctionalTester
 modules:
     enabled:
-        - \Ovide\Libs\Mvc\Helper\Functional
+        - \Ovide\Phest\Helper\Functional
         - Phalcon2
         - REST:
             depends: Phalcon2

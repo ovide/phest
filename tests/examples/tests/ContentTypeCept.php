@@ -1,13 +1,13 @@
 <?php
-use Ovide\Libs\Mvc\FunctionalTester;
-use Ovide\Libs\Mvc\Rest\ContentType\XmlEncoder;
+use Ovide\Phest\FunctionalTester;
+use Ovide\Phest\ContentType\XmlEncoder;
 
-Ovide\Libs\Mvc\Rest\App::instance()->reset();
+Ovide\Phest\App::instance()->reset();
 $I = new FunctionalTester($scenario);
 
-$handlers = Ovide\Libs\Mvc\Rest\App::instance()->getHandlers();
-$accept = $handlers[\Ovide\Libs\Mvc\Rest\HeaderHandler\Accept::HEADER];
-$accept->setAcceptable(XmlEncoder::CONTENT_TYPE, XmlEncoder::class);
+$handlers = Ovide\Phest\App::instance()->getHandlers();
+$accept = $handlers[\Ovide\Phest\HeaderHandler\Accept::HEADER];
+$accept->setAcceptable(XmlEncoder::class);
 
 $I->wantTo('test Content-type and Accept headers');
 

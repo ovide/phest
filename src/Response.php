@@ -1,4 +1,4 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Ovide\Phest;
 
 class Response extends \Phalcon\Http\Response
 {
@@ -53,7 +53,7 @@ class Response extends \Phalcon\Http\Response
         $this->_content = $content;
         $this->_cookies = null;
         $this->_file    = null;
-        //$this->_headers = new \Phalcon\Http\Response\Headers();
+        $this->_headers = new \Phalcon\Http\Response\Headers();
         $this->_sent    = 0;
         if ($this->_content) {
             if (!$code) {
@@ -84,7 +84,7 @@ class Response extends \Phalcon\Http\Response
     public function encodeContent()
     {
         if ($this->_content) {
-            /* @var $encoder Ovide\Libs\Mvc\Rest\ContentType\Encoder */
+            /* @var $encoder Ovide\Phest\ContentType\Encoder */
             $encoder = $this->_dependencyInjector->get('responseWriter');
             $this->_content = $encoder->encode($this->_content);
             if ($encoder::CONTENT_TYPE) {

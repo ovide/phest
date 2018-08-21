@@ -1,16 +1,23 @@
-<?php namespace Ovide\Libs\Mvc\Rest\ContentType;
+<?php namespace Ovide\Phest\ContentType;
 
-use Ovide\Libs\Mvc\Rest;
-use Ovide\Libs\Mvc\Rest\Exception\InternalServerError;
+use Ovide\Phest\Exception\InternalServerError;
 
-class XmlEncoder implements Rest\ContentType\Encoder
+/**
+ * 
+ * @author Albert Ovide <albert@ovide.net>
+ */
+class XmlEncoder implements Encoder
 {
     
     const CONTENT_TYPE = 'application/xml';
 
     public function encode($data, $root = 'root')
     {
-        $result = self::toXml($data);
+        try {
+            $result = self::toXml($data);
+        } catch (\Exception $ex) {
+            throw new InternalServerError('Couldn\'t generate a XML response');
+        }
         return '<?xml version="1.0"?>'."\n<root>$result</root>";
     }
     
@@ -22,17 +29,5 @@ class XmlEncoder implements Rest\ContentType\Encoder
         }
         
         return $result;
-    }
-    
-    private static function addChild(\SimpleXMLElement $element, $key, $value)
-    {
-        if ( !is_array( $value ) ) {
-            $element->addChild( $key, $value );
-        } else {
-            $nested = $element->addChild( $key );
-            foreach ( $value as $key2 => $value2 ) {
-                self::addChild( $nested, $key2, $value2 );
-            }
-        }
     }
 }

@@ -1,4 +1,4 @@
-namespace: Ovide\Libs\Mvc
+namespace: Ovide\Phest
 actor: Tester
 paths:
     tests: tests

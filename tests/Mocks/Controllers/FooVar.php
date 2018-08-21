@@ -1,8 +1,8 @@
 <?php namespace Mocks\Controllers;
 
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest;
 
-class FooVar extends Rest\Controller
+class FooVar extends Phest\Controller
 {
 
     const PATH = '/foo/{fooId:[0-9]+}/var';
@@ -42,7 +42,7 @@ class FooVar extends Rest\Controller
     public function getOne($fooId, $varId)
     {
         if (!isset(self::$data[$fooId-1][$varId - 1])) {
-            throw new Rest\Exception\NotFound("$varId not found");
+            throw new Phest\Exception\NotFound("$varId not found");
         }
         return self::$data[$fooId-1][$varId-1];
     }
@@ -61,10 +61,10 @@ class FooVar extends Rest\Controller
     public function delete($fooId, $varId)
     {
         if ($fooId < 1)
-            throw new Rest\Exception\InternalServerError();
+            throw new Phest\Exception\InternalServerError();
 
         if ($varId < 3)
-            throw new Rest\Exception\Forbidden('I need that resource for testing');
+            throw new Phest\Exception\Forbidden('I need that resource for testing');
 
         unset(self::$data[$fooId-1][$varId-1]);
     }
@@ -72,7 +72,7 @@ class FooVar extends Rest\Controller
     public function put($fooId, $varId, $varObj)
     {
         if (!isset($varObj['name']) || !isset($varObj['description']))
-            throw new Rest\Exception\BadRequest();
+            throw new Phest\Exception\BadRequest();
 
         $obj = [
             'id'          => (int)$varObj['id'],

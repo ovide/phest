@@ -1,11 +1,11 @@
 <?php
 
-use Ovide\Libs\Mvc\Rest\App;
+use Ovide\Phest\App;
 
 class RestAppTest extends \Codeception\TestCase\Test
 {
     /**
-    * @var Ovide\Libs\Mvc\UnitTester
+    * @var Ovide\Phest\UnitTester
     */
     protected $tester;
 
@@ -57,8 +57,8 @@ class RestAppTest extends \Codeception\TestCase\Test
         $routes = $this->app->router->getRoutes();
         $route0 = $routes[0];
         $route1 = $routes[1];
-        $I->assertEquals('[/]?{id:$}'              , $route0->getPattern());
-        $I->assertEquals('/{id:[a-zA-Z0-9_-]+}[/]?', $route1->getPattern());
+        $I->assertEquals('/[/]?{id:$}'                  , $route0->getPattern());
+        $I->assertEquals('//{id:([a-zA-Z0-9_-]+)}[/]?'  , $route1->getPattern());
     }
 
     /**
@@ -71,8 +71,8 @@ class RestAppTest extends \Codeception\TestCase\Test
         $routes = $this->app->router->getRoutes();
         $route0 = $routes[0];
         $route1 = $routes[1];
-        $I->assertEquals('/foo[/]?{id:$}'      , $route0->getPattern());
-        $I->assertEquals('/foo/{id:[0-9]+}[/]?', $route1->getPattern());
+        $I->assertEquals('/foo[/]?{id:$}'           , $route0->getPattern());
+        $I->assertEquals('/foo/{id:([0-9]+)}[/]?'   , $route1->getPattern());
     }
 
     /**
@@ -88,10 +88,10 @@ class RestAppTest extends \Codeception\TestCase\Test
         $route1  = $routes[1];
         $foo0    = $routes[2];
         $foo1    = $routes[3];
-        $I->assertEquals('[/]?{id:$}'              , $route0->getPattern());
-        $I->assertEquals('/foo[/]?{id:$}'          , $foo0->getPattern());
-        $I->assertEquals('/{id:[a-zA-Z0-9_-]+}[/]?', $route1->getPattern());
-        $I->assertEquals('/foo/{id:[0-9]+}[/]?'    , $foo1->getPattern());
+        $I->assertEquals('/[/]?{id:$}'                  , $route0->getPattern());
+        $I->assertEquals('/foo[/]?{id:$}'               , $foo0->getPattern());
+        $I->assertEquals('//{id:([a-zA-Z0-9_-]+)}[/]?'  , $route1->getPattern());
+        $I->assertEquals('/foo/{id:([0-9]+)}[/]?'       , $foo1->getPattern());
     }
 
     public function testAddResourcesException()
@@ -120,12 +120,12 @@ class RestAppTest extends \Codeception\TestCase\Test
         $foo1    = $routes[3];
         $fooVar0 = $routes[4];
         $fooVar1 = $routes[5];
-        $I->assertEquals('[/]?{id:$}'                                     , $route0->getPattern());
-        $I->assertEquals('/foo[/]?{id:$}'                                 , $foo0->getPattern());
-        $I->assertEquals('/foo/{fooId:[0-9]+}/var[/]?{id:$}'              , $fooVar0->getPattern());
-        $I->assertEquals('/{id:[a-zA-Z0-9_-]+}[/]?'                       , $route1->getPattern());
-        $I->assertEquals('/foo/{id:[0-9]+}[/]?'                           , $foo1->getPattern());
-        $I->assertEquals('/foo/{fooId:[0-9]+}/var/{id:[a-zA-Z0-9_-]+}[/]?', $fooVar1->getPattern());
+        $I->assertEquals('/[/]?{id:$}'                                      , $route0->getPattern());
+        $I->assertEquals('/foo[/]?{id:$}'                                   , $foo0->getPattern());
+        $I->assertEquals('/foo/{fooId:[0-9]+}/var[/]?{id:$}'                , $fooVar0->getPattern());
+        $I->assertEquals('//{id:([a-zA-Z0-9_-]+)}[/]?'                      , $route1->getPattern());
+        $I->assertEquals('/foo/{id:([0-9]+)}[/]?'                           , $foo1->getPattern());
+        $I->assertEquals('/foo/{fooId:[0-9]+}/var/{id:([a-zA-Z0-9_-]+)}[/]?', $fooVar1->getPattern());
     }
 
     public function testNotFound()
@@ -134,15 +134,15 @@ class RestAppTest extends \Codeception\TestCase\Test
 
         //We need at least a resource to init the routes handler
         $app = App::instance();
-        //$stub = Codeception\Util\Stub::construct(Ovide\Libs\Mvc\Rest\Response::class, [],[
-        //    'send' => function() {return new Ovide\Libs\Mvc\Rest\Response();}
+        //$stub = Codeception\Util\Stub::construct(Ovide\Phest\Response::class, [],[
+        //    'send' => function() {return new Ovide\Phest\Response();}
         //]);
         //$app->di->set('response', $stub, true);
         $app->mountResource(Mocks\Controllers\Foo::class);
-        /* @var $res \Ovide\Libs\Mvc\Rest\Response */
+        /* @var $res \Ovide\Phest\Response */
         $res = $app->handle('/bar');
 
-        $this->assertInstanceOf(\Ovide\Libs\Mvc\Rest\Response::class, $res);
+        $this->assertInstanceOf(\Ovide\Phest\Response::class, $res);
         $I->assertEquals('404 Not Found', $res->getHeaders()->get('Status'));
     }
 
@@ -211,7 +211,8 @@ class RestAppTest extends \Codeception\TestCase\Test
 
     public function testAddHeaderHandler()
     {
-        $hh = $this->getMockForAbstractClass(\Ovide\Libs\Mvc\Rest\Middleware::class);
+        $hh = $this->getMockForAbstractClass(\Ovide\Phest\Middleware::class);
+        $this->app->addHeaderHandler($hh);
         $this->app->addHeaderHandler($hh);
 
         $em = $this->app->getEventsManager()->getListeners('micro');

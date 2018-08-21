@@ -1,6 +1,6 @@
 <?php
 
-use Ovide\Libs\Mvc\Rest\Header\AcceptLanguage;
+use Ovide\Phest\Header\AcceptLanguage;
 
 class AcceptableLanguageTest extends \Codeception\TestCase\Test
 {

@@ -1,4 +1,4 @@
-<?php namespace Ovide\Libs\Mvc\Helper;
+<?php namespace Ovide\Phest\Helper;
 
 class Unit extends \Codeception\Module
 {

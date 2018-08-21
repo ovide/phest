@@ -1,14 +1,14 @@
 <?php
 use Mocks\Examples\User;
-use Ovide\Libs\Mvc\Rest\App;
+use Ovide\Phest\App;
 use Phalcon\Acl;
-use Ovide\Libs\Mvc\Rest\ContentType\XmlEncoder;
+use Ovide\Phest\ContentType\XmlEncoder;
 
 App::reset();
 $app = App::instance();
 $handlers = $app->getHandlers();
-$accept = $handlers[\Ovide\Libs\Mvc\Rest\HeaderHandler\Accept::HEADER];
-$accept->setAcceptable(XmlEncoder::CONTENT_TYPE, XmlEncoder::class);
+$accept = $handlers[\Ovide\Phest\HeaderHandler\Accept::HEADER];
+$accept->setAcceptable(XmlEncoder::class);
 $app->mountResource(User::class);
 
 $app->di->set('acl', function() {

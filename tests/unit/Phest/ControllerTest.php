@@ -1,7 +1,7 @@
 <?php
 
 use Mockery as m;
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest;
 use Mocks\Controllers;
 
 class ControllerTest extends \Codeception\TestCase\Test
@@ -13,10 +13,10 @@ class ControllerTest extends \Codeception\TestCase\Test
 
     protected function _before()
     {
-        Rest\App::instance()->reset();
-        $di = Rest\App::instance()->di;
-        $di->setShared('requestReader' , Rest\ContentType\Json::class);
-        $di->setShared('responseWriter', Rest\ContentType\Json::class);
+        Phest\App::instance()->reset();
+        $di = Phest\App::instance()->di;
+        $di->setShared('requestReader' , Phest\ContentType\Json::class);
+        $di->setShared('responseWriter', Phest\ContentType\Json::class);
     }
 
     protected function _after()
@@ -27,7 +27,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
     public function testGetOneNoArgs()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -269,7 +269,10 @@ class ControllerTest extends \Codeception\TestCase\Test
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
 
         $controller = new Controllers\Basic();
-        $controller->setDI(Rest\App::instance()->getDI());
+        Phest\App::reset();
+        $di = \Phalcon\Di\FactoryDefault::getDefault();
+        $di->remove('acl');
+        $controller->setDI($di);
 
         $resp = $controller->handle();
 
@@ -290,11 +293,11 @@ class ControllerTest extends \Codeception\TestCase\Test
         $_SERVER['REQUEST_METHOD'] = 'OPTIONS';
 
         $controller = $this->getMockForAbstractClass(
-            Rest\Controller::class,
+            Phest\Controller::class,
             [], '', true, true, true, ['get', 'put']
         );
 
-        $controller->setDI(Rest\App::instance()->getDI());
+        $controller->setDI(Phest\App::instance()->getDI());
 
         $resp = $controller->handle();
 
@@ -319,15 +322,17 @@ class ControllerTest extends \Codeception\TestCase\Test
         $acl->allow($role->getName(), $resource->getName(), 'GET');
         $acl->allow($role->getName(), $resource->getName(), 'POST');
         $acl->isAllowed($role->getName(), $resource->getName(), 'GET');
-        $app = Rest\App::instance();
+        $app = Phest\App::instance();
 
+        $app->getDI()->setShared('acl', $acl);
         $app->setService('acl', $acl, true);
 
         $controller = $this->getMockForAbstractClass(
-            Rest\Controller::class,
+            Phest\Controller::class,
             [], '', true, true, true, ['get', 'put']
         );
-        $controller->setDI($app->getDI());
+        $controller->di = $app->getDI();
+        //$controller->setDI($app->getDI());
 
         $resp = $controller->handle();
 
@@ -341,73 +346,73 @@ class ControllerTest extends \Codeception\TestCase\Test
 
     public function testGetNotAllowed()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $controller = m::mock(Rest\Controller::class.'[]');
+        $controller = m::mock(Phest\Controller::class.'[]');
 
         try {
             $controller->handle();
             $this->assertTrue(false, "Should throw a exception");
-        } catch (Rest\Exception\MethodNotAllowed $ex) {
-            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
-            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        } catch (Phest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Phest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Phest\Response::$status[Phest\Response::NOT_ALLOWED], $ex->getMessage());
         }
     }
 
     public function testPostNotAllowed()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
-        $controller = m::mock(Rest\Controller::class.'[]');
+        $controller = m::mock(Phest\Controller::class.'[]');
 
         try {
             $controller->handle();
             $this->assertTrue(false, "Should throw a exception");
-        } catch (Rest\Exception\MethodNotAllowed $ex) {
-            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
-            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        } catch (Phest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Phest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Phest\Response::$status[Phest\Response::NOT_ALLOWED], $ex->getMessage());
         }
     }
 
     public function testPutNotAllowed()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'PUT';
 
-        $controller = m::mock(Rest\Controller::class.'[]');
+        $controller = m::mock(Phest\Controller::class.'[]');
 
         try {
             $controller->handle();
             $this->assertTrue(false, "Should throw a exception");
-        } catch (Rest\Exception\MethodNotAllowed $ex) {
-            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
-            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        } catch (Phest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Phest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Phest\Response::$status[Phest\Response::NOT_ALLOWED], $ex->getMessage());
         }
     }
 
     public function testDeleteNotAllowed()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
 
-        $controller = m::mock(Rest\Controller::class.'[]');
+        $controller = m::mock(Phest\Controller::class.'[]');
 
         try {
             $controller->handle();
             $this->assertTrue(false, "Should throw a exception");
-        } catch (Rest\Exception\MethodNotAllowed $ex) {
-            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
-            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        } catch (Phest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Phest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Phest\Response::$status[Phest\Response::NOT_ALLOWED], $ex->getMessage());
         }
     }
 
@@ -417,20 +422,20 @@ class ControllerTest extends \Codeception\TestCase\Test
 
         $_SERVER['REQUEST_METHOD'] = 'FOO';
 
-        $controller = m::mock(Rest\Controller::class.'[]');
+        $controller = m::mock(Phest\Controller::class.'[]');
 
         try {
             $controller->handle('foo');
             $this->assertTrue(false, "Should throw a exception");
-        } catch (Rest\Exception\MethodNotAllowed $ex) {
-            $this->assertEquals(Rest\Response::NOT_ALLOWED, $ex->getCode());
-            $this->assertEquals(Rest\Response::$status[Rest\Response::NOT_ALLOWED], $ex->getMessage());
+        } catch (Phest\Exception\MethodNotAllowed $ex) {
+            $this->assertEquals(Phest\Response::NOT_ALLOWED, $ex->getCode());
+            $this->assertEquals(Phest\Response::$status[Phest\Response::NOT_ALLOWED], $ex->getMessage());
         }
     }
 
     public function testException()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -453,7 +458,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
     public function testRestException()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -462,14 +467,14 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->shouldReceive('getOne')
                 ->once()
                 ->withArgs(['foo'])
-                ->andThrow(new Rest\Exception\Conflict('Foo'))
+                ->andThrow(new Phest\Exception\Conflict('Foo'))
                 ->getMock()
         ;
 
         try {
             $controller->handle('foo');
-        } catch (\Ovide\Libs\Mvc\Rest\Exception\Conflict $ex) {
-            $this->assertEquals(Rest\Response::CONFLICT, $ex->getCode());
+        } catch (\Ovide\Phest\Exception\Conflict $ex) {
+            $this->assertEquals(Phest\Response::CONFLICT, $ex->getCode());
             $this->assertEquals('Foo', $ex->getMessage());
         }
     }
@@ -478,7 +483,7 @@ class ControllerTest extends \Codeception\TestCase\Test
 
     public function testSetLocationAfterPost()
     {
-        /* @var $controller Rest\Controller */
+        /* @var $controller Phest\Controller */
         $I = $this->tester;
 
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -489,7 +494,7 @@ class ControllerTest extends \Codeception\TestCase\Test
                 ->andReturn(['id' => 'bar', 'content' => 'foo'])
                 ->getMock();
         
-        $controller->di->set('responseWriter', Rest\ContentType\Json::class, true);
+        $controller->di->set('responseWriter', Phest\ContentType\Json::class, true);
         $resp = $controller->handle();
         $location = $resp->getHeaders()->get('Location');
         $I->assertEquals('/foo/bar', $location);

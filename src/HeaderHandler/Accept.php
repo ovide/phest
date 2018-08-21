@@ -1,24 +1,36 @@
-<?php namespace Ovide\Libs\Mvc\Rest\HeaderHandler;
+<?php namespace Ovide\Phest\HeaderHandler;
 
+use Aura\Accept\AcceptFactory;
+use Ovide\Phest\App;
+use Ovide\Phest\ContentType;
+use Ovide\Phest\Exception;
+use Ovide\Phest\Middleware;
 use Phalcon\Events\Event;
-use Ovide\Libs\Mvc\Rest\App;
-use Ovide\Libs\Mvc\Rest\Exception;
-use Ovide\Libs\Mvc\Rest\ContentType;
 
-class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
+class Accept extends Middleware
 {
     const HEADER = 'Accept';
     const DEF    = 'application/json';
 
     /**
-     * @var array
+     * @var ContentType\Encoder[] indexed by its CONTENT_TYPE
      */
     protected $acceptable;
-    
+    /**
+     * @var array
+     */
     protected $supported;
-
+    /**
+     * @var string
+     */
     protected $contentType;
+    /**
+     * @var string
+     */
     protected $accept;
+    /**
+     * @var string
+     */
     protected $mediaType;
 
     public function __construct()
@@ -29,16 +41,17 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
         $this->supported = [
             static::DEF => ContentType\Json::class,
         ];
+        
     }
     
-    public function setAcceptable($contentType, $encoder)
+    public function setAcceptable(string $encoder, string $contentType='')
     {
-        $this->acceptable[$contentType] = $encoder;
+        $this->acceptable[$contentType ? $contentType : $encoder::CONTENT_TYPE] = $encoder;
     }
     
-    public function setSupported($contentType, $decoder)
+    public function setSupported(string $decoder, string $contentType='')
     {
-        $this->supported[$contentType] = $decoder;
+        $this->supported[$contentType ? $contentType : $decoder::CONTENT_TYPE] = $decoder;
     }
 
     public function beforeExecuteRoute(Event $evt, App $app, $data)
@@ -51,7 +64,6 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
         }
         if (!isset($this->supported[$this->mediaType])) {
             $evt->stop();
-            $app->response->setHeader('Accept', implode(', ', array_keys($this->supported)));
             $msg = $this->mediaType.' is not supported by the requested resource';
             throw new Exception\UnsupportedMediaType($msg);
         }
@@ -61,15 +73,16 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
     
     protected function acceptable(Event $evt, App $app)
     {
+        $factory = new AcceptFactory($_SERVER);
         //Can we generate this content type?
-        if (($this->contentType = self::match($this->getHeader('Accept'), array_keys($this->acceptable))) === null) {
+        if (!$result = $factory->newInstance()->negotiateMedia(array_keys($this->acceptable))) {
             $evt->stop();
-            $msg = "Can't generate a '.$this->contentType.' response";
-            $this->contentType = static::DEF;
             $this->accept = implode(', ', array_keys($this->acceptable));
+            $msg = 'Can\'t generate a response: '.$this->getHeader('Accept');
+            $this->contentType = static::DEF;            
             throw new Exception\NotAcceptable($msg);
         }
-        
+        $this->contentType = $result->getValue();
         $app->di->set('responseWriter', $this->acceptable[$this->contentType], true);
     }
     
@@ -111,9 +124,11 @@ class Accept extends \Ovide\Libs\Mvc\Rest\Middleware
             $app->di->set('responseWriter', $this->acceptable[$this->contentType], true);
         }
     }
-
-    public function call(\Phalcon\Mvc\Micro $application)
+    
+    public function afterException(Event $evt, App $app, $exception)
     {
+        if ($exception instanceof Exception\UnsupportedMediaType) {
+            $app->response->setHeader('Accept', implode(', ', array_keys($this->supported)));
+        }
     }
-
 }

@@ -1,6 +1,6 @@
 {
     "name": "ovide/phest",
-    "description": "Rest controller",
+    "description": "Rest framework using Phalcon",
     "authors": [
         {
             "name": "Albert Ovide",
@@ -8,17 +8,19 @@
         }
     ],
     "require": {
-        "php" : ">=5.5.0"
+        "php": ">=7.0",
+        "ext-phalcon": "~v3.0",
+        "aura/accept": "~2.2"
     },
     "require-dev": {
-        "digitronac/phalcon-ide-stubs": "2.0.2",
-        "codeception/codeception": "<2.2",
+        "sneakybobito/phalcon-stubs": "~v3.0",
+        "codeception/codeception": "~2.2",
         "codeception/mockery-module": "0.2.2",
-        "fabpot/php-cs-fixer": "1.11.2"
+        "friendsofphp/php-cs-fixer": "v2.0.0"
     },
     "autoload": {
         "psr-4": {
-            "Ovide\\Libs\\Mvc\\Rest\\": "src/"
+            "Ovide\\Phest\\": "src/"
         }
     }
 }

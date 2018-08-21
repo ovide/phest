@@ -1,8 +1,8 @@
 <?php namespace Mocks\Controllers;
 
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest\Controller;
 
-class Lang extends Rest\Controller
+class Lang extends Controller
 {
 
     protected $_availableLanguages = ['es', 'ca'];

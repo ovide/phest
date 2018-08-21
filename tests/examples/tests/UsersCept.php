@@ -1,7 +1,7 @@
-<?php use Ovide\Libs\Mvc\FunctionalTester;
+<?php use Ovide\Phest\FunctionalTester;
 $I = new FunctionalTester($scenario);
 
-$I->wantTo('Do some CRUD operations with users');
+$I->wantTo('do some CRUD operations with users');
 
 $foo = [
 	'username' => 'foo',
@@ -10,17 +10,18 @@ $foo = [
 
 $bar  = [
 	'username' => 'bar',
-	'password' => 'foofoofoo'
+	'password' => 'foofoofoo',
 ];
 
 $newUser = [
 	'username' => $foo['username'],
-	'password' => 'bar'
+	'password' => 'bar',
 ];
 
 ///////////////////////////////
 $I->amGoingTo('post $newUser '.$foo['username'].' with a short password');
 
+$I->haveHttpHeader('Content-Type', 'application/json');
 $I->sendPOST('/users', $newUser);
 $I->seeHttpHeader('Status', '400 Password is too short');
 

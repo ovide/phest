@@ -1,6 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest\Exception;
+<?php namespace Ovide\Phest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Response;
+use Ovide\Phest\Response;
 
 /**
  * The server encountered an unexpected condition which prevented it

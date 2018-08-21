@@ -1,6 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest\Exception;
+<?php namespace Ovide\Phest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Response;
+use Ovide\Phest\Response;
 
 /**
  * The method specified in the Request-Line is not allowed for

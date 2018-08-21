@@ -1,4 +1,4 @@
-<?php namespace Ovide\Libs\Mvc;
+<?php namespace Ovide\Phest;
 
 
 /**

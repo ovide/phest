@@ -1,6 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest\Exception;
+<?php namespace Ovide\Phest\Exception;
 
-use Ovide\Libs\Mvc\Rest\Response;
+use Ovide\Phest\Response;
 
 /**
  * The request could not be completed due to a conflict with the current state

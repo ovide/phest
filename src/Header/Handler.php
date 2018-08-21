@@ -1,6 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest\Header;
+<?php namespace Ovide\Phest\Header;
 
-use Ovide\Libs\Mvc\Rest\App;
+use Ovide\Phest\App;
 
 abstract class Handler implements HandlerInterface
 {

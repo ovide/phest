@@ -1,8 +1,8 @@
 <?php namespace Mocks\Headers;
 
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest\Header\Handler;
 
-class Basic extends Rest\Header\Handler
+class Basic extends Handler
 {
     const HEADER = 'FOO';
     

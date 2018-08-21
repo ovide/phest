@@ -25,17 +25,17 @@ phest
 ```php
 <?php
 
-use Ovide\Libs\Mvc\Rest\App;
+use Ovide\Phest\App;
 
 require __DIR__.'/../vendor/autoload.php';
 
 $app = App::instance();
 
 $app->addResources([
-    'myresource/path'             => MyResource::class,
-    'myresource/path/subresource' => SubResource::class,
-    'users'                       => User::class,
-    'users/{userID}/comments'     => Comment::class,
+    MyResource::class,
+    SubResource::class,
+    User::class,
+    Comment::class,
 ]);
 
 $app->handle();
@@ -46,9 +46,9 @@ $app->handle();
 ```php
 <?php
 
-use Ovide\Libs\Mvc\Rest
+use Ovide\Phest;
 
-class User extends Rest\Controller
+class User extends Phest\Controller
 {
     public function get()
     {
@@ -84,7 +84,7 @@ class User extends Rest\Controller
     }
 }
 
-class Comment extends Rest\Controller
+class Comment extends Phest\Controller
 {
     public function get($userID)
     {
@@ -119,20 +119,20 @@ Use exceptions if something goes wrong
 public function getOne($id)
 {
     if (!$foo = Foo::findFirst($id))
-        throw new Rest\Exception\NotFound("Ooops! Foo $id not found");
+        throw new Phest\Exception\NotFound("Ooops! Foo $id not found");
     return $foo->toArray();
 }
 
 public function post($fooObj)
 {
     if (!$token = getToken()) {
-        throw new Rest\Exception\Unauthorized("You must login first");
+        throw new Phest\Exception\Unauthorized("You must login first");
     }
     if (!canPostWith($token)) {
-        throw new Rest\Exception\Forbidden("You can't post here")
+        throw new Phest\Exception\Forbidden("You can't post here")
     }
     if (alreadyExists($fooObj)) {
-        throw new Rest\Exception\Conflict("That object already exists!")
+        throw new Phest\Exception\Conflict("That object already exists!")
     }
     //...
     return $newObj->toArray();
@@ -141,7 +141,6 @@ public function post($fooObj)
 ###Next
 
 - Add header handlers:
-  - Content-Type / Accept
   - ETag / If-None-Match
 
 - Add more options to the router

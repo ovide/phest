@@ -1,7 +1,7 @@
-<?php namespace Ovide\Libs\Mvc\Rest\ContentType;
+<?php namespace Ovide\Phest\ContentType;
 
 /**
- *
+ * 
  * @author Albert Ovide <albert@ovide.net>
  */
 interface Encoder

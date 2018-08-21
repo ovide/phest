@@ -1,6 +1,6 @@
 <?php
 
-use Ovide\Libs\Mvc\Rest\App;
+use Ovide\Phest\App;
 
 class HeaderHandlerTest extends \Codeception\TestCase\Test
 {

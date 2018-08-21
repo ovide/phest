@@ -1,11 +1,11 @@
 <?php
-namespace Ovide\Libs\Mvc\Rest;
+namespace Ovide\Phest;
 
 
 class ResponseTest extends \Codeception\TestCase\Test
 {
     /**
-     * @var \Ovide\Libs\Mvc\UnitTester
+     * @var \Ovide\Phest\UnitTester
      */
     protected $tester;
 

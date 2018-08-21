@@ -1,6 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Ovide\Phest;
 
-use Ovide\Libs\Mvc\FunctionalTester;
+use Ovide\Phest\FunctionalTester;
 
 class HeadersCest
 {
@@ -26,7 +26,7 @@ class HeadersCest
         
         $handlers = App::instance()->getHandlers();
         $accept = $handlers[HeaderHandler\Accept::HEADER];
-        $accept->setAcceptable('application/xml', ContentType\XmlEncoder::class);
+        $accept->setAcceptable(ContentType\XmlEncoder::class);
 
         $I->haveHttpHeader('Accept', 'application/xml');
         $I->sendGET('/foo/1/var');

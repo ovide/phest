@@ -1,8 +1,8 @@
 <?php namespace Mocks\Controllers;
 
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest\Controller;
 
-class Basic extends Rest\Controller
+class Basic extends Controller
 {
     public function get() {}
 

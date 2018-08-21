@@ -1,6 +1,6 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Ovide\Phest;
 
-use Ovide\Libs\Mvc\FunctionalTester;
+use Ovide\Phest\FunctionalTester;
 use Mocks\Controllers;
 
 class AcceptCest

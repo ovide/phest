@@ -1,8 +1,8 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Ovide\Phest;
 
 use Phalcon\Mvc\Micro\Collection;
 use Phalcon\Mvc\Micro;
-use Phalcon\Di\FactoryDefault;
+use Phalcon\DI\FactoryDefault;
 
 /**
  * @property Response $response
@@ -42,13 +42,6 @@ class App extends Micro
             }
             $dependencyInjector->setShared('response', Response::class);
             $dependencyInjector->setShared('router'  , Router::class);
-            if (!$dependencyInjector->has('eventsManager')) {
-                $dependencyInjector->setShared('eventsManager', \Phalcon\Events\Manager::class);
-            }
-            
-            if (!$dependencyInjector->has('request')) {
-                $dependencyInjector->setShared('request', \Phalcon\Http\Request::class);
-            }
             parent::__construct($dependencyInjector);
             self::$app = $this;
             $this->setEventsManager($dependencyInjector->getShared('eventsManager'));
@@ -151,7 +144,7 @@ class App extends Micro
         $col->setHandler($controller, true);
         $col->setPrefix($controller::PATH);
         $col->map("[/]?{id:$}", 'handle', $controller::PATH);
-        $col->map("/{id:$rx}[/]?", 'handle', $controller::PATH);
+        $col->map("/{id:($rx)}[/]?", 'handle', $controller::PATH);
         $this->mount($col);
     }
 

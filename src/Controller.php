@@ -1,4 +1,4 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Ovide\Phest;
 
 /**
  * Controller for REST applications
@@ -117,9 +117,9 @@ abstract class Controller extends \Phalcon\Mvc\Controller
 
         $acl = null;
 
-        if ($this->_dependencyInjector->has('acl')) {
+        if ($this->di->has('acl')) {
             /* @var $acl \Phalcon\Acl\Adapter\Memory */
-            $acl      = $this->_dependencyInjector->get('acl');
+            $acl      = $this->di->get('acl');
             $role     = $acl->getActiveRole();
             $resource = $acl->getActiveResource();
         }
@@ -174,7 +174,12 @@ abstract class Controller extends \Phalcon\Mvc\Controller
         if (!method_exists($this, $this->_curMethod)) {
             throw new Exception\MethodNotAllowed();
         }
-
+        $this->_eventsManager->fire('micro:beforeCall', $this, [
+            'route'  => static::PATH,
+            'method' => $this->_curMethod,
+            'id'     => $id,
+            'params' => $params,
+        ]);
         switch ($this->_curMethod) {
             case 'get':
                 break;

@@ -1,4 +1,4 @@
-<?php namespace Ovide\Libs\Mvc\Rest;
+<?php namespace Ovide\Phest;
 
 
 class Router extends \Phalcon\Mvc\Router implements \Serializable

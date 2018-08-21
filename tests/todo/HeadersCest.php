@@ -1,14 +1,14 @@
 <?php
 use \AcceptanceTester;
-use Ovide\Libs\Mvc\Rest;
 use Mocks\Controllers;
+use Ovide\Phest;
 
 class HeadersCest
 {
 
     public function _before(AcceptanceTester $I)
     {
-        Rest\App::addResources([
+        Phest\App::addResources([
             'basic/foo' => Controllers\Foo::class
         ]);
     }

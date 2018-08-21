@@ -1,8 +1,8 @@
 <?php namespace Mocks\Headers;
 
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest\Header\Handler;
 
-class InvalidRequestHeader extends Rest\Header\Handler
+class InvalidRequestHeader extends Handler
 {
 
     public function after() {

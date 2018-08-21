@@ -1,8 +1,8 @@
 <?php namespace Mocks\Controllers;
 
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest;
 
-class Foo extends Rest\Controller
+class Foo extends Phest\Controller
 {
     public static $data = [
         [
@@ -28,7 +28,7 @@ class Foo extends Rest\Controller
             throw new \Exception('Foo exception', 555);
         }
         if (!isset(self::$data[$id - 1])) {
-            throw new Rest\Exception\NotFound("$id not found");
+            throw new Phest\Exception\NotFound("$id not found");
         }
         return self::$data[$id-1];
     }
@@ -47,10 +47,10 @@ class Foo extends Rest\Controller
     public function delete($id)
     {
         if ($id < 1)
-            throw new Rest\Exception\InternalServerError();
+            throw new Phest\Exception\InternalServerError();
 
         if ($id == 1 || $id == 2)
-            throw new Rest\Exception\Forbidden('I need that resource for testing');
+            throw new Phest\Exception\Forbidden('I need that resource for testing');
 
         unset(self::$data[$id-1]);
     }
@@ -58,7 +58,7 @@ class Foo extends Rest\Controller
     public function put($id, $obj)
     {
         if (!isset($obj['name']) || !isset($obj['description']))
-            throw new Rest\Exception\BadRequest();
+            throw new Phest\Exception\BadRequest();
 
         self::$data[$id - 1] = [
             'id'          => $id - 1,

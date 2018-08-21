@@ -1,6 +1,6 @@
 <?php
 
-use Ovide\Libs\Mvc\Rest;
+use Ovide\Phest;
 use Mocks\Examples;
 
 $urx = '[a-z]*';
@@ -13,7 +13,7 @@ $tr = "$ur/\{$urx}/token";
 $ar = "$ur/\{$urx}/articles";
 $cr = "$ar/\{$arx}/comments";
 
-$app = Rest\App::instance();
+$app = Phest\App::instance();
 $app->addResource($ur, Examples\User::class, $urx);
 $app->addResource($tr, Examples\Token::class, $trx);
 $app->addResource($ar, Examples\Article::class, $arx);
@@ -30,7 +30,7 @@ $fooP = 'barbarbar';
 $I->wantTo("Create create a user $foo");
 
 $I->sendPOST('/users', ['username' => $foo, 'password' => 'bar']);
-$I->seeResponseCodeIs(Rest\Response::BAD_REQUEST);
+$I->seeResponseCodeIs(Phest\Response::BAD_REQUEST);
 $I->seeHttpHeader('Status', '400 Password too short');
 
 $I->sendPOST('/users', ['username' => $foo, 'password' => $fooP]);
