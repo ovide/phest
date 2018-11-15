@@ -158,6 +158,10 @@ class App extends Micro
         if (isset(static::$app->_handlers[$headerHandler::HEADER])) {
             static::$app->_eventsManager->detach('micro', static::$app->_handlers[$headerHandler::HEADER]);
         }
+        if (!is_object($headerHandler)) {
+            $headerHandler = new $headerHandler(static::$app->_dependencyInjector->getShared('request'));
+            $headerHandler->init();
+        }
         static::$app->_handlers[$headerHandler::HEADER] = $headerHandler;
         static::$app->_eventsManager->attach('micro', $headerHandler);
     }
