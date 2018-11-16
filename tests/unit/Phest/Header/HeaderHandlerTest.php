@@ -58,7 +58,7 @@ class HeaderHandlerTest extends \Codeception\TestCase\Test
         $header->setConfig('bar', 'var');
 
         $this->assertEquals([Mocks\Headers\Basic::HEADER => ['bar' => 'var']],
-                PHPUnit_Framework_Assert::readAttribute($app, '_config'));
+                PHPUnit\Framework\Assert::readAttribute($app, '_config'));
     }
 
     /**
